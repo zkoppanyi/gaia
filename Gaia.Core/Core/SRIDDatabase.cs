@@ -56,13 +56,13 @@ namespace Gaia.Core
             }
         }
 
-        public void Init(String filename)
+        public void Init(Stream stream)
         {
             database = new Dictionary<int, IInfo>();
 
             try
             {
-                using (System.IO.StreamReader sr = System.IO.File.OpenText(filename))
+                using (System.IO.StreamReader sr = new StreamReader(stream))
                 {
                     while (!sr.EndOfStream)
                     {

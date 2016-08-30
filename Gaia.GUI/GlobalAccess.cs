@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 using Gaia.Core;
 using Gaia.Core.Import;
 using Gaia.GUI.Dialogs;
+using System.Reflection;
 
 namespace Gaia.GUI
 {
@@ -30,7 +31,7 @@ namespace Gaia.GUI
             Importers.Add(new CoordinatesImporter(GlobalAccess.Project));
             Importers.Add(new RTKLibPosImporter(GlobalAccess.Project));
 
-            SRIDDatabase.Instance.Init("srid.csv");
+            SRIDDatabase.Instance.Init(Assembly.GetExecutingAssembly().GetManifestResourceStream("Gaia.srid.txt"));
         }
 
         public static Project Project { get; set; }
