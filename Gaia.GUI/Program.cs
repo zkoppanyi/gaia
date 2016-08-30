@@ -6,6 +6,7 @@ using System.Windows.Forms;
 
 using Gaia;
 using Gaia.GaiaSystem;
+using Gaia.Excpetions;
 
 namespace Gaia.GUI
 {
@@ -21,8 +22,20 @@ namespace Gaia.GUI
             Application.SetCompatibleTextRenderingDefault(false);
             MainForm mainForm = new MainForm();
             ConsoleMessanger console = new ConsoleMessanger(mainForm);
-            GlobalAccess.Init(mainForm, console);
+
+            try
+            {
+                GlobalAccess.Init(mainForm, console);
+            }
+            catch (GaiaAssertException ex)
+            {
+                String msg = "Error during starting the application: " + ex.Message;
+                MessageBox.Show(mainForm, msg, "Error during starting the application", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+
             Application.Run(mainForm);
+
+
         }
     }
 }
