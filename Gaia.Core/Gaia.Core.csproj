@@ -1,0 +1,104 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="14.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{A2A2B871-EFF8-4F10-BCF8-15705295AFDC}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>Gaia.Core</RootNamespace>
+    <AssemblyName>Gaia.Core</AssemblyName>
+    <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="MathNet.Numerics">
+      <HintPath>..\3rdParty\MathNet.Numerics.3.12.0\lib\net35\MathNet.Numerics.dll</HintPath>
+    </Reference>
+    <Reference Include="ProjNet">
+      <HintPath>..\3rdParty\ProjNet.1.2\ProjNet.dll</HintPath>
+    </Reference>
+    <Reference Include="System" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="System.Data.DataSetExtensions" />
+    <Reference Include="Microsoft.CSharp" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Net.Http" />
+    <Reference Include="System.Xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="Core\GaiaObject.cs" />
+    <Compile Include="Core\GaiaSpatialObject.cs" />
+    <Compile Include="Core\IMessanger.cs" />
+    <Compile Include="Core\IMessangerSender.cs" />
+    <Compile Include="Core\SRIDDatabase.cs" />
+    <Compile Include="Core\WorkerMessanger.cs" />
+    <Compile Include="DataStreamManager.cs" />
+    <Compile Include="DataStreams\CoordinateAttitudeDataLine.cs" />
+    <Compile Include="DataStreams\CoordinateAttitudeDataStream.cs" />
+    <Compile Include="DataStreams\CoordinateDataLine.cs" />
+    <Compile Include="DataStreams\CoordinateDataStream.cs" />
+    <Compile Include="DataStreams\DataLine.cs" />
+    <Compile Include="DataStreams\DataStream.cs" />
+    <Compile Include="DataStreams\GPoint.cs" />
+    <Compile Include="DataStreams\GPSLogDataLine.cs" />
+    <Compile Include="DataStreams\GPSLogDataStream.cs" />
+    <Compile Include="DataStreams\IMUDataLine.cs" />
+    <Compile Include="DataStreams\IMUDataStream.cs" />
+    <Compile Include="DataStreams\UWBDataLine.cs" />
+    <Compile Include="DataStreams\UWBDataStream.cs" />
+    <Compile Include="Exceptions\GaiaAssertException.cs" />
+    <Compile Include="Exceptions\GaiaException.cs" />
+    <Compile Include="Import\Coordinates\CoordinatesImporter.cs" />
+    <Compile Include="Import\Coordinates\RTKLibPosImporter.cs" />
+    <Compile Include="Import\GPSLogImporter.cs" />
+    <Compile Include="Import\Importer.cs" />
+    <Compile Include="Import\IMU\IMUEpsonLogImporter.cs" />
+    <Compile Include="Import\IMU\IMUImporter.cs" />
+    <Compile Include="Import\IMU\IMUMicroStrainLogImporter.cs" />
+    <Compile Include="Import\IMU\IMUTextImporter.cs" />
+    <Compile Include="Import\PointsImporter.cs" />
+    <Compile Include="Import\UWB\UWBImporter.cs" />
+    <Compile Include="Import\UWB\UWBStandardImporter.cs" />
+    <Compile Include="Algorithm.cs" />
+    <Compile Include="Processing\CoordinateTransformer.cs" />
+    <Compile Include="Processing\EarthParameters.cs" />
+    <Compile Include="Processing\EvaluateProcessing.cs" />
+    <Compile Include="Processing\IClockErrorModel.cs" />
+    <Compile Include="Processing\IMUProcessing.cs" />
+    <Compile Include="Processing\Statistics.cs" />
+    <Compile Include="Processing\Utilities.cs" />
+    <Compile Include="Processing\UWBProcessing.cs" />
+    <Compile Include="Project.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="ReferenceFrames\CRS.cs" />
+    <Compile Include="ReferenceFrames\TRS.cs" />
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+</Project>

@@ -1,0 +1,273 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="14.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{A89537FC-177B-4A57-9318-2D87085E46D7}</ProjectGuid>
+    <OutputType>WinExe</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>Gaia</RootNamespace>
+    <AssemblyName>Gaia</AssemblyName>
+    <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="MathNet.Numerics, Version=3.12.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\MathNet.Numerics.3.12.0\lib\net40\MathNet.Numerics.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="ProjNet">
+      <HintPath>..\3rdParty\ProjNet.1.2\ProjNet.dll</HintPath>
+    </Reference>
+    <Reference Include="System" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Numerics" />
+    <Reference Include="System.Windows.Forms.DataVisualization" />
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="System.Data.DataSetExtensions" />
+    <Reference Include="Microsoft.CSharp" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Deployment" />
+    <Reference Include="System.Drawing" />
+    <Reference Include="System.Net.Http" />
+    <Reference Include="System.Windows.Forms" />
+    <Reference Include="System.Xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="ConsoleMessanger.cs" />
+    <Compile Include="Dialogs\CalculateValueDlg.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Dialogs\CalculateValueDlg.Designer.cs">
+      <DependentUpon>CalculateValueDlg.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Dialogs\Console.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Dialogs\Console.Designer.cs">
+      <DependentUpon>Console.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Dialogs\DataStreamDlg.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Dialogs\DataStreamDlg.Designer.cs">
+      <DependentUpon>DataStreamDlg.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Dialogs\DataViewDlg.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Dialogs\DataViewDlg.Designer.cs">
+      <DependentUpon>DataViewDlg.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Dialogs\FigureSeriresSelectorDlg.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Dialogs\FigureSeriresSelectorDlg.Designer.cs">
+      <DependentUpon>FigureSeriresSelectorDlg.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Dialogs\GaiaDataSeries.cs" />
+    <Compile Include="Dialogs\ImportDlg.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Dialogs\ImportDlg.Designer.cs">
+      <DependentUpon>ImportDlg.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Dialogs\NewProjectDlg.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Dialogs\NewProjectDlg.Designer.cs">
+      <DependentUpon>NewProjectDlg.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Dialogs\PointDlg.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Dialogs\PointDlg.Designer.cs">
+      <DependentUpon>PointDlg.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Dialogs\ProgressBarDlg.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Dialogs\ProgressBarDlg.Designer.cs">
+      <DependentUpon>ProgressBarDlg.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Dialogs\PropertiesDlg.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Dialogs\PropertiesDlg.Designer.cs">
+      <DependentUpon>PropertiesDlg.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Dialogs\FigureDlg.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Dialogs\FigureDlg.Designer.cs">
+      <DependentUpon>FigureDlg.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Dialogs\TransformerDialog.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Dialogs\TransformerDialog.Designer.cs">
+      <DependentUpon>TransformerDialog.cs</DependentUpon>
+    </Compile>
+    <Compile Include="GlobalAccess.cs" />
+    <Compile Include="MainForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="MainForm.Designer.cs">
+      <DependentUpon>MainForm.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Program.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <EmbeddedResource Include="Dialogs\CalculateValueDlg.resx">
+      <DependentUpon>CalculateValueDlg.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Dialogs\Console.resx">
+      <DependentUpon>Console.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Dialogs\DataStreamDlg.resx">
+      <DependentUpon>DataStreamDlg.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Dialogs\DataViewDlg.resx">
+      <DependentUpon>DataViewDlg.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Dialogs\FigureSeriresSelectorDlg.resx">
+      <DependentUpon>FigureSeriresSelectorDlg.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Dialogs\ImportDlg.resx">
+      <DependentUpon>ImportDlg.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Dialogs\NewProjectDlg.resx">
+      <DependentUpon>NewProjectDlg.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Dialogs\PointDlg.resx">
+      <DependentUpon>PointDlg.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Dialogs\ProgressBarDlg.resx">
+      <DependentUpon>ProgressBarDlg.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Dialogs\PropertiesDlg.resx">
+      <DependentUpon>PropertiesDlg.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Dialogs\FigureDlg.resx">
+      <DependentUpon>FigureDlg.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Dialogs\TransformerDialog.resx">
+      <DependentUpon>TransformerDialog.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="MainForm.resx">
+      <DependentUpon>MainForm.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Properties\Resources.resx">
+      <Generator>ResXFileCodeGenerator</Generator>
+      <LastGenOutput>Resources.Designer.cs</LastGenOutput>
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <Compile Include="Properties\Resources.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DependentUpon>Resources.resx</DependentUpon>
+      <DesignTime>True</DesignTime>
+    </Compile>
+    <None Include="packages.config" />
+    <None Include="Properties\DataSources\Gaia.DataStreams.GPoint.datasource" />
+    <None Include="Properties\DataSources\Gaia.DataStreams.IDataStream.datasource" />
+    <None Include="Properties\Settings.settings">
+      <Generator>SettingsSingleFileGenerator</Generator>
+      <LastGenOutput>Settings.Designer.cs</LastGenOutput>
+    </None>
+    <Compile Include="Properties\Settings.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DependentUpon>Settings.settings</DependentUpon>
+      <DesignTimeSharedInput>True</DesignTimeSharedInput>
+    </Compile>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="App.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\analysis.ico" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\cancel_button.ico" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\create_button.ico" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\database_button.ico" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\delete_database_button.ico" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\exclamation.ico" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\export_button.ico" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\folder_button.ico" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\help_button.ico" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\import_button.ico" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\import_database_button.ico" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\info_button.ico" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\info_button2.ico" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\locked.ico" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\ok_button.ico" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\refresh_button.ico" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\save_pencil_button.ico" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\settings_button.ico" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Gaia.Core\Gaia.Core.csproj">
+      <Project>{a2a2b871-eff8-4f10-bcf8-15705295afdc}</Project>
+      <Name>Gaia.Core</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+</Project>

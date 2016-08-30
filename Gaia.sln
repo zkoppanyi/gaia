@@ -1,0 +1,28 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Express 14 for Windows Desktop
+VisualStudioVersion = 14.0.24720.0
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Gaia.Core", "Gaia.Core\Gaia.Core.csproj", "{A2A2B871-EFF8-4F10-BCF8-15705295AFDC}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Gaia.GUI", "Gaia.GUI\Gaia.GUI.csproj", "{A89537FC-177B-4A57-9318-2D87085E46D7}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{A2A2B871-EFF8-4F10-BCF8-15705295AFDC}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A2A2B871-EFF8-4F10-BCF8-15705295AFDC}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A2A2B871-EFF8-4F10-BCF8-15705295AFDC}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A2A2B871-EFF8-4F10-BCF8-15705295AFDC}.Release|Any CPU.Build.0 = Release|Any CPU
+		{A89537FC-177B-4A57-9318-2D87085E46D7}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A89537FC-177B-4A57-9318-2D87085E46D7}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A89537FC-177B-4A57-9318-2D87085E46D7}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A89537FC-177B-4A57-9318-2D87085E46D7}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal
