@@ -135,7 +135,7 @@ namespace Gaia.DataStreams
                 }
 
                 // Estimate parameters
-                MathNet.Numerics.Tuple<double, double> p = Fit.Line(ydata, xdata);
+                Tuple<double, double> p = Fit.Line(ydata, xdata);
                 double a = p.Item1; // intercept
                 double b = p.Item2; // slope
                 double r2 = GoodnessOfFit.RSquared(xdata.Select(x => a + b * x), ydata);
