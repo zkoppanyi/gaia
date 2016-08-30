@@ -1,4 +1,4 @@
-﻿using Gaia.ReferenceFrames;
+﻿using Gaia.Core.ReferenceFrames;
 using ProjNet.CoordinateSystems;
 using System;
 using System.Collections.Generic;
@@ -7,7 +7,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Gaia.GaiaSystem
+namespace Gaia.Core
 {
     [Serializable]
     public class GaiaSpatialObject : GaiaObject

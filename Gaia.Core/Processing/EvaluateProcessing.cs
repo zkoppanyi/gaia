@@ -1,12 +1,13 @@
-﻿using Gaia.DataStreams;
-using Gaia.GaiaSystem;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Linq;
 using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
+
+using Gaia.Core;
+using Gaia.Core.DataStreams;
 
 namespace Gaia.Core.Processing
 {

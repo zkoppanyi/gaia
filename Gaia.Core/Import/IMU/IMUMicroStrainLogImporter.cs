@@ -3,12 +3,13 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using Gaia.DataStreams;
 using System.IO;
-using Gaia.GaiaSystem;
-using Gaia.Excpetions;
 
-namespace Gaia.Import
+using Gaia.Core.DataStreams;
+using Gaia.Core;
+using Gaia.Exceptions;
+
+namespace Gaia.Core.Import
 {
     [Serializable]
     public class IMUMicroStrainLogImporter : IMUTextImporter

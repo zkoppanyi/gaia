@@ -1,7 +1,4 @@
-﻿using Gaia.Core.Processing;
-using Gaia.DataStreams;
-using Gaia.GaiaSystem;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
@@ -11,6 +8,10 @@ using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+
+using Gaia.Core.Processing;
+using Gaia.Core.DataStreams;
+using Gaia.Core;
 
 namespace Gaia.GUI.Dialogs
 {

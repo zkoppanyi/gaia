@@ -289,7 +289,7 @@
             // 
             // iDataStreamBindingSource
             // 
-            this.iDataStreamBindingSource.DataSource = typeof(Gaia.DataStreams.DataStream);
+            this.iDataStreamBindingSource.DataSource = typeof(Gaia.Core.DataStreams.DataStream);
             // 
             // dataGridViewImageColumn1
             // 

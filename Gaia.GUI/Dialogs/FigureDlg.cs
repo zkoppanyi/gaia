@@ -1,5 +1,5 @@
-﻿using Gaia.DataStreams;
-using Gaia.Processing;
+﻿using Gaia.Core.DataStreams;
+using Gaia.Core.Processing;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;

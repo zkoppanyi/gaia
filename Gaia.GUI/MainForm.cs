@@ -10,14 +10,13 @@ using System.Windows.Forms;
 using System.IO;
 using System.Runtime.Serialization;
 using System.Runtime.Serialization.Formatters.Binary;
-
-using Gaia.ReferenceFrames;
-using Gaia.GaiaSystem;
-using Gaia.Import;
-using Gaia.DataStreams;
-using Gaia.Processing;
-using Gaia.GUI.Dialogs;
 using MathNet.Numerics;
+
+using Gaia.Core.ReferenceFrames;
+using Gaia.Core;
+using Gaia.Core.DataStreams;
+using Gaia.Core.Processing;
+using Gaia.GUI.Dialogs;
 
 namespace Gaia.GUI
 {

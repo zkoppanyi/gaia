@@ -1,9 +1,4 @@
-﻿using Gaia.Core.Processing;
-using Gaia.DataStreams;
-using Gaia.Excpetions;
-using Gaia.GaiaSystem;
-using Gaia.Processing;
-using MathNet.Numerics.LinearAlgebra;
+﻿using MathNet.Numerics.LinearAlgebra;
 using MathNet.Numerics.RootFinding;
 using System;
 using System.Collections.Generic;
@@ -14,6 +9,11 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+
+using Gaia.Core;
+using Gaia.Core.Processing;
+using Gaia.Core.DataStreams;
+using Gaia.Exceptions;
 
 namespace Gaia.GUI.Dialogs
 {

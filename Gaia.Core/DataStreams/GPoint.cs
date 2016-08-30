@@ -1,7 +1,4 @@
-﻿using Gaia.GaiaSystem;
-using Gaia.Processing;
-using Gaia.ReferenceFrames;
-using MathNet.Numerics.LinearAlgebra;
+﻿using MathNet.Numerics.LinearAlgebra;
 using ProjNet.CoordinateSystems;
 using System;
 using System.Collections.Generic;
@@ -10,7 +7,11 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Gaia.DataStreams
+using Gaia.Core;
+using Gaia.Core.Processing;
+using Gaia.Core.ReferenceFrames;
+
+namespace Gaia.Core.DataStreams
 {
     [Serializable]
     public enum GPointType

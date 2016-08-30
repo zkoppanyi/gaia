@@ -1,6 +1,4 @@
-﻿using Gaia.GaiaSystem;
-using Gaia.ReferenceFrames;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
@@ -12,6 +10,9 @@ using System.Runtime.Serialization.Formatters.Binary;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+
+using Gaia.Core;
+using Gaia.Core.ReferenceFrames;
 
 namespace Gaia.GUI.Dialogs
 {

@@ -1,5 +1,4 @@
-﻿using Gaia.Processing;
-using ProjNet.CoordinateSystems;
+﻿using ProjNet.CoordinateSystems;
 using System;
 using System.Collections.Generic;
 using System.Linq;

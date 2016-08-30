@@ -1,14 +1,15 @@
-﻿using Gaia.DataStreams;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.IO;
-using Gaia.GaiaSystem;
 using System.ComponentModel;
 
-namespace Gaia.Import
+using Gaia.Core;
+using Gaia.Core.DataStreams;
+
+namespace Gaia.Core.Import
 {
     [Serializable]
     public abstract class Importer : Algorithm

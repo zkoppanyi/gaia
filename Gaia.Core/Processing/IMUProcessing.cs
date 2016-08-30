@@ -1,14 +1,15 @@
-﻿using Gaia.DataStreams;
-using Gaia.Excpetions;
-using Gaia.GaiaSystem;
-using Gaia.Processing;
-using MathNet.Numerics.LinearAlgebra;
+﻿using MathNet.Numerics.LinearAlgebra;
 using ProjNet.CoordinateSystems;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+
+using Gaia.Exceptions;
+using Gaia.Core;
+using Gaia.Core.Processing;
+using Gaia.Core.DataStreams;
 
 namespace Gaia.Core.Processing
 {

@@ -1,13 +1,15 @@
-﻿using Gaia.DataStreams;
-using Gaia.Import;
-using Gaia.Processing;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Gaia
+using Gaia.Core.DataStreams;
+using Gaia.Exceptions;
+using Gaia.Core.Import;
+using Gaia.Core.Processing;
+
+namespace Gaia.Core
 {
 
     public sealed partial class Project
@@ -29,7 +31,10 @@ namespace Gaia
             public DataStream ImportDataStream(String resourceLocation, Importer importer)
             {
                 DataStream stream = this.CreateDataStream(importer.GetDataStreamType());
-                if (stream == null) return null;
+                if ((stream == null) && (importer.Name != "Point Importer"))
+                {
+                    throw new GaiaAssertException("Importer is not found!");
+                }
 
                 importer.SetProject(project);
                 if (importer.Import(resourceLocation, stream) == AlgorithmResult.Failure)

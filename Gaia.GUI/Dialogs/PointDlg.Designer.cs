@@ -283,11 +283,11 @@
             // 
             // gPointBindingSource
             // 
-            this.gPointBindingSource.DataSource = typeof(Gaia.DataStreams.GPoint);
+            this.gPointBindingSource.DataSource = typeof(Gaia.Core.DataStreams.GPoint);
             // 
             // gPointBindingSource1
             // 
-            this.gPointBindingSource1.DataSource = typeof(Gaia.DataStreams.GPoint);
+            this.gPointBindingSource1.DataSource = typeof(Gaia.Core.DataStreams.GPoint);
             // 
             // pointTypeDataGridViewTextBoxColumn
             // 

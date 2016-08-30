@@ -3,14 +3,15 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using Gaia.DataStreams;
 using System.IO;
-using Gaia.Excpetions;
-using Gaia.ReferenceFrames;
-using Gaia.GaiaSystem;
 using System.ComponentModel;
 
-namespace Gaia.Import
+using Gaia.Core.DataStreams;
+using Gaia.Exceptions;
+using Gaia.Core.ReferenceFrames;
+using Gaia.Core;
+
+namespace Gaia.Core.Import
 {
     public sealed class PointsImporter : Importer
     {
@@ -134,7 +135,7 @@ namespace Gaia.Import
                             point.CRS = this.SetCRS;
                             point.TRS = this.SetTRS;
 
-                            if (!project.AddPoint(point))
+                            if (!project.PointManager.AddPoint(point))
                             {
                                 messanger.Write("The following point is already exist: " + ID + " Cannot be added to the point list!");
                             }

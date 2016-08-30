@@ -3,14 +3,15 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using Gaia.Import;
-using Gaia.ReferenceFrames;
-using Gaia.Processing;
 using System.Collections;
 using System.IO;
 using System.ComponentModel;
 
-namespace Gaia.DataStreams
+using Gaia.Core.Import;
+using Gaia.Core.ReferenceFrames;
+using Gaia.Core.Processing;
+
+namespace Gaia.Core.DataStreams
 {
     [Serializable]
     public sealed class IMUDataStream : DataStream

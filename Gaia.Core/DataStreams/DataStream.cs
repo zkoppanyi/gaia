@@ -3,16 +3,17 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-
-using Gaia.ReferenceFrames;
-using Gaia.Import;
 using System.Collections;
 using System.IO;
-using Gaia.Excpetions;
-using Gaia.GaiaSystem;
 using System.ComponentModel;
 
-namespace Gaia.DataStreams
+using Gaia.Exceptions;
+using Gaia.Core;
+using Gaia.Core.ReferenceFrames;
+using Gaia.Core.Import;
+
+
+namespace Gaia.Core.DataStreams
 {
     public enum DataStreamType
     {

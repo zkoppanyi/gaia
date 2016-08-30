@@ -1,12 +1,13 @@
-﻿using Gaia.Excpetions;
-using Gaia.GaiaSystem;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Gaia.Processing
+using Gaia.Exceptions;
+using Gaia.Core;
+
+namespace Gaia.Core.Processing
 {
     /// <summary>
     /// Calculate statitics

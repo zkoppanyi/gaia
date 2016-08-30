@@ -5,9 +5,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-using Gaia.ReferenceFrames;
+using Gaia.Core.ReferenceFrames;
 
-namespace Gaia.DataStreams
+namespace Gaia.Core.DataStreams
 {
     [Serializable]
     public class IMUDataLine : DataLine

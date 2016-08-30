@@ -1,7 +1,4 @@
-﻿using Gaia.DataStreams;
-using Gaia.GaiaSystem;
-using Gaia.ReferenceFrames;
-using ProjNet.CoordinateSystems.Transformations;
+﻿using ProjNet.CoordinateSystems.Transformations;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -12,6 +9,10 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+
+using Gaia.Core.DataStreams;
+using Gaia.Core;
+using Gaia.Core.ReferenceFrames;
 
 namespace Gaia.GUI.Dialogs
 {
@@ -82,7 +83,7 @@ namespace Gaia.GUI.Dialogs
             foreach (DataGridViewRow row in pointGridView.SelectedRows)
             {
                 GPoint pt = (GPoint)row.DataBoundItem;
-                GlobalAccess.Project.RemovePoint(pt.Name);
+                GlobalAccess.Project.PointManager.RemovePoint(pt.Name);
             }
 
             UpdateGridView();
@@ -154,7 +155,7 @@ namespace Gaia.GUI.Dialogs
         {
             GPoint pt = new GPoint(GlobalAccess.Project, "Unknown New Point");
             int pointId = 1;
-            while(!GlobalAccess.Project.AddPoint(pt))
+            while(!GlobalAccess.Project.PointManager.AddPoint(pt))
             {
                 pt.Name = "Unknown New Point " + pointId;
                 pointId++;

@@ -1,15 +1,16 @@
-﻿using Gaia.DataStreams;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using Gaia.GaiaSystem;
 using System.IO;
-using Gaia.Excpetions;
+using Gaia.Exceptions;
 using System.ComponentModel;
 
-namespace Gaia.Import
+using Gaia.Core.DataStreams;
+using Gaia.Core;
+
+namespace Gaia.Core.Import
 {
     public sealed class CoordinatesImporter : Importer
     {

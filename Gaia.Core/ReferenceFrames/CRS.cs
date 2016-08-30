@@ -5,7 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Gaia.ReferenceFrames
+namespace Gaia.Core.ReferenceFrames
 {
     [Serializable]
     public class CRS

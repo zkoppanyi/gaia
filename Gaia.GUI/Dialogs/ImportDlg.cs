@@ -1,9 +1,4 @@
-﻿using Gaia.Core;
-using Gaia.DataStreams;
-using Gaia.Import;
-using Gaia.Processing;
-using Gaia.ReferenceFrames;
-using ProjNet.CoordinateSystems;
+﻿using ProjNet.CoordinateSystems;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -14,6 +9,12 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+
+using Gaia.Core;
+using Gaia.Core.DataStreams;
+using Gaia.Core.Import;
+using Gaia.Core.Processing;
+using Gaia.Core.ReferenceFrames;
 
 namespace Gaia.GUI.Dialogs
 {
@@ -121,7 +122,7 @@ namespace Gaia.GUI.Dialogs
                 catch (Exception ex)
                 {
                     error = true;
-                    dlgProgress.Worker.Write("Cannot import the file. The problem: " + ex, "Cannot import", null, GaiaSystem.ConsoleMessageType.Error);
+                    dlgProgress.Worker.Write("Cannot import the file. The problem: " + ex, "Cannot import", null, Core.ConsoleMessageType.Error);
                 }
             });
             dlgProgress.ShowDialog();

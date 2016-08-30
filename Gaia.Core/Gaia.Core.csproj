@@ -82,6 +82,7 @@
     <Compile Include="Import\UWB\UWBImporter.cs" />
     <Compile Include="Import\UWB\UWBStandardImporter.cs" />
     <Compile Include="Algorithm.cs" />
+    <Compile Include="PointManager.cs" />
     <Compile Include="Processing\CoordinateTransformer.cs" />
     <Compile Include="Processing\EarthParameters.cs" />
     <Compile Include="Processing\EvaluateProcessing.cs" />

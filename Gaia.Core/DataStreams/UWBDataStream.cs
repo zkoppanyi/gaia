@@ -1,4 +1,4 @@
-﻿using Gaia.Excpetions;
+﻿using Gaia.Exceptions;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -7,7 +7,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Gaia.DataStreams
+namespace Gaia.Core.DataStreams
 {
     [Serializable]
     public sealed class UWBDataStream : DataStream
@@ -42,7 +42,7 @@ namespace Gaia.DataStreams
             base.AddDataLine(dataLine);
             UWBDataLine uwbDataLine = dataLine as UWBDataLine;
 
-            if (project.AddPoint(uwbDataLine.TargetPoint.ToString()))
+            if (project.PointManager.AddPoint(uwbDataLine.TargetPoint.ToString()))
             {
                 WriteMessage("New point has been created: " + uwbDataLine.TargetPoint);
             }

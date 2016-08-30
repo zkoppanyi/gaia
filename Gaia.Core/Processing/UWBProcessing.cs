@@ -1,5 +1,5 @@
-﻿using Gaia.DataStreams;
-using Gaia.GaiaSystem;
+﻿using Gaia.Core.DataStreams;
+using Gaia.Core;
 using MathNet.Numerics.LinearAlgebra;
 using MathNet.Numerics.RootFinding;
 using System;
@@ -9,7 +9,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Gaia.Processing
+namespace Gaia.Core.Processing
 {
     /// <summary>
     /// UWB trajectory calculation
@@ -172,7 +172,7 @@ namespace Gaia.Processing
             // Get the point from the project
             if (!pointList.ContainsKey(targetId))
             {
-                GPoint newTarget = this.project.GetPoint(targetId);
+                GPoint newTarget = this.project.PointManager.GetPoint(targetId);
 
                 // target is not in the point list, skip
                 if ((newTarget == null) || (newTarget.PointRole != GPointRole.Actived) || (newTarget.PointType != GPointType.Fixed))

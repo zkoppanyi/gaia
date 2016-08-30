@@ -3,16 +3,17 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using Gaia.ReferenceFrames;
 using System.IO;
 using System.Runtime.Serialization;
 using System.Runtime.Serialization.Formatters.Binary;
-using Gaia.Import;
-using Gaia.DataStreams;
-using Gaia.GaiaSystem;
-using Gaia.Processing;
 
-namespace Gaia
+using Gaia.Core.Import;
+using Gaia.Core.DataStreams;
+using Gaia.Core;
+using Gaia.Core.Processing;
+using Gaia.Core.ReferenceFrames;
+
+namespace Gaia.Core
 {
 
     [Serializable]
@@ -27,6 +28,9 @@ namespace Gaia
 
         private DataStreamManagerClass dataStreamManager = null;
         public DataStreamManagerClass DataStreamManager { get { return dataStreamManager; } }
+
+        private PointManagerClass pointManager = null;
+        public PointManagerClass PointManager { get { return pointManager; } }
 
         public IEnumerable<GPoint> PointsList
         {
@@ -57,6 +61,7 @@ namespace Gaia
             this.Location = location;
             CreateFolderStructure();
             dataStreamManager = new Project.DataStreamManagerClass(this);
+            pointManager = new Project.PointManagerClass(this);
         }
 
         public void Save()
@@ -136,58 +141,8 @@ namespace Gaia
         public TRS GetTimeFrameByName(String trsName)
         {
             return this.TimeFrames.Find(x => x.Name == trsName);
-        }
-
-        public bool DoesPointIdExist(String ptId)
-        {
-            GPoint ptf = this.points.Find(x => x.Name == ptId);
-            if (ptf == null) return false;
-            return true;
-        }
-
-        public bool AddPoint(GPoint pt)
-        {
-            if (!DoesPointIdExist(pt.Name))
-            {
-                points.Add( pt);
-                return true;
-            }
-            else
-            {
-                return false;
-            }
-        }
-
-        public bool AddPoint(String ptId)
-        {
-            if (!DoesPointIdExist(ptId))
-            {
-                GPoint pt = new GPoint(this, ptId);
-                pt.X = 0; pt.Y = 0; pt.Z = 0;
-                pt.PointType = GPointType.NA;
-                pt.CRS = null;
-                pt.TRS = this.TimeFrames[0];
-                points.Add(pt);
-                return true;
-            }
-            else
-            {
-                return false;
-
-            }
-        }
-
-        public GPoint GetPoint(string ptId)
-        {
-            return points.Find(x => x.Name == ptId);
-        }       
-
-        public void RemovePoint(String ptId)
-        {
-            GPoint pt = GetPoint(ptId);
-            if (pt != null)
-                this.points.Remove(pt);
-        }
+        }     
+       
 
 
     }

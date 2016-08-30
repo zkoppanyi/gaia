@@ -1,11 +1,12 @@
-﻿using Gaia.GaiaSystem;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Gaia
+using Gaia.Core;
+
+namespace Gaia.Core
 {
     public enum AlgorithmResult
     {

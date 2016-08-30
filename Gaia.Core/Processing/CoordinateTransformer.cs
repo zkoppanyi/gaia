@@ -1,7 +1,4 @@
-﻿using Gaia.DataStreams;
-using Gaia.GaiaSystem;
-using Gaia.ReferenceFrames;
-using ProjNet.CoordinateSystems;
+﻿using ProjNet.CoordinateSystems;
 using ProjNet.CoordinateSystems.Transformations;
 using System;
 using System.Collections.Generic;
@@ -9,7 +6,11 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Gaia.Processing
+using Gaia.Core.DataStreams;
+using Gaia.Core;
+using Gaia.Core.ReferenceFrames;
+
+namespace Gaia.Core.Processing
 {
     /// <summary>
     /// Performing coordinate transformations

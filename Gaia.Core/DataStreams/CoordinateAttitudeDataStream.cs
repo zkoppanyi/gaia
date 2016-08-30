@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Gaia.DataStreams
+namespace Gaia.Core.DataStreams
 {
     [Serializable]
     public sealed class CoordinateAttitudeDataStream : CoordinateDataStream

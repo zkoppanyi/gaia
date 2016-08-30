@@ -1,7 +1,4 @@
-﻿using Gaia.DataStreams;
-using Gaia.Excpetions;
-using Gaia.GaiaSystem;
-using Gaia.Processing;
+﻿using Gaia.Core.Processing;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -9,7 +6,11 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Gaia.Import
+using Gaia.Core.DataStreams;
+using Gaia.Exceptions;
+using Gaia.Core;
+
+namespace Gaia.Core.Import
 {
     public sealed class IMUEpsonLogImporter : IMUTextImporter
     {

@@ -3,13 +3,14 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using Gaia.DataStreams;
 using System.IO;
-using Gaia.Excpetions;
-using Gaia.GaiaSystem;
+using Gaia.Exceptions;
 using System.ComponentModel;
 
-namespace Gaia.Import
+using Gaia.Core.DataStreams;
+using Gaia.Core;
+
+namespace Gaia.Core.Import
 {
     public sealed class GPSLogImporter : Importer
     {

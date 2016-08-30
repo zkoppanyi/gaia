@@ -1,11 +1,12 @@
-﻿using Gaia.Excpetions;
-using ProjNet.CoordinateSystems;
+﻿using ProjNet.CoordinateSystems;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+
+using Gaia.Exceptions;
 
 namespace Gaia.Core
 {

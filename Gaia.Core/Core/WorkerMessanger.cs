@@ -5,7 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Gaia.GaiaSystem
+namespace Gaia.Core
 {
     public class ReportArgs
     {

@@ -5,7 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Gaia.DataStreams
+namespace Gaia.Core.DataStreams
 {
     public abstract class DataLine
     {

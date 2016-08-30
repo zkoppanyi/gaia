@@ -1,6 +1,6 @@
-﻿using Gaia.DataStreams;
-using Gaia.Excpetions;
-using Gaia.Processing;
+﻿using Gaia.Core.DataStreams;
+using Gaia.Exceptions;
+using Gaia.Core.Processing;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -242,7 +242,7 @@ namespace Gaia.GUI.Dialogs
                         }
                         catch (Exception ex)
                         {
-                            dlgProgress.Worker.Write("Cannot export datastream. The problem: " + ex, "Cannot export", null, GaiaSystem.ConsoleMessageType.Error);
+                            dlgProgress.Worker.Write("Cannot export datastream. The problem: " + ex, "Cannot export", null, Core.ConsoleMessageType.Error);
                         }
 
                     });

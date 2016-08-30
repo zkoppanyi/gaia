@@ -1,13 +1,14 @@
-﻿using Gaia.Excpetions;
-using Gaia.Processing;
-using MathNet.Numerics;
+﻿using MathNet.Numerics;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Gaia.DataStreams
+using Gaia.Exceptions;
+using Gaia.Core.Processing;
+
+namespace Gaia.Core.DataStreams
 {
     public enum GPSLogClockErrorModel
     {

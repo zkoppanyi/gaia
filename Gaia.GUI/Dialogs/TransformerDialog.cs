@@ -1,7 +1,7 @@
 ﻿using Gaia.Core;
-using Gaia.DataStreams;
-using Gaia.Processing;
-using Gaia.ReferenceFrames;
+using Gaia.Core.DataStreams;
+using Gaia.Core.Processing;
+using Gaia.Core.ReferenceFrames;
 using ProjNet.CoordinateSystems;
 using System;
 using System.Collections.Generic;

@@ -3,13 +3,13 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using Gaia.DataStreams;
+using Gaia.Core.DataStreams;
 using System.IO;
-using Gaia.Excpetions;
-using Gaia.GaiaSystem;
+using Gaia.Exceptions;
+using Gaia.Core;
 using System.ComponentModel;
 
-namespace Gaia.Import
+namespace Gaia.Core.Import
 {
     [Serializable]
     public class UWBStandardImporter : UWBImporter

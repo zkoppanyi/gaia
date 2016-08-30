@@ -5,8 +5,8 @@ using System.Threading.Tasks;
 using System.Windows.Forms;
 
 using Gaia;
-using Gaia.GaiaSystem;
-using Gaia.Excpetions;
+using Gaia.Core;
+using Gaia.Exceptions;
 
 namespace Gaia.GUI
 {
