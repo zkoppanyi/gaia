@@ -144,7 +144,15 @@ namespace Gaia.GUI.Dialogs
                 UWBProcessing proc = new UWBProcessing(GlobalAccess.Project, dlgProgress.Worker);
                 dlgProgress.Worker.DoWork += new DoWorkEventHandler(delegate (object sender1, DoWorkEventArgs e1)
                 {
-                    proc.CalculateTrajectory(dataStream as UWBDataStream);
+                    CoordinateDataStream output = GlobalAccess.Project.DataStreamManager.CreateDataStream(DataStreamType.CoordinateDataStream) as CoordinateDataStream;
+                    output.Name = dataStream.Name + " Trajectory";
+                    output.Description = "Trajectory calculated from " + dataStream.Name + " UWB data stream.";
+                    AlgorithmResult result = proc.CalculateTrajectory(dataStream as UWBDataStream, output);
+                    if ((result == AlgorithmResult.Failure) ||
+                        (result == AlgorithmResult.InputMissing))
+                    {
+                        GlobalAccess.Project.DataStreamManager.RemoveDataStream(output);
+                    }
                 });
                 dlgProgress.ShowDialog();
             }

@@ -21,33 +21,34 @@ namespace Gaia.Core.Processing
 
         private Vector<double> localTransformation = Vector<double>.Build.Dense(new double[] { 316210.749, 4254160.421, -25 });
 
-        public Vector<double> x0 = null;
-        //Vector<double> x0 = Vector<double>.Build.Dense(new double[] { 60.599796320494171, -48.144656783101361,  -1.277051451053118 });
+        //public Vector<double> x0 = null;
+        Vector<double> x0 = Vector<double>.Build.Dense(new double[] { 60.599796320494171, -48.144656783101361,  -1.277051451053118 });
 
         private const int bigNum = 100;
 
         public UWBProcessing(Project project, IMessanger messanger) : base(project, messanger)
         {
-            BufferSize = 20;
+            BufferSize = 10;
             MaxIterNum = 10;
         }
 
 
-        public AlgorithmResult CalculateTrajectory(UWBDataStream uwbDataStream)
+        public AlgorithmResult CalculateTrajectory(UWBDataStream uwbDataStream, CoordinateDataStream output)
         {
             uwbDataStream.Open();
             uwbDataStream.Begin();
 
-            TextWriter writer = File.CreateText("coor.txt");
+            output.Open();
+            output.Begin();
 
             List<UWBDataLine> buffer = new List<UWBDataLine>();
             Dictionary<string, GPoint> pointList = new Dictionary<string, GPoint>();
+
             while (!uwbDataStream.IsEOF())
             {
                 if (IsCanceled())
                 {
                     uwbDataStream.Close();
-                    writer.Close();
                     WriteMessage("Processing canceled");
                     return AlgorithmResult.Failure;
                 }
@@ -55,8 +56,7 @@ namespace Gaia.Core.Processing
                 UWBDataLine dataLine = uwbDataStream.ReadLine() as UWBDataLine;
                 buffer.Add(dataLine);
 
-                if ((x0 == null) && (buffer.Count == 3))
-                //if (buffer.Count == 3)
+                /*if ((x0 == null) && (buffer.Count == 3))
                 {
                     double[] sol = new double[] { 0, 0, 0 };
 
@@ -105,7 +105,7 @@ namespace Gaia.Core.Processing
                         buffer.Clear();
                     }
 
-                }
+                }*/
 
                 if ((buffer.Count >= BufferSize) && (x0 != null))
                 {
@@ -141,7 +141,7 @@ namespace Gaia.Core.Processing
                         iterNum++;
                     }
 
-                    if (dx.L2Norm() < 0.001)
+                    if (dx.L2Norm() < 1)
                     {
                         x0 = x0lse;
                         WriteMessage("LSE: " + x0[0].ToString("F3") + " " + x0[1].ToString("F3") + " " + x0[2].ToString("F3"));
@@ -149,18 +149,29 @@ namespace Gaia.Core.Processing
                     }
                     else
                     {
-                        x0 = null;
+                        //x0 = null;
                     }
 
                     buffer.Clear();
                 }
 
-                WriteProgress(uwbDataStream.GetPosition() / uwbDataStream.DataNumber * 100.0);
+                if (x0 != null)
+                {
+                    CoordinateDataLine outputDataLine = new CoordinateDataLine();
+                    outputDataLine.X = x0[0];
+                    outputDataLine.Y = x0[1];
+                    outputDataLine.Z = x0[2];
+                    output.AddDataLine(outputDataLine);
+                }
+
+                WriteProgress((double)uwbDataStream.GetPosition() / (double)uwbDataStream.DataNumber * 100.0);
             }
 
+
             WriteMessage("Done!");
+
+            output.Close();
             uwbDataStream.Close();
-            writer.Close();
 
             return AlgorithmResult.Sucess;
         }
