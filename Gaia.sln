@@ -7,6 +7,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Gaia.Core", "Gaia.Core\Gaia
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Gaia.GUI", "Gaia.GUI\Gaia.GUI.csproj", "{A89537FC-177B-4A57-9318-2D87085E46D7}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Gaia.Test", "Gaia.Test\Gaia.Test.csproj", "{5B9A8C49-495E-4123-BE3C-62564CC21A62}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -21,6 +23,10 @@ Global
 		{A89537FC-177B-4A57-9318-2D87085E46D7}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{A89537FC-177B-4A57-9318-2D87085E46D7}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{A89537FC-177B-4A57-9318-2D87085E46D7}.Release|Any CPU.Build.0 = Release|Any CPU
+		{5B9A8C49-495E-4123-BE3C-62564CC21A62}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{5B9A8C49-495E-4123-BE3C-62564CC21A62}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{5B9A8C49-495E-4123-BE3C-62564CC21A62}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{5B9A8C49-495E-4123-BE3C-62564CC21A62}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
