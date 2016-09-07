@@ -88,6 +88,7 @@
     <Compile Include="Processing\EvaluateProcessing.cs" />
     <Compile Include="Processing\IClockErrorModel.cs" />
     <Compile Include="Processing\IMUProcessing.cs" />
+    <Compile Include="Processing\Optimzers\LevenberMarquardtOptimzer.cs" />
     <Compile Include="Processing\Statistics.cs" />
     <Compile Include="Processing\Utilities.cs" />
     <Compile Include="Processing\UWBProcessing.cs" />
