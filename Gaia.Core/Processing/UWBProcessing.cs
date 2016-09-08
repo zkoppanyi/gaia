@@ -8,6 +8,7 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Gaia.Core.Processing.Optimzers;
 
 namespace Gaia.Core.Processing
 {
@@ -19,10 +20,10 @@ namespace Gaia.Core.Processing
         public int BufferSize { get; set; }
         public int MaxIterNum { get; set; }
 
-        private Vector<double> localTransformation = Vector<double>.Build.Dense(new double[] { 316210.749, 4254160.421, -25 });
+        //private Vector<double> localTransformation = Vector<double>.Build.Dense(new double[] { 316210.749, 4254160.421, -25 });
 
         //public Vector<double> x0 = null;
-        Vector<double> x0 = Vector<double>.Build.Dense(new double[] { 60.599796320494171, -48.144656783101361,  -1.277051451053118 });
+        Vector<double> x0 = Vector<double>.Build.Dense(new double[] { 59.0, 88.0, -1.7 });
 
         private const int bigNum = 100;
 
@@ -54,115 +55,61 @@ namespace Gaia.Core.Processing
                 }
 
                 UWBDataLine dataLine = uwbDataStream.ReadLine() as UWBDataLine;
-                buffer.Add(dataLine);
+                WriteProgress((double)uwbDataStream.GetPosition() / (double)uwbDataStream.DataNumber * 100);
 
-                /*if ((x0 == null) && (buffer.Count == 3))
+                if (getStationPoint(dataLine, pointList) != null)
                 {
-                    double[] sol = new double[] { 0, 0, 0 };
+                    buffer.Add(dataLine);
+                }
 
-                    //Vector<double> x0l = Vector<double>.Build.Dense(new double[] { 0, 0, 0 });
-                    //Vector<double> x0l = Vector<double>.Build.Dense(new double[] { 60.599796320494171, -48.144656783101361, -1.277051451053118 });
-
-                    Vector<double> x0l;
-                    if (x0 != null)
-                    {
-                        x0l = Vector<double>.Build.DenseOfVector(x0);
-                    }
-                    else
-                    {
-                        x0l = Vector<double>.Build.Dense(new double[] { 0, 0, 0 });
-                    }
-
-
-                    Broyden.TryFindRoot(new Func<double[], double[]>(
-                            delegate (double[] val)
-                            {
-                                double[] ret = new double[3] { bigNum, bigNum, bigNum };
-                                for (int i = 0; i < buffer.Count; i++)
-                                {
-                                    UWBDataLine meas = buffer[i];
-                                    var targetVect = getStationPoint(meas, pointList);
-                                    var valVect = Vector<double>.Build.DenseOfArray(val);
-                                    double d = Math.Sqrt(Math.Pow((valVect[0] - targetVect[0]), 2) +
-                                                       Math.Pow((valVect[1] - targetVect[1]), 2) +
-                                                       Math.Pow((valVect[2] - targetVect[2]), 2));
-                                    ret[i] = Math.Abs(d - meas.Distance);
-                                }
-
-                                return ret;
-                            }),
-                            x0l.ToArray(), 0.001, 100, out sol);
-
-                    if (sol != null)
-                    {
-                        x0 = Vector<double>.Build.DenseOfArray(sol);
-                        WriteMessage("NL: " + x0[0].ToString("F3") + " " + x0[1].ToString("F3") + " " + x0[2].ToString("F3"));
-                        writer.WriteLine(x0[0].ToString("F3") + " " + x0[1].ToString("F3") + " " + x0[2].ToString("F3"));
-                    }
-                    else
-                    {
-                        buffer.RemoveAt(0);
-                        buffer.Clear();
-                    }
-
-                }*/
 
                 if ((buffer.Count >= BufferSize) && (x0 != null))
                 {
-                    // Design matrix
-                    var A = Matrix<double>.Build.Dense(buffer.Count, 3);
-                    var l = Vector<double>.Build.Dense(buffer.Count);
-                    Vector<double> x0lse = Vector<double>.Build.DenseOfVector(x0);
-
-                   int iterNum = 0;
-                   Vector<double> dx = Vector<double>.Build.Dense(new double[] { bigNum, bigNum, bigNum });
-                   Vector<double> v = Vector<double>.Build.Dense(new double[] { bigNum, bigNum, bigNum });
-                    while ((dx.L2Norm() > 0.00001) && (iterNum <= MaxIterNum))
+                    Matrix<double> stations = Matrix<double>.Build.Dense(buffer.Count, 3);
+                    Vector<double> distances = Vector<double>.Build.Dense(buffer.Count);
+                    int buffer_item_index = 0;
+                    foreach (UWBDataLine line in buffer)
                     {
-                        for (int i = 0; i < buffer.Count; i++)
+                        Vector<double> targetCoor = getStationPoint(line, pointList);
+                        if (targetCoor != null)
                         {
-                            UWBDataLine meas = buffer[i];
-                            var targetVect = getStationPoint(meas, pointList);
-
-                            // Build design matrix
-                            double r0 = (x0 - targetVect).L2Norm();
-                            A[i, 0] = (targetVect[0] - x0lse[0]) / r0;
-                            A[i, 1] = (targetVect[1] - x0lse[1]) / r0;
-                            A[i, 2] = (targetVect[2] - x0lse[2]) / r0;
-                            l[i] = meas.Distance - r0;
+                            stations.SetRow(buffer_item_index, targetCoor);
+                            distances[buffer_item_index] = line.Distance;
+                            buffer_item_index++;
                         }
-
-                        // Solve the normal equation
-                        dx = (A.Transpose() * A).Solve(A.Transpose() * l);
-                        v = A * dx - l;
-                        x0 = x0 - dx;
-
-                        //Messanger.Write("x0: " + dx.ToString());                               
-                        iterNum++;
                     }
+                    
+                    Func<Vector<double>, Vector<double>> fn = new Func<Vector<double>, Vector<double>>(delegate (Vector<double> pos) {
+                        return ((stations.Column(0) - pos[0]).PointwisePower(2) +
+                        (stations.Column(1) - pos[1]).PointwisePower(2) +
+                        (stations.Column(2) - pos[2]).PointwisePower(2)).PointwisePower(0.5) - distances;
 
-                    if (dx.L2Norm() < 1)
+
+                    });
+
+                    LevenberMarquardtOptimzer optimizer = new LevenberMarquardtOptimzer();
+                    Vector<double> x0cand = optimizer.Run(fn, x0);
+
+                    if ((x0cand - x0).L2Norm() > 2)
                     {
-                        x0 = x0lse;
-                        WriteMessage("LSE: " + x0[0].ToString("F3") + " " + x0[1].ToString("F3") + " " + x0[2].ToString("F3"));
-                        
+                        optimizer.MaximumIterationNumber = 5000;
+                        x0cand = optimizer.Run(fn, x0);
                     }
-                    else
-                    {
-                        //x0 = null;
-                    }
+                    x0 = x0cand;
 
-                    buffer.Clear();
-                }
+                    double residual = fn(x0cand).L2Norm();
 
-                if (x0 != null)
-                {
+                    // Save the data
                     CoordinateDataLine outputDataLine = new CoordinateDataLine();
                     outputDataLine.X = x0[0];
                     outputDataLine.Y = x0[1];
                     outputDataLine.Z = x0[2];
+                    outputDataLine.Sigma = residual;
                     output.AddDataLine(outputDataLine);
-                }
+
+                    WriteMessage(x0.ToString());
+                    buffer.Clear();
+                }                 
 
                 WriteProgress((double)uwbDataStream.GetPosition() / (double)uwbDataStream.DataNumber * 100.0);
             }
@@ -173,6 +120,7 @@ namespace Gaia.Core.Processing
             output.Close();
             uwbDataStream.Close();
 
+            this.Project.Save();
             return AlgorithmResult.Sucess;
         }
 
@@ -196,7 +144,7 @@ namespace Gaia.Core.Processing
 
             // get the target point
             Vector<double> targetVect = pointList[targetId].ConvertToVector();
-            targetVect = targetVect - localTransformation; // translate to the local coordinate system
+            //targetVect = targetVect - localTransformation; // translate to the local coordinate system
             return targetVect;
         }
 

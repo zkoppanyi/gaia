@@ -9,9 +9,9 @@ namespace Gaia.Core.Processing.Optimzers
 {
     public class LevenberMarquardtOptimzer
     {
-        public double TolX = 1e-7;
+        public double TolX = 1e-4;
         public double TolY = 1e-7;
-        public int MaximumIterationNumber = 5000;
+        public int MaximumIterationNumber = 100;
 
         public LevenberMarquardtOptimzer()
         {

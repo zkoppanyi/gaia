@@ -66,10 +66,10 @@ namespace Gaia.GUI.Dialogs
             if (e.UserState is ReportArgs)
             {
                 ReportArgs msg = e.UserState as ReportArgs;
-                Invoke(new MethodInvoker(() =>
-                {
+                /*Invoke(new MethodInvoker(() =>
+                {*/
                     txtMessage.AppendText(msg.Message + Environment.NewLine);
-                }));
+                //}));
             }
         }
 
