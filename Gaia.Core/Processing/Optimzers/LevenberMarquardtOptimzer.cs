@@ -27,7 +27,9 @@ namespace Gaia.Core.Processing.Optimzers
             int lr = r.Count;
             int lx = x.Count;
 
-            Matrix<double> J = JacobianApproximator(fn, x);
+            double jepsx = TolX;
+
+            Matrix<double> J = JacobianApproximator(fn, x, jepsx);
             //Debug.WriteLine("Jacobian: " + J);
 
             int nfJ = 2;
@@ -99,7 +101,7 @@ namespace Gaia.Core.Processing.Optimzers
 
                     x = xd;
                     r = rd;
-                    J = JacobianApproximator(fn, x);
+                    J = JacobianApproximator(fn, x, jepsx);
 
                     nfJ = nfJ + 1;
                     A = J.Transpose() * J;
@@ -129,8 +131,7 @@ namespace Gaia.Core.Processing.Optimzers
             return false;
         }
 
-        double jepsx = 1e-7; // TODO: should be a vector for each parameter
-        public Matrix<double> JacobianApproximator(Func<Vector<double>, Vector<double>> fn, Vector<double> x)
+        public Matrix<double> JacobianApproximator(Func<Vector<double>, Vector<double>> fn, Vector<double> x, double jepsx)
         {
             int lx = x.Count;
             Vector<double> y = fn(x);

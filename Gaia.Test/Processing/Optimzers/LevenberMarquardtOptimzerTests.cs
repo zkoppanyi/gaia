@@ -61,6 +61,10 @@ namespace Gaia.Core.Processing.Optimzers.Tests
             Vector<double> initialGuess = Vector<double>.Build.DenseOfArray(new double[] { 1, 1 });
 
             LevenberMarquardtOptimzer optimizer = new LevenberMarquardtOptimzer();
+            optimizer.MaximumIterationNumber = 5000;
+            optimizer.TolX = 1e-7;
+            optimizer.TolY = 1e-7;
+
             Vector<double> solution = optimizer.Run(fn, initialGuess);
             Vector<double> solutionExpected = Vector<double>.Build.DenseOfArray(new double[] { 2.016903164731437, 2.999558707820020 });
             Vector<double> dr = solution - solutionExpected;
