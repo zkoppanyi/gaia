@@ -16,209 +16,69 @@ namespace Gaia.Core.Processing
 
     public class IMUProcessing : Algorithm
     {
+        public IMUDataStream SourceDataStream;
+        public CoordinateAttitudeDataStream OutputDataStream;
+
         [System.ComponentModel.DisplayName("Minimum time matching difference [s]")]
         public double TimeMatchingDifference { get; set; }
 
-        [System.ComponentModel.DisplayName("Time for calculating initialization [s]")]
-        public double InitilaizationTime { get; set; }
-
-        [System.ComponentModel.DisplayName("Threshold to detect first movement [m]")]
-        public double DetectFirstMovemnetThreshold { get; set; }
-
-        public IMUProcessing(Project project, IMessanger messanger) : base(project, messanger)
+        public static IMUProcessingFactory Factory
         {
-            TimeMatchingDifference = 1;
-            InitilaizationTime = 120;
-            DetectFirstMovemnetThreshold = 0.01;
+            get
+            {
+                return new IMUProcessingFactory();
+            }
         }
 
-        /// <summary>
-        /// Calculate initilaization parameters for IMU using coordinate stream
-        /// </summary>
-        /// <param name="imu">IMU stream</param>
-        /// <param name="coor">Coordinate stream</param>
-        /// <returns>Result object</returns>
-        public AlgorithmResult CalculateInitilazationWithCoordinates(IMUDataStream imu, CoordinateDataStream coor)
+        public class IMUProcessingFactory : AlgorithmFactory
         {
-            if (!imu.IsTimeStampOrdered)
+            public String Name { get { return "Evaulate an expression in data streams"; } }
+            public String Description { get { return "Evaulate an expression on data lines in stream."; } }
+
+            public IMUProcessing Create(Project project, IMessanger messanger, IMUDataStream sourceDataStream, CoordinateAttitudeDataStream outputDataStream)
             {
-                WriteMessage("The timestamps in the " + coor.Name + " dataset is not ordered by timestamp!");
-                return AlgorithmResult.Failure;
+                IMUProcessing algorithm = new IMUProcessing(project, messanger, Name, Description);
+                algorithm.SourceDataStream = sourceDataStream;
+                algorithm.OutputDataStream = outputDataStream;
+                return algorithm;
             }
-
-            if (!coor.IsTimeStampOrdered)
-            {
-                WriteMessage("The timestamps in the " + coor.Name + " dataset is not ordered by timestamp!");
-                return AlgorithmResult.Failure;
-            }
-
-            if (!(coor.CRS.GetCoordinateSystem() is GeographicCoordinateSystem))
-            { 
-                WriteMessage("The " + coor.Name + " data stream's coordinate system is not 3D! Choose a geographic coordinate system");
-                return AlgorithmResult.Failure;
-            }
-
-            if (coor.CRS.WKT != imu.CRS.WKT)
-            {
-                WriteMessage("The two data stream has to be in the same CRS!");
-                return AlgorithmResult.Failure;
-            }
-
-            imu.Open();
-            coor.Open();
-
-            imu.Begin();
-            coor.Begin();
-
-            // Start the first timestamps in both dataset
-            IMUDataLine imuLine = imu.ReadLine() as IMUDataLine;
-            CoordinateDataLine coorLine = coor.ReadLine() as CoordinateDataLine;
-            if (imuLine.TimeStamp > coorLine.TimeStamp)
-            {
-                while ((coorLine.TimeStamp <= imuLine.TimeStamp) && !coor.IsEOF())
-                {
-                    coorLine = coor.ReadLine() as CoordinateDataLine;
-                }
-            }
-            else if (imuLine.TimeStamp < coorLine.TimeStamp)
-            {
-                while ((imuLine.TimeStamp <= coorLine.TimeStamp) && !coor.IsEOF())
-                {
-                    imuLine = imu.ReadLine() as IMUDataLine;
-                }
-            }
-
-            if (Math.Abs(imuLine.TimeStamp - coorLine.TimeStamp) > this.TimeMatchingDifference)
-            {
-                String msg = "Minimum time difference between starting IMU and coordinate stream is higher than the threshold: " + this.TimeMatchingDifference;
-                WriteMessage(msg);
-                return AlgorithmResult.Failure;
-            }
-
-            // Calculate initial accelerations and roll and pitch
-            double mean_ax = 0, mean_ay = 0, mean_az = 0;
-            long data_num = 0;
-            double initEnd = imuLine.TimeStamp + InitilaizationTime;
-            while ((imuLine.TimeStamp <= initEnd) && !coor.IsEOF())
-            {
-                imuLine = imu.ReadLine() as IMUDataLine;
-                mean_ax += imuLine.Ax;
-                mean_ay += imuLine.Ay;
-                mean_az += imuLine.Az;
-                data_num++;
-            }
-
-            if ((Math.Abs(imuLine.TimeStamp - initEnd) > this.TimeMatchingDifference) || coor.IsEOF())
-            {
-                String msg = "Minimum time difference between the last IMU and the end of the initilization periods is higher than the threshold: " + this.TimeMatchingDifference;
-                WriteMessage(msg);
-                return AlgorithmResult.Failure;
-            }
-
-            mean_ax /= data_num;
-            mean_ay /= data_num;
-            mean_az /= data_num;
-
-            double roll = Math.Atan2(mean_ay, mean_az) - Math.PI;
-            double r = Math.Sqrt(mean_ax * mean_ax + mean_ay * mean_ay + mean_az * mean_az);
-            double pitch = Math.Asin(mean_ax / r);
-
-            // Find first movement
-            GPoint lastPoint = coor.ReadDataLineAsGPoint();
-            GPoint currPoint = lastPoint;
-            GPoint nextPoint = lastPoint;
-            bool isFound = false;
-            while ((coorLine.TimeStamp <= initEnd) && !coor.IsEOF())
-            {
-                currPoint = coor.ReadDataLineAsGPoint();
-                double dr = Utilities.L2Distance2d(lastPoint, currPoint);
-                if (dr > this.DetectFirstMovemnetThreshold )
-                {
-                    isFound = true;
-                    nextPoint = currPoint;
-                    currPoint = lastPoint;
-                    break;
-                }
-                lastPoint = currPoint;
-            }
-
-            if (!isFound)
-            {
-                String msg = "First movement in " + coor.Name + " stream is not found! Threshold: " + this.DetectFirstMovemnetThreshold;
-                WriteMessage(msg);
-                return AlgorithmResult.Failure;
-            }
-
-            WriteMessage("First movement detected!");
-            WriteMessage("Index: " + coor.GetPosition());
-            WriteMessage("Timestamp: " + currPoint.Timestamp);
-            WriteProgress(50);
-
-            imu.Close();
-            coor.Close();
-
-            GeographicCoordinateSystem crs = coor.CRS.GetCoordinateSystem() as GeographicCoordinateSystem;
-            double a = crs.HorizontalDatum.Ellipsoid.SemiMajorAxis;
-            double b = crs.HorizontalDatum.Ellipsoid.SemiMinorAxis;
-            double e2 = 1 - (b * b) / (a * a);
-
-            double lambda = (1 - e2) * (Math.Tan(nextPoint.LatRad) / Math.Tan(currPoint.LatRad)) + e2 * Math.Sqrt(((1 + ((1 - e2) * Math.Pow((Math.Tan(nextPoint.LatRad)), 2)))) / ((1 + ((1 - e2) * Math.Pow((Math.Tan(currPoint.LatRad)), 2)))));
-            double azimuth = Math.Atan2(Math.Sin(nextPoint.LonRad - currPoint.LonRad), (lambda - Math.Cos(nextPoint.LonRad - currPoint.LonRad)) * Math.Sin(currPoint.LatRad));
-
-            imu.StartTime = currPoint.Timestamp;
-            imu.InitialHeading = Utilities.ConvertRadToDeg(azimuth);
-            imu.InitialPitch = Utilities.ConvertRadToDeg(pitch);
-            imu.InitialRoll = Utilities.ConvertRadToDeg(roll);
-
-            // TODO: leverarm offset
-            imu.InitialX = currPoint.X;
-            imu.InitialY = currPoint.Y;
-            imu.InitialZ = currPoint.Z;
-
-            WriteMessage("");
-            WriteMessage("Solution ");
-            WriteMessage("--------------");
-            WriteMessage("Start time        [s]: " + imu.StartTime);
-            WriteMessage("Initial heading [deg]: " + imu.InitialHeading);
-            WriteMessage("Initial pitch   [deg]: " + imu.InitialPitch);
-            WriteMessage("Initial roll    [deg]: " + imu.InitialRoll);
-            WriteMessage("Initial X ECEF    [m]: " + imu.InitialX);
-            WriteMessage("Initial Y ECEF    [m]: " + imu.InitialY);
-            WriteMessage("Initial Z ECEF    [m]: " + imu.InitialZ);
-            WriteMessage("Initial Lat     [deg]: " + currPoint.Lat);
-            WriteMessage("Initial Lon     [deg]: " + currPoint.Lon);
-            WriteMessage("Initial Lat     [dms]: " + currPoint.LatDMS);
-            WriteMessage("Initial Lon     [dms]: " + currPoint.LonDMS);
-            WriteMessage("Initial H         [m]: " + currPoint.H);
-            WriteProgress(100);
-
-            this.Project.Save();
-            return AlgorithmResult.Sucess;
         }
-        
 
+        private IMUProcessing(Project project, IMessanger messanger, String name, String description) : base(project, messanger, name, description)
+        {
+            TimeMatchingDifference = 1;            
+        }
+       
         /// <summary>
         /// Calculate positions, velocities and attitudes. 
         /// </summary>
-        /// <param name="imu">IMU data stream</param>
-        /// <param name="output">Output data stream</param>
         /// <returns>Result object</returns>
-        public AlgorithmResult CalculateTrajectory(IMUDataStream imu, CoordinateAttitudeDataStream output)
+        public override AlgorithmResult Run()
         {
+            if (SourceDataStream == null)
+            {
+                new GaiaAssertException("IMU data stream is null!");
+            }
+
+            if (OutputDataStream == null)
+            {
+                new GaiaAssertException("Output data stream is null!");
+            }
+
             // Parameter checking...
-            if (imu.IsTimeStampOrdered == false)
+            if (SourceDataStream.IsTimeStampOrdered == false)
             {
-                WriteMessage("The " + imu.Name + " is not ordered by timestamp!");
+                WriteMessage("The " + SourceDataStream.Name + " is not ordered by timestamp!");
                 return AlgorithmResult.Failure;
             }
 
-            if (!(imu.CRS.GetCoordinateSystem() is GeographicCoordinateSystem))
+            if (!(SourceDataStream.CRS.GetCoordinateSystem() is GeographicCoordinateSystem))
             {
-                WriteMessage("The " + imu.Name + " data stream's coordinate system is not 3D! Choose a geographic coordinate system!");
+                WriteMessage("The " + SourceDataStream.Name + " data stream's coordinate system is not 3D! Choose a geographic coordinate system!");
                 return AlgorithmResult.Failure;
             }
 
-            if ((imu.InitialX == 0) && (imu.InitialY == 0) && ((imu.InitialX == 0)))
+            if ((SourceDataStream.InitialX == 0) && (SourceDataStream.InitialY == 0) && ((SourceDataStream.InitialX == 0)))
             {
                 WriteMessage("Initial position is unknown!");
                 return AlgorithmResult.Failure;
@@ -227,26 +87,26 @@ namespace Gaia.Core.Processing
 
             // *** Seek for the begining
             WriteMessage("Seek to the begining...");
-            WriteMessage("Start time: " + imu.StartTime);
-            imu.Open();
-            imu.Begin();
+            WriteMessage("Start time: " + SourceDataStream.StartTime);
+            SourceDataStream.Open();
+            SourceDataStream.Begin();
             double prevTimeStamp = 0;
-            if (imu.StartTime != 0)
+            if (SourceDataStream.StartTime != 0)
             {
                 IMUDataLine data = null;
-                while (!imu.IsEOF())
+                while (!SourceDataStream.IsEOF())
                 {
-                    data = imu.ReadLine() as IMUDataLine;
-                    WriteProgress((double)imu.GetPosition() / (double)imu.DataNumber * 100.0);
+                    data = SourceDataStream.ReadLine() as IMUDataLine;
+                    WriteProgress((double)SourceDataStream.GetPosition() / (double)SourceDataStream.DataNumber * 100.0);
 
-                    if (data.TimeStamp >= imu.StartTime)
+                    if (data.TimeStamp >= SourceDataStream.StartTime)
                     {
                         prevTimeStamp = data.TimeStamp;
                         break;
                     }
                 }
 
-                if (data == null || imu.IsEOF() || (Math.Abs(data.TimeStamp - imu.StartTime) > this.TimeMatchingDifference))
+                if (data == null || SourceDataStream.IsEOF() || (Math.Abs(data.TimeStamp - SourceDataStream.StartTime) > this.TimeMatchingDifference))
                 {
                     String msg = "Starting data is not found. The start time may not be correct. Threshold: " + this.TimeMatchingDifference;
                     WriteMessage(msg);
@@ -258,31 +118,31 @@ namespace Gaia.Core.Processing
             WriteMessage("Calculating...");
 
             // Initial values
-            GeographicCoordinateSystem crs = imu.CRS.GetCoordinateSystem() as GeographicCoordinateSystem;
-            EarthParameters eparam = EarthParameters.CreateWithXYZ(imu.InitialX, imu.InitialY, imu.InitialZ, crs);
+            GeographicCoordinateSystem crs = SourceDataStream.CRS.GetCoordinateSystem() as GeographicCoordinateSystem;
+            EarthParameters eparam = EarthParameters.CreateWithXYZ(SourceDataStream.InitialX, SourceDataStream.InitialY, SourceDataStream.InitialZ, crs);
             Vector<double> posn = Vector<double>.Build.DenseOfArray(new double[] { eparam.lat, eparam.lon, eparam.h });
 
-            double heading = Utilities.ConvertDegToRad(imu.InitialHeading);
-            double pitch = Utilities.ConvertDegToRad(imu.InitialPitch);
-            double roll = Utilities.ConvertDegToRad(imu.InitialRoll);
-            Vector<double> Vn = Vector<double>.Build.DenseOfArray(new double[] { imu.InitialVn, imu.InitialVe, imu.InitialVd });
+            double heading = Utilities.ConvertDegToRad(SourceDataStream.InitialHeading);
+            double pitch = Utilities.ConvertDegToRad(SourceDataStream.InitialPitch);
+            double roll = Utilities.ConvertDegToRad(SourceDataStream.InitialRoll);
+            Vector<double> Vn = Vector<double>.Build.DenseOfArray(new double[] { SourceDataStream.InitialVn, SourceDataStream.InitialVe, SourceDataStream.InitialVd });
             Vector<double> prh = Vector<double>.Build.DenseOfArray(new double[] { pitch, roll, heading});
             Matrix<double> Cbn = prh2dcm(prh);
             Vector<double> qbn = dcm2quat(Cbn);
 
-            output.Open();
-            while (!imu.IsEOF())
+            OutputDataStream.Open();
+            while (!SourceDataStream.IsEOF())
             {
                 if (IsCanceled())
                 {
-                    imu.Close();
-                    output.Close();
+                    SourceDataStream.Close();
+                    OutputDataStream.Close();
                     WriteMessage("Processing canceled!");
                     return AlgorithmResult.Failure;
                 }
 
-                IMUDataLine data = imu.ReadLine() as IMUDataLine;
-                WriteProgress((double)imu.GetPosition() / (double)imu.DataNumber * 100.0);
+                IMUDataLine data = SourceDataStream.ReadLine() as IMUDataLine;
+                WriteProgress((double)SourceDataStream.GetPosition() / (double)SourceDataStream.DataNumber * 100.0);
 
                 // Get data
                 double currentTimeStamp = data.TimeStamp;
@@ -313,13 +173,13 @@ namespace Gaia.Core.Processing
                 resultData.Heading = Utilities.ConvertRadToDeg(prh[2]);
                 resultData.AttitudeSigma = Utilities.Unknown;
 
-                output.AddDataLine(resultData);
-                output.CRS = imu.CRS;
-                output.TRS = imu.TRS; 
+                OutputDataStream.AddDataLine(resultData);
+                OutputDataStream.CRS = SourceDataStream.CRS;
+                OutputDataStream.TRS = SourceDataStream.TRS; 
             }
 
-            output.Close();
-            imu.Close();
+            OutputDataStream.Close();
+            SourceDataStream.Close();
 
             this.Project.Save();
             return AlgorithmResult.Sucess;

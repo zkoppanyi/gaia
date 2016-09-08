@@ -63,7 +63,35 @@ namespace Gaia.Core.Import
         [DisplayName("Separator")]
         public char Separator { get; set; }
 
-        public RTKLibPosImporter(Project project, IMessanger messanger=null) : base(project, messanger)
+        private String filePath;
+        private DataStream dataStream;
+
+        public static RTKLibPosImporterFactory Factory
+        {
+            get
+            { 
+                return new RTKLibPosImporterFactory();
+            }
+        }
+
+        public class RTKLibPosImporterFactory : ImporterFactory
+        {
+            public String Name { get { return "RTK Lib Position File Importer"; } }
+            public String Description { get { return "RTK Lib POS File"; } }
+
+            public DataStreamType GetDataStreamType()
+            {
+                return DataStreamType.CoordinateDataStream;
+            }
+
+            public Importer Create(string filePath, DataStream dataStream, Project project, IMessanger messanger=null)
+            {
+                RTKLibPosImporter importer = new RTKLibPosImporter(project, messanger, Name, Description, filePath, dataStream);
+                return importer;
+            }
+        }
+
+        private RTKLibPosImporter(Project project, IMessanger messanger, String name, String description, String filePath, DataStream dataStream) : base(project, messanger, name, description)
         {
             HeaderRowNo = 26;
             ColumnTimeStamp = 1;
@@ -72,36 +100,17 @@ namespace Gaia.Core.Import
             ColumnZ = 4;
             ColumnSigma = 14; // ratio
             Separator = ' ';
+            this.filePath = filePath;
+            this.dataStream = dataStream;
         }
-
-        public override DataStreamType GetDataStreamType()
-        {
-            return DataStreamType.CoordinateDataStream;
-        }
-
-
-        public override string Description
-        {
-            get
-            {
-                return "RTK Lib Position File Importer";
-            }
-        }
-
-        public override string Name
-        {
-            get
-            {
-                return "RTK Lib POS File ";
-            }
-        }
+    
 
         public override string SupportedFileFormats()
         {
             return "POS files (*.pos)|*.pos|All files (*.*)|*.*";
         }
 
-        public override AlgorithmResult Import(string filePath, DataStream dataStream)
+        public override AlgorithmResult Run()
         {
 
             if (project == null)

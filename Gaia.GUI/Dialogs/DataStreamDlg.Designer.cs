@@ -57,6 +57,7 @@
             this.iDataStreamBindingSource = new System.Windows.Forms.BindingSource(this.components);
             this.dataGridViewImageColumn1 = new System.Windows.Forms.DataGridViewImageColumn();
             this.dataGridViewImageColumn2 = new System.Windows.Forms.DataGridViewImageColumn();
+            this.updateOrderFlagToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.menuStripDataStream.SuspendLayout();
             this.toolStrip.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.dataStreamGridView)).BeginInit();
@@ -125,7 +126,8 @@
             // 
             this.calculateToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.iMUInitializationToolStripMenuItem,
-            this.calculateTrajectoryToolStripMenuItem});
+            this.calculateTrajectoryToolStripMenuItem,
+            this.updateOrderFlagToolStripMenuItem});
             this.calculateToolStripMenuItem.Name = "calculateToolStripMenuItem";
             this.calculateToolStripMenuItem.Size = new System.Drawing.Size(68, 20);
             this.calculateToolStripMenuItem.Text = "Calculate";
@@ -309,6 +311,13 @@
             this.dataGridViewImageColumn2.ReadOnly = true;
             this.dataGridViewImageColumn2.Width = 25;
             // 
+            // updateOrderFlagToolStripMenuItem
+            // 
+            this.updateOrderFlagToolStripMenuItem.Name = "updateOrderFlagToolStripMenuItem";
+            this.updateOrderFlagToolStripMenuItem.Size = new System.Drawing.Size(179, 22);
+            this.updateOrderFlagToolStripMenuItem.Text = "Update Order Flag";
+            this.updateOrderFlagToolStripMenuItem.Click += new System.EventHandler(this.updateOrderFlagToolStripMenuItem_Click);
+            // 
             // DataStreamDlg
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -360,5 +369,6 @@
         private System.Windows.Forms.ToolStripMenuItem importDataStreamToolStripMenuItem;
         private System.Windows.Forms.ToolStripSeparator toolStripSeparator2;
         private System.Windows.Forms.ToolStripMenuItem iMUInitializationToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem updateOrderFlagToolStripMenuItem;
     }
 }

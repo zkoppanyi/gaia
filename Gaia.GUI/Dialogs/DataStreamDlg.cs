@@ -141,13 +141,13 @@ namespace Gaia.GUI.Dialogs
             if (dataStream is UWBDataStream)
             {
                 ProgressBarDlg dlgProgress = new ProgressBarDlg();
-                UWBProcessing proc = new UWBProcessing(GlobalAccess.Project, dlgProgress.Worker);
                 dlgProgress.Worker.DoWork += new DoWorkEventHandler(delegate (object sender1, DoWorkEventArgs e1)
                 {
                     CoordinateDataStream output = GlobalAccess.Project.DataStreamManager.CreateDataStream(DataStreamType.CoordinateDataStream) as CoordinateDataStream;
+                    UWBProcessing proc = UWBProcessing.Factory.Create(GlobalAccess.Project, dlgProgress.Worker, dataStream as UWBDataStream, output);
                     output.Name = dataStream.Name + " Trajectory";
                     output.Description = "Trajectory calculated from " + dataStream.Name + " UWB data stream.";
-                    AlgorithmResult result = proc.CalculateTrajectory(dataStream as UWBDataStream, output);
+                    AlgorithmResult result = proc.Run();
                     if ((result == AlgorithmResult.Failure) ||
                         (result == AlgorithmResult.InputMissing))
                     {
@@ -160,13 +160,13 @@ namespace Gaia.GUI.Dialogs
             if (dataStream is IMUDataStream)
             {
                 ProgressBarDlg dlgProgress = new ProgressBarDlg();
-                IMUProcessing proc = new IMUProcessing(GlobalAccess.Project, dlgProgress.Worker);
                 dlgProgress.Worker.DoWork += new DoWorkEventHandler(delegate (object sender1, DoWorkEventArgs e1)
                 {
                     CoordinateAttitudeDataStream output = GlobalAccess.Project.DataStreamManager.CreateDataStream(DataStreamType.CoordinateAttitudeDataStream) as CoordinateAttitudeDataStream;
+                    IMUProcessing proc = IMUProcessing.Factory.Create(GlobalAccess.Project, dlgProgress.Worker, dataStream as IMUDataStream, output);
                     output.Name = dataStream.Name + " Trajectory";
                     output.Description = "Trajectory calculated from " + dataStream.Name + " IMU data stream.";
-                    AlgorithmResult result = proc.CalculateTrajectory(dataStream as IMUDataStream, output);
+                    AlgorithmResult result = proc.Run();
                     if ((result == AlgorithmResult.Failure) ||
                         (result == AlgorithmResult.InputMissing))
                     {
@@ -224,15 +224,21 @@ namespace Gaia.GUI.Dialogs
                     {
                         // Open Progressbar dialog
                         ProgressBarDlg dlgProgress = new ProgressBarDlg();
-                        IMUProcessing proc = new IMUProcessing(GlobalAccess.Project, dlgProgress.Worker);
                         dlgProgress.Worker.DoWork += new DoWorkEventHandler(delegate (object sender1, DoWorkEventArgs e1)
                         {
-                            proc.CalculateInitilazationWithCoordinates(imuStream, coorStream);
+                            CoordinateAttitudeDataStream outputStream = (CoordinateAttitudeDataStream)GlobalAccess.Project.DataStreamManager.CreateDataStream(DataStreamType.CoordinateAttitudeDataStream);
+                            IMUProcessing proc = IMUProcessing.Factory.Create(GlobalAccess.Project, dlgProgress.Worker, imuStream, outputStream);
+                            proc.Run();
                         });
                         dlgProgress.ShowDialog();
                     }
                 }
             }
+        }
+
+        private void updateOrderFlagToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+
         }
     }
 }

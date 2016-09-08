@@ -57,35 +57,45 @@ namespace Gaia.Core.Import
         [Browsable(false)]
         public TRS SetTRS { get; set; }
 
-        public PointsImporter(Project project, IMessanger messanger = null) : base(project, messanger)
+        private String filePath;
+        private DataStream dataStream;
+
+        public static PointsImporterFactory Factory
+        {
+            get
+            {
+                return new PointsImporterFactory();
+            }
+        }
+
+        public class PointsImporterFactory : ImporterFactory
+        {
+            public String Name { get { return "Point Importer"; } }
+            public String Description { get { return "Import points to point list from text file."; } }
+
+            public DataStreamType GetDataStreamType()
+            {
+                return DataStreamType.NoDataStream;
+            }
+
+            public Importer Create(string filePath, DataStream dataStream, Project project, IMessanger messanger = null)
+            {
+                PointsImporter importer = new PointsImporter(project, messanger, Name, Description, filePath, dataStream);
+                return importer;
+            }
+        }
+
+        private PointsImporter(Project project, IMessanger messanger, String name, String description, String filePath, DataStream dataStream) : base(project, messanger, name, description)
         {
             this.ColumnID = 0;
             this.ColumnX = 1;
             this.ColumnY = 2;
             this.ColumnZ = 3;
             this.Separator = ',';
-        }
-
-
-        public override DataStreamType GetDataStreamType()
-        {
-            return DataStreamType.NoDataStream;
-        }
-
-        public override string Description
-        {
-            get
-            {
-                return "Import points to point list from text file.";
-            }
-        }
-
-        public override string Name
-        {
-            get
-            {
-                return "Point Importer";
-            }
+            this.Name = name;
+            this.Description = description;
+            this.filePath = filePath;
+            this.dataStream = dataStream;
         }
 
         public override string SupportedFileFormats()
@@ -93,7 +103,7 @@ namespace Gaia.Core.Import
             return "TXT files (*.txt)|*.txt|CSV files (*.csv)|*.csv|All files (*.*)|*.*";
         }
 
-        public override AlgorithmResult Import(string filePath, DataStream dataStream) 
+        public override AlgorithmResult Run() 
         {
             if (project == null)
             {

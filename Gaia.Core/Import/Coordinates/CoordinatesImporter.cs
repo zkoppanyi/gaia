@@ -63,41 +63,49 @@ namespace Gaia.Core.Import
         [DisplayName("Separator")]
         public char Separator { get; set; }
 
-        public override string Name
+        private String filePath;
+        private DataStream dataStream;
+
+        public static CoordinatesImporterFactory Factory
         {
             get
             {
-                return "Coordinate importer";
+                return new CoordinatesImporterFactory();
             }
         }
 
-        public override string Description
+        public class CoordinatesImporterFactory : ImporterFactory
         {
-            get
+            public String Name { get { return "Coordinate importer"; } }
+            public String Description { get { return "Coordinate importer. " + Environment.NewLine + "Format: {TS},{X},{Y},{Z}[,{Sigma}]"; } }
+
+            public DataStreamType GetDataStreamType()
             {
-                return "Coordinate importer. " + Environment.NewLine + "Format: {TS},{X},{Y},{Z}[,{Sigma}]";
+                return DataStreamType.CoordinateDataStream;
+            }
+
+            public Importer Create(string filePath, DataStream dataStream, Project project, IMessanger messanger=null)
+            {
+                CoordinatesImporter importer = new CoordinatesImporter(project, messanger, Name, Description, filePath, dataStream);
+                return importer;
             }
         }
 
-        public CoordinatesImporter(Project project, IMessanger messanger = null) : base(project, messanger)
+        private CoordinatesImporter(Project project, IMessanger messanger, String name, String description, String filePath, DataStream dataStream) : base(project, messanger, name, description)
         {
-            HeaderRowNo = 0;
-            ColumnTimeStamp = 0;
-            ColumnX = 1;
-            ColumnY = 2;
-            ColumnZ = 3;
-            ColumnSigma = 4;
-            Separator = ',';
+            this.HeaderRowNo = 0;
+            this.ColumnTimeStamp = 0;
+            this.ColumnX = 1;
+            this.ColumnY = 2;
+            this.ColumnZ = 3;
+            this.ColumnSigma = 4;
+            this.Separator = ',';
+            this.filePath = filePath;
+            this.dataStream = dataStream;
         }
+      
 
-        public override DataStreamType GetDataStreamType()
-        {
-            return DataStreamType.CoordinateDataStream;
-        }
-
-
-
-        public override AlgorithmResult Import(string filePath, DataStream dataStream)
+        public override AlgorithmResult Run()
         {
             if (project == null)
             {

@@ -14,7 +14,7 @@ namespace Gaia.GUI
     static class GlobalAccess
     {
         public static IMessanger Console;
-        public static List<Importer> Importers;
+        public static List<Importer.ImporterFactory> ImporterFactories;
 
         private static MainForm mainFormInst;
         public static void Init(MainForm mainForm, IMessanger console)
@@ -22,14 +22,14 @@ namespace Gaia.GUI
             mainFormInst = mainForm;
             Console = console;
 
-            Importers = new List<Importer>();
-            Importers.Add(new UWBStandardImporter(GlobalAccess.Project));
-            Importers.Add(new IMUMicroStrainLogImporter(GlobalAccess.Project));
-            Importers.Add(new IMUEpsonLogImporter(GlobalAccess.Project));
-            Importers.Add(new PointsImporter(GlobalAccess.Project));
-            Importers.Add(new GPSLogImporter(GlobalAccess.Project));
-            Importers.Add(new CoordinatesImporter(GlobalAccess.Project));
-            Importers.Add(new RTKLibPosImporter(GlobalAccess.Project));
+            ImporterFactories = new List<Importer.ImporterFactory>();
+            ImporterFactories.Add(UWBStandardImporter.Factory);
+            ImporterFactories.Add(IMUMicroStrainLogImporter.Factory);
+            ImporterFactories.Add(IMUEpsonLogImporter.Factory);
+            ImporterFactories.Add(PointsImporter.Factory);
+            ImporterFactories.Add(GPSLogImporter.Factory);
+            ImporterFactories.Add(CoordinatesImporter.Factory);
+            ImporterFactories.Add(RTKLibPosImporter.Factory);
 
             SRIDDatabase.Instance.Init(Assembly.GetExecutingAssembly().GetManifestResourceStream("Gaia.srid.txt"));
         }

@@ -42,24 +42,32 @@ namespace Gaia.Core.Import
         [DisplayName("Separator")]
         public char Separator { get; set; }
 
-        public override DataStreamType GetDataStreamType()
-        {
-            return DataStreamType.UWBDataStream;
-        }
+        protected String filePath;
+        protected DataStream dataStream;
 
-        public override string Description
+        public static UWBStandardImporterFactory Factory
         {
             get
             {
-                return "Standard UWB Importer";
+                return new UWBStandardImporterFactory();
             }
         }
 
-        public override string Name
+        public class UWBStandardImporterFactory : ImporterFactory
         {
-            get
+            public String Name { get { return "Standard UWB Importer"; } }
+            public String Description { get { return "Standard UWB Importer logged by SPIN's data logging software!";  } }
+
+
+            public DataStreamType GetDataStreamType()
             {
-                return "UWB Importer";
+                return DataStreamType.UWBDataStream;
+            }
+
+            Importer ImporterFactory.Create(string filePath, DataStream dataStream, Project project, IMessanger messanger)
+            {
+                UWBStandardImporter importer = new UWBStandardImporter(project, messanger, Name, Description, filePath, dataStream);
+                return importer;
             }
         }
 
@@ -68,16 +76,20 @@ namespace Gaia.Core.Import
             return "TXT files (*.txt)|*.txt|CSV files (*.csv)|*.csv|All files (*.*)|*.*";
         }
 
-
-        public UWBStandardImporter(Project project, IMessanger messanger = null) : base(project, messanger)
+        protected UWBStandardImporter(Project project, IMessanger messanger, String name, String description, String filePath, DataStream dataStream) : base(project, messanger, name, description)
         {
             ColumnTimeStampNum = 27;
             ColumnTargetNum = 7;
             ColumnDistanceNum = 13;
             Separator = ' ';
+            this.Name = name;
+            this.Description = description;
+            this.dataStream = dataStream;
+            this.filePath = filePath;
         }
 
-        public override AlgorithmResult Import(string filePath, DataStream dataStream)
+
+        public override AlgorithmResult Run()
         {
             if (project == null)
             {

@@ -12,7 +12,7 @@ namespace Gaia.Core.Import
     public abstract class IMUImporter : Importer
     {
 
-        public IMUImporter(Project project, IMessanger messanger = null) : base(project, messanger)
+        protected IMUImporter(Project project, IMessanger messanger, String name, String description) : base(project, messanger, name, description)
         {
 
         }

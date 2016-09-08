@@ -6,6 +6,8 @@ using System.Text;
 using System.Threading.Tasks;
 
 using Gaia.Core.DataStreams;
+using ProjNet.CoordinateSystems.Transformations;
+using ProjNet.CoordinateSystems;
 
 namespace Gaia.Core.Processing
 {
@@ -171,6 +173,66 @@ namespace Gaia.Core.Processing
             }
 
             return null;
+        }
+
+        /// <summary>
+        /// Transformation of a single point. 
+        /// The function overwrite the pt object.
+        /// </summary>
+        /// <param name="fromCRS">Source frame</param>
+        /// <param name="toCRS">Destination frame</param>
+        /// <param name="pt">Point to transform</param>
+        public static void transformPoint(ICoordinateSystem fromCRS, ICoordinateSystem toCRS, GPoint pt)
+        {
+            double[] fromPoint = new double[0];
+
+            if (fromCRS is GeographicCoordinateSystem)
+            {
+                fromPoint = new double[] { pt.Lon, pt.Lat, pt.H };
+            }
+
+            if (fromCRS is GeocentricCoordinateSystem)
+            {
+                throw new NotImplementedException();
+                // the inputs are good?
+                fromPoint = new double[] { pt.X, pt.Y, pt.Z };
+            }
+
+            if (fromCRS is ProjectedCoordinateSystem)
+            {
+                //throw new NotImplementedException();
+                // the inputs are good?
+                fromPoint = new double[] { pt.X, pt.Y, pt.Z };
+            }
+
+            CoordinateTransformationFactory ctfac = new CoordinateTransformationFactory();
+            ICoordinateTransformation trans = ctfac.CreateFromCoordinateSystems(fromCRS, toCRS);
+
+            double[] toPoint = trans.MathTransform.Transform(fromPoint);
+
+            if (toCRS is GeographicCoordinateSystem)
+            {
+                // test wether it's good...
+                GeographicCoordinateSystem toGCS = toCRS as GeographicCoordinateSystem;
+                double x, y, z;
+                Utilities.ConvertLLHToXYZ(toPoint[1], toPoint[0], toPoint[2], toGCS.HorizontalDatum.Ellipsoid.SemiMajorAxis, 1 / toGCS.HorizontalDatum.Ellipsoid.InverseFlattening, out x, out y, out z);
+                pt.X = x; pt.Y = y; pt.Z = z;
+            }
+
+            if (toCRS is GeocentricCoordinateSystem)
+            {
+                pt.X = toPoint[0];
+                pt.Y = toPoint[1];
+                pt.Z = toPoint[2];
+            }
+
+            if (toCRS is ProjectedCoordinateSystem)
+            {
+                pt.X = toPoint[0];
+                pt.Y = toPoint[1];
+                pt.Z = toPoint[2];
+            }
+
         }
 
     }

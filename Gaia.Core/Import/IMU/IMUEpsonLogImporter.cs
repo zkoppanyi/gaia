@@ -14,8 +14,33 @@ namespace Gaia.Core.Import
 {
     public sealed class IMUEpsonLogImporter : IMUTextImporter
     {
+        public static IMUEpsonLogImporterFactory Factory
+        {
+            get
+            {
+                return new IMUEpsonLogImporterFactory();
+            }
+        }
 
-        public IMUEpsonLogImporter(Project project, IMessanger messanger = null) : base(project, messanger)
+        public class IMUEpsonLogImporterFactory : ImporterFactory
+        {
+            public String Name { get { return "Epson IMU Import CSV"; } }
+            public String Description { get { return "Import Epson CSV Log file!" + Environment.NewLine + "Format: check the sample file!"; } }
+
+            public DataStreamType GetDataStreamType()
+            {
+                return DataStreamType.IMUDataStream;
+            }
+
+
+            public Importer Create(string filePath, DataStream dataStream, Project project, IMessanger messanger = null)
+            {
+                IMUEpsonLogImporter importer = new IMUEpsonLogImporter(project, messanger, Name, Description, filePath, dataStream);
+                return importer;
+            }
+        }
+
+        private IMUEpsonLogImporter(Project project, IMessanger messanger, String name, String description, String filePath, DataStream dataStream) : base(project, messanger, name, description, filePath, dataStream)
         {
             Separator = ',';
             ColumnTimeStamp = 1;
@@ -33,34 +58,17 @@ namespace Gaia.Core.Import
             ColumnRatioWz = -1;
             HeaderRowNo = 7;
         }
-
-
-        override public string Description
-        {
-            get
-            {
-                return "Import Epson CSV Log file!" + Environment.NewLine + "Format: check the sample file!";
-            }
-        }
-
-        override public string Name
-        {
-            get
-            {
-                return "Epson IMU Import CSV";
-            }
-        }
-
+     
         public override string SupportedFileFormats()
         {
             return "CSV files (*.csv)|*.csv|TXT files (*.txt)|*.txt|All files (*.*)|*.*";
         }
 
 
-        public override AlgorithmResult Import(string filePath, DataStream stream)
+        public override AlgorithmResult Run()
         {
-            stream.TRS = project.GetTimeFrameByName("GPST");
-            return base.Import(filePath, stream);
+            base.dataStream.TRS = project.GetTimeFrameByName("GPST");
+            return base.Run();
         }
 
     }

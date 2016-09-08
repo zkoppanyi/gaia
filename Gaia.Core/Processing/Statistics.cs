@@ -14,23 +14,41 @@ namespace Gaia.Core.Processing
     /// </summary>
     public sealed class Statistics : Algorithm
     {
-
         public SortedSet<double> Numbers { get; set; }
+        public SortedList<double, double> Histogram { get; set; }
 
-        public Statistics(Project project, IMessanger messanger) : base(project, messanger)
+        public static StatisticsFactory Factory
         {
-            Numbers = new SortedSet<double>();
+            get
+            {
+                return new StatisticsFactory();
+            }
         }
 
+        public class StatisticsFactory : AlgorithmFactory
+        {
+            public String Name { get { return "Statistic calculation (beta)"; } }
+            public String Description { get { return "Statistic calculation (beta)"; } }
 
+            public Statistics Create(Project project, IMessanger messanger)
+            {
+                Statistics algorithm = new Statistics(project, messanger, Name, Description);
+                return algorithm;
+            }
+        }
+
+        private Statistics(Project project, IMessanger messanger, String name, String description) : base(project, messanger, name, description)
+        {
+            Numbers = new SortedSet<double>();
+            Histogram = new SortedList<double, double>();
+        }
+        
         /// <summary>
         /// Calculate histogram
         /// </summary>
-        /// <param name="bounds">The bounds of a histogram</param>
         /// <returns></returns>
-        public SortedList<double, double> CalculateHistogram(SortedSet<double> bounds)
-        {
-            SortedList<double, double> histgoram = new SortedList<double, double>();
+        public AlgorithmResult Run(SortedSet<double> bounds)
+        {            
             double[] numberArray = Numbers.ToArray();
             double[] boundsArray = bounds.ToArray();
 
@@ -51,14 +69,15 @@ namespace Gaia.Core.Processing
                         break;
                     }
                 }
-                histgoram.Add((bounds.ElementAt(i) + bounds.ElementAt(i - 1)) / 2, binc);
+
+                //Histogram.Add((bounds.ElementAt(i) + bounds.ElementAt(i - 1)) / 2, binc); // TODO: FIX
                 WriteProgress((double)i / (double)boundsArray.Count() * 100);
             }
 
-            return histgoram;
+            return AlgorithmResult.Sucess;
         }
 
-        public SortedList<double, double> CalculateHistogram()
+        public override AlgorithmResult Run()
         {
             double max = Math.Ceiling(Numbers.Max());
             double min = Math.Floor(Numbers.Min());
@@ -71,7 +90,7 @@ namespace Gaia.Core.Processing
                 {
                     bounds.Add(i);
                 }
-                return CalculateHistogram(bounds);
+                return Run(bounds);
             }
             else
             {

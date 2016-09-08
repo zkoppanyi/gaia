@@ -21,39 +21,51 @@ namespace Gaia.Core.Import
         [DisplayName("HPC Step Error")]
         public long HPCStepError { get; set; }
 
-        public GPSLogImporter(Project project, IMessanger messanger = null) : base(project, messanger)
+        private String filePath;
+        private DataStream dataStream;
+
+        public static GPSLogImporterFactory Factory
+        {
+            get
+            {
+                return new GPSLogImporterFactory();
+            }
+        }
+
+        public class GPSLogImporterFactory : ImporterFactory
+        {
+            public String Name { get { return "GPSLog Importer"; } }
+            public String Description { get { return "Import GPSLog txt file to load time matches between GPS and internal High Performance Counter" + Environment.NewLine + "Format: {HPC (long int16)}{NMEA message string}"; } }
+
+            public DataStreamType GetDataStreamType()
+            {
+                return DataStreamType.GPSLogDataStream;
+            }
+
+
+            public Importer Create(string filePath, DataStream dataStream, Project project, IMessanger messanger = null)
+            {
+                GPSLogImporter importer = new GPSLogImporter(project, messanger, Name, Description, filePath, dataStream);
+                return importer;
+            }
+        }
+
+        private GPSLogImporter(Project project, IMessanger messanger, String name, String description, String filePath, DataStream dataStream) : base(project, messanger, name, description)
         {
             HPCStepError = (long)1e11;
-        }
+            this.Name = name;
+            this.Description = description;
+            this.filePath = filePath;
+            this.dataStream = dataStream;
 
-        public override DataStreamType GetDataStreamType()
-        {
-            return DataStreamType.GPSLogDataStream;
         }
-
 
         public override string SupportedFileFormats()
         {
             return "TXT files (*.txt)|*.txt|All files (*.*)|*.*";
         }
 
-        public override string Description
-        {
-            get
-            {
-                return "Import GPSLog txt file to load time matches between GPS and internal High Performance Counter" + Environment.NewLine + "Format: {HPC (long int16)}{NMEA message string}";
-            }
-        }
-
-        public override string Name
-        {
-            get
-            {
-                return "GPSLog Importer";
-            }
-        }
-
-        public override AlgorithmResult Import(string filePath, DataStream dataStream)
+        public override AlgorithmResult Run()
         {
             if (project == null)
             {

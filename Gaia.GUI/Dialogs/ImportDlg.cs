@@ -20,7 +20,7 @@ namespace Gaia.GUI.Dialogs
 {
     public partial class ImportDlg : Form
     {
-        private List<Importer> importers = new List<Importer>();
+        private List<Importer.ImporterFactory> importerFactories = new List<Importer.ImporterFactory>();
 
         public ImportDlg()
         {
@@ -47,14 +47,14 @@ namespace Gaia.GUI.Dialogs
                 btnImport.Enabled = false;
             }
 
-            Importer importer = (Importer)cmbImport.SelectedItem;
+            Importer.ImporterFactory importerFactory = (Importer.ImporterFactory)cmbImport.SelectedItem;
             tabControl.TabPages.Remove(tabPageReferenceFrame);
 
-            if (importer != null)
+            if (importerFactory != null)
             {
-                txtDesc.Text = importer.Description;
+                txtDesc.Text = importerFactory.Description;
 
-                if (importer is PointsImporter)
+                if (importerFactory is PointsImporter.PointsImporterFactory)
                 {
                     tabControl.TabPages.Add(tabPageReferenceFrame);
 
@@ -66,22 +66,22 @@ namespace Gaia.GUI.Dialogs
                     cmbTRS.DisplayMember = "Name";
                 }
 
-                propertyGridImporter.SelectedObject = importer;
+                propertyGridImporter.SelectedObject = importerFactory;
             }
         }
 
 
         private void btnImport_Click(object sender, EventArgs e)
         {
-            Importer importer = (Importer)cmbImport.SelectedItem;
+            Importer.ImporterFactory importerFactory = (Importer.ImporterFactory)cmbImport.SelectedItem;
 
-            if (importer is PointsImporter)
+            if (importerFactory is PointsImporter.PointsImporterFactory)
             {
-                PointsImporter ptImporter = importer as PointsImporter;
-                IInfo crs = (IInfo)cmbCRS.SelectedItem;
+                PointsImporter.PointsImporterFactory ptImporterFactory = importerFactory as PointsImporter.PointsImporterFactory;
+                /*IInfo crs = (IInfo)cmbCRS.SelectedItem;
                 TRS trs = (TRS)cmbTRS.SelectedItem;
                 ptImporter.SetCRS = new CRS(crs.Name, crs.WKT);
-                ptImporter.SetTRS = trs;
+                ptImporter.SetTRS = trs;*/
             }
 
             String path = txtFileLocation.Text;
@@ -95,24 +95,23 @@ namespace Gaia.GUI.Dialogs
 
             // Open Progressbar dialog
             ProgressBarDlg dlgProgress = new ProgressBarDlg();
-            importer.SetMessanger(dlgProgress.Worker);
             bool error = false;
             DataStream stream = null;
             dlgProgress.Worker.DoWork += new DoWorkEventHandler(delegate (object sender1, DoWorkEventArgs e1)
             {
                 try
                 {
-                    stream = GlobalAccess.Project.DataStreamManager.ImportDataStream(path, importer);
+                    stream = GlobalAccess.Project.DataStreamManager.ImportDataStream(path, importerFactory, dlgProgress.Worker);
 
                     if (stream != null)
                     {
-                        if (!(importer is PointsImporter))
+                        if (!(importerFactory is PointsImporter.PointsImporterFactory))
                         {
                             stream.Name = Path.GetFileNameWithoutExtension(path);
                             stream.Description = "Imported from " + path;
                         }
 
-                        if (importer is GPSLogImporter)
+                        if (importerFactory is GPSLogImporter.GPSLogImporterFactory)
                         {
                             GlobalAccess.Project.ClockErrorModels.Add(stream as IClockErrorModel);
                         }
@@ -131,7 +130,7 @@ namespace Gaia.GUI.Dialogs
             GlobalAccess.WriteConsole("File is imported: " + path, "File is imported!");
 
             // Show the DataStream Properties dialog
-            if ((!(importer is PointsImporter)) && (error == false) && (stream != null))
+            if ((!(importerFactory is PointsImporter.PointsImporterFactory)) && (error == false) && (stream != null))
             {
                 PropertiesDlg dlg = new PropertiesDlg(stream);
                 dlg.Location = this.Location;
@@ -149,13 +148,12 @@ namespace Gaia.GUI.Dialogs
 
         private void ImportUWBDlg_Load(object sender, EventArgs e)
         {
-            foreach (Importer imp in GlobalAccess.Importers)
+            foreach (Importer.ImporterFactory factory in GlobalAccess.ImporterFactories)
             {
-                importers.Add(imp);
+                importerFactories.Add(factory);
             }
 
-            cmbImport.DataSource = importers;
-            //cmbImport.DataSource = GlobalAccess.Project.Importers.Where<Importer>((obj) => obj is UWBImporter).ToList<UWBImporter>();
+            cmbImport.DataSource = importerFactories;
             cmbImport.DisplayMember = "Name";
             if (cmbImport.Items.Count > 0)
             {
@@ -175,8 +173,8 @@ namespace Gaia.GUI.Dialogs
             openFileDialog.Filter = "All files (*.*)|*.*";
             if (cmbImport.SelectedItem != null)
             {
-                Importer importer = (Importer)cmbImport.SelectedItem;
-                openFileDialog.Filter = importer.SupportedFileFormats();
+                Importer.ImporterFactory importer = (Importer.ImporterFactory)cmbImport.SelectedItem;
+                //openFileDialog.Filter = importer.SupportedFileFormats(); // TODO
             }
 
             openFileDialog.FilterIndex = 1;

@@ -43,7 +43,6 @@ namespace Gaia.Core.DataStreams
             pt.PointRole = GPointRole.Deactivated;
             pt.PointType = GPointType.NA;
 
-            CoordinateTransformer trans = new CoordinateTransformer(this.project, null);
             ICoordinateSystem sys = this.CRS.GetCoordinateSystem();
 
             if (sys is GeographicCoordinateSystem)

@@ -13,14 +13,17 @@ namespace Gaia.Core.Import
 {
     [Serializable]
     public abstract class Importer : Algorithm
-    {
-        public abstract AlgorithmResult Import(String filePath, DataStream stream);
-        public abstract DataStreamType GetDataStreamType();
-
-        public Importer(Project project, IMessanger messanger = null) : base(project, messanger)
+    {        
+        protected Importer(Project project, IMessanger messanger, String name, String description) : base(project, messanger, name, description)
         {
 
-        }        
+        }
+
+        public interface ImporterFactory : AlgorithmFactory
+        {
+            Importer Create(string filePath, DataStream dataStream, Project project, IMessanger messanger = null);
+            DataStreamType GetDataStreamType();
+        }
 
         public virtual String SupportedFileFormats()
         {

@@ -28,16 +28,16 @@ namespace Gaia.Core
             private bool dataStreamCreateToken;
             internal bool DataStreamCreateToken { get { return dataStreamCreateToken; } }
 
-            public DataStream ImportDataStream(String resourceLocation, Importer importer)
+            public DataStream ImportDataStream(String resourceLocation, Importer.ImporterFactory importerFactory, IMessanger messanger = null)
             {
-                DataStream stream = this.CreateDataStream(importer.GetDataStreamType());
-                if ((stream == null) && (importer.Name != "Point Importer"))
+                DataStream stream = this.CreateDataStream(importerFactory.GetDataStreamType());
+                if ((stream == null) && (importerFactory.Name != "Point Importer"))
                 {
                     throw new GaiaAssertException("Importer is not found!");
                 }
 
-                importer.SetProject(project);
-                if (importer.Import(resourceLocation, stream) == AlgorithmResult.Failure)
+                Importer importer = importerFactory.Create(resourceLocation, stream, project, messanger);
+                if (importer.Run() == AlgorithmResult.Failure)
                 {
                     this.RemoveDataStream(stream);
                     return null;

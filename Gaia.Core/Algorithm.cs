@@ -21,14 +21,25 @@ namespace Gaia.Core
         protected bool isCanceled = false;
         protected IMessanger messanger { get; set; }
 
-        public Algorithm(Project project) : this(project, null)
+        public abstract AlgorithmResult Run();
+
+        public interface AlgorithmFactory
+        {
+            String Name { get; }
+            String Description { get; }
+
+        }
+
+        public Algorithm(Project project, String name, String description) : this(project, null, name, description)
         {
 
         }
 
-        public Algorithm(Project project, IMessanger messanger) : base(project)
+        public Algorithm(Project project, IMessanger messanger, String name, String description) : base(project)
         {
             this.messanger = messanger;
+            this.Name = name;
+            this.Description = description;
         }
 
         protected void WriteMessage(String message)

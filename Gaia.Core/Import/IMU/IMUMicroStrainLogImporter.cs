@@ -14,8 +14,34 @@ namespace Gaia.Core.Import
     [Serializable]
     public class IMUMicroStrainLogImporter : IMUTextImporter
     {
+        public static IMUMicroStrainLogImporterFactory Factory
+        {
+            get
+            {
+                return new IMUMicroStrainLogImporterFactory();
+            }
+        }
 
-        public IMUMicroStrainLogImporter(Project project, IMessanger messanger = null) : base(project, messanger)
+        public class IMUMicroStrainLogImporterFactory : ImporterFactory
+        {
+            public String Name { get { return "Import Microstrain CSV Log file!" + Environment.NewLine + "Format: check the sample file!"; } }
+            public String Description { get { return "MicroStrain Import CSV"; } }
+
+            public DataStreamType GetDataStreamType()
+            {
+                return DataStreamType.IMUDataStream;
+            }
+
+
+            public Importer Create(string filePath, DataStream dataStream, Project project, IMessanger messanger = null)
+            {
+                IMUMicroStrainLogImporter importer = new IMUMicroStrainLogImporter(project, messanger, Name, Description, filePath, dataStream);
+                return importer;
+            }
+        }
+
+        private IMUMicroStrainLogImporter(Project project, IMessanger messanger, String name, String description, String filePath, DataStream dataStream) : base(project, messanger, name, description, filePath, dataStream)
+
         {
             Separator = ',';
             ColumnTimeStamp = 2;
@@ -32,22 +58,10 @@ namespace Gaia.Core.Import
             ColumnRatioWy = 1;
             ColumnRatioWz = 1;
             HeaderRowNo = 16;
-        }
-
-        override public string Description
-        {
-            get
-            {
-                return "Import Microstrain CSV Log file!" + Environment.NewLine + "Format: check the sample file!";
-            }
-        }
-
-        override public string Name
-        {
-            get
-            {
-                return "MicroStrain Import CSV";
-            }
+            this.Name = name;
+            this.Description = description;
+            this.dataStream = dataStream;
+            this.filePath = filePath;
         }
 
         public override string SupportedFileFormats()
@@ -56,10 +70,10 @@ namespace Gaia.Core.Import
         }
 
 
-        public override AlgorithmResult Import(string filePath, DataStream stream)
+        public override AlgorithmResult Run()
         {
-            stream.TRS = project.GetTimeFrameByName("GPST");
-            return base.Import(filePath, stream);
+            base.dataStream.TRS = project.GetTimeFrameByName("GPST");
+            return base.Run();
         }
 
     }

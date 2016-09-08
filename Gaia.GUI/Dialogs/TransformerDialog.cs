@@ -80,16 +80,17 @@ namespace Gaia.GUI.Dialogs
                     try
                     {
                         ProgressBarDlg dlgProgress = new ProgressBarDlg();
-                        CoordinateTransformer transformer = new CoordinateTransformer(GlobalAccess.Project, dlgProgress.Worker);
                         dlgProgress.Worker.DoWork += new DoWorkEventHandler(delegate (object sender1, DoWorkEventArgs e1)
                         {
                             if (points != null)
                             {
-                                transformer.Transform(points, toCRS);
+                                CoordinateTransformerForPoints transformer = CoordinateTransformerForPoints.Factory.Create(GlobalAccess.Project, dlgProgress.Worker, points, toCRS);
+                                transformer.Run();
                             }
                             else if (dataStream != null)
                             {
-                                transformer.Transform(dataStream, toCRS);
+                                CoordinateTransformerForDataStreams transformer = CoordinateTransformerForDataStreams.Factory.Create(GlobalAccess.Project, dlgProgress.Worker, dataStream, toCRS);
+                                transformer.Run();
                             }
                         });
                         dlgProgress.ShowDialog();

@@ -14,8 +14,6 @@ namespace Gaia.Core.Import
 {
     public class IMUTextImporter : IMUImporter
     {
-        protected IMUDataStream dataStream;
-
         [Browsable(true)]
         [ReadOnly(false)]
         [Category("Columns")]
@@ -121,7 +119,35 @@ namespace Gaia.Core.Import
         [DisplayName("Separator")]
         public char Separator { get; set; }
 
-        public IMUTextImporter(Project project, IMessanger messanger = null) : base(project, messanger)
+        protected String filePath;
+        protected DataStream dataStream;
+
+        public static IMUTextImporterFactory Factory
+        {
+            get
+            {
+                return new IMUTextImporterFactory();
+            }
+        }
+
+        public class IMUTextImporterFactory : ImporterFactory
+        {
+            public String Name { get { return "IMU Text File Reader"; } }
+            public String Description { get { return "IMU Text File Reader!" + Environment.NewLine + "Format: set up the format"; } }
+
+            public DataStreamType GetDataStreamType()
+            {
+                return DataStreamType.IMUDataStream;
+            }
+
+            public Importer Create(string filePath, DataStream dataStream, Project project, IMessanger messanger = null)
+            {
+                IMUTextImporter importer = new IMUTextImporter(project, messanger, Name, Description, filePath, dataStream);
+                return importer;
+            }
+        }
+
+        protected IMUTextImporter(Project project, IMessanger messanger, String name, String description, String filePath, DataStream dataStream) : base(project, messanger, name, description)
         {
             Separator = ',';
             ColumnTimeStamp = 0;
@@ -138,29 +164,11 @@ namespace Gaia.Core.Import
             ColumnRatioWy = 1;
             ColumnRatioWz = 1;
             HeaderRowNo = 0;
-        }
-
-        public override DataStreamType GetDataStreamType()
-        {
-            return DataStreamType.IMUDataStream;
-        }
-
-
-        override public string Description
-        {
-            get
-            {
-                return "IMU Text File Reader!" + Environment.NewLine + "Format: set up the format";
-            }
-        }
-
-        override public string Name
-        {
-            get
-            {
-                return "IMU Text File Reader";
-            }
-        }
+            this.Name = name;
+            this.Description = description;
+            this.dataStream = dataStream;
+            this.filePath = filePath;
+        }             
 
         override public string SupportedFileFormats()
         {
@@ -168,7 +176,7 @@ namespace Gaia.Core.Import
         }
 
 
-        public override AlgorithmResult Import(string filePath, DataStream dataStream)
+        public override AlgorithmResult Run()
         {
             if (project == null)
             {

@@ -203,7 +203,7 @@ namespace Gaia.GUI.Dialogs
         private void Statistics_Load(object sender, EventArgs e)
         {
             this.Text = this.captionName;
-            stat = new Statistics(GlobalAccess.Project, null);
+            stat = Statistics.Factory.Create(GlobalAccess.Project, null);
            
             UpdateSeries();
 
@@ -373,7 +373,8 @@ namespace Gaia.GUI.Dialogs
         {
             if (stat.Numbers.Count() != 0)
             {
-                SortedList<double, double> histogram = stat.CalculateHistogram();
+                stat.Run();
+                SortedList<double, double> histogram = stat.Histogram;
                 chartHistogram.Series.Clear();
                 chartHistogram.Series.Add("Histogram");
                 foreach (double xp in histogram.Keys)

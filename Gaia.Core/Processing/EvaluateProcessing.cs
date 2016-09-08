@@ -8,6 +8,7 @@ using System.Threading.Tasks;
 
 using Gaia.Core;
 using Gaia.Core.DataStreams;
+using Gaia.Exceptions;
 
 namespace Gaia.Core.Processing
 {
@@ -16,28 +17,55 @@ namespace Gaia.Core.Processing
     /// </summary>
     public class EvaluateProcessing : Algorithm
     {
+        public DataStream SourceDataStream;
+        public String Expression;
+        public long ProcessingLineNum = -1;
 
-        public EvaluateProcessing(Project project, IMessanger messanger) : base(project, messanger)
+        public static EvaluateProcessingFactory Factory
+        {
+            get
+            {
+                return new EvaluateProcessingFactory();
+            }
+        }
+
+        public class EvaluateProcessingFactory : AlgorithmFactory
+        {
+            public String Name { get { return "Evaulate an expression in data streams"; } }
+            public String Description { get { return "Evaulate an expression on data lines in stream."; } }
+
+            public EvaluateProcessing Create(Project project, IMessanger messanger, DataStream sourceDataStream, String expression)
+            {
+                EvaluateProcessing algorithm = new EvaluateProcessing(project, messanger, Name, Description);
+                algorithm.SourceDataStream = sourceDataStream;
+                algorithm.Expression = expression;
+                return algorithm;
+            }
+        }
+
+        private EvaluateProcessing(Project project, IMessanger messanger, String name, String description) : base(project, messanger, name, description)
         {
 
         }
-
+      
         /// <summary>
         /// Calculate an expression on datastreams.
         /// If the linenum is different than -1, the intermediate calculations are reported through the messanger object.
         /// If the linenum is -1, the intermediate calculations are NOT reported.
         /// </summary>
-        /// <param name="dataStream">Data stream</param>
-        /// <param name="expression">Expression to evaulate</param>
-        /// <param name="lineNum">Number of line to be processed.</param>
         /// <returns></returns>
-        public AlgorithmResult Calculate(DataStream dataStream, String expression, long lineNum = -1)
+        public override AlgorithmResult Run()
         {
+            if (SourceDataStream == null)
+            {
+                new GaiaAssertException("Data stream is null!");
+            }
+
             WriteMessage("Calculating...");
 
             int num = 0;
 
-            string[] sstr = expression.Split(new string[] { ":=" }, StringSplitOptions.None);
+            string[] sstr = Expression.Split(new string[] { ":=" }, StringSplitOptions.None);
 
             string leftExpr = "";
             string rightExprProto = "";
@@ -49,14 +77,14 @@ namespace Gaia.Core.Processing
             }
             else
             {
-                rightExprProto = expression;
+                rightExprProto = Expression;
             }
 
             // Extract left side field
             PropertyInfo resultField = null;
             if (leftExpr != "")
             {
-                foreach (PropertyInfo prop in dataStream.CreateDataLine().GetType().GetProperties())
+                foreach (PropertyInfo prop in SourceDataStream.CreateDataLine().GetType().GetProperties())
                 {
                     String subStr = "[" + prop.Name + "]";
                     if (leftExpr.Contains(subStr))
@@ -81,32 +109,32 @@ namespace Gaia.Core.Processing
             }
 
             // Solve the expressions left side field
-            dataStream.Open();
-            dataStream.Begin();
+            SourceDataStream.Open();
+            SourceDataStream.Begin();
 
             if (resultField == null)
             {
                 WriteMessage("Results: " + Environment.NewLine);
             }
 
-            while (!dataStream.IsEOF())
+            while (!SourceDataStream.IsEOF())
             {
-                DataLine dataLine = dataStream.ReadLine();
+                DataLine dataLine = SourceDataStream.ReadLine();
                 String rightExpr = rightExprProto;
 
                 if (IsCanceled())
                 {
-                    dataStream.Close();
+                    SourceDataStream.Close();
                     WriteMessage("Processing canceled!", null, null, ConsoleMessageType.Warning);
                     return AlgorithmResult.Partial;
                 }
 
-                if ((lineNum!=-1) && (num >= lineNum)) break;
+                if ((ProcessingLineNum!=-1) && (num >= ProcessingLineNum)) break;
                 num++;
 
-                WriteProgress((double)dataStream.GetPosition() / (double)dataStream.DataNumber * 100.0);
+                WriteProgress((double)SourceDataStream.GetPosition() / (double)SourceDataStream.DataNumber * 100.0);
 
-                foreach (PropertyInfo prop in dataStream.CreateDataLine().GetType().GetProperties())
+                foreach (PropertyInfo prop in SourceDataStream.CreateDataLine().GetType().GetProperties())
                 {
                     object value = prop.GetValue(dataLine);
                     String subStr = "[" + prop.Name + "]";
@@ -118,15 +146,15 @@ namespace Gaia.Core.Processing
                 {
                     double value = evaluateExpresstion(rightExpr);
 
-                    if ((resultField == null) || (lineNum != -1))
+                    if ((resultField == null) || (ProcessingLineNum != -1))
                     {
                         WriteMessage(num + ". line: " + Convert.ToString(value));
                     }
 
-                    if ((resultField != null) && (lineNum == -1))
+                    if ((resultField != null) && (ProcessingLineNum == -1))
                     {
                         resultField.SetValue(dataLine, value);
-                        dataStream.ReplaceDataLine(dataLine, dataStream.GetPosition() - 1);
+                        SourceDataStream.ReplaceDataLine(dataLine, SourceDataStream.GetPosition() - 1);
                     }
 
                 }
@@ -138,15 +166,15 @@ namespace Gaia.Core.Processing
 
             }
 
-            if ((resultField != null) && (lineNum == -1))
+            if ((resultField != null) && (ProcessingLineNum == -1))
             {
                 WriteProgress(95);
                 WriteMessage("Check order flag...");
-                dataStream.UpdateOrderFlag();
+                SourceDataStream.UpdateOrderFlag();
                 WriteProgress(100);
             }
 
-            dataStream.Close();
+            SourceDataStream.Close();
 
             return AlgorithmResult.Sucess;
         }

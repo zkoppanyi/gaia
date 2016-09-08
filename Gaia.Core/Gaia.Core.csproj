@@ -83,13 +83,16 @@
     <Compile Include="Import\UWB\UWBStandardImporter.cs" />
     <Compile Include="Algorithm.cs" />
     <Compile Include="PointManager.cs" />
-    <Compile Include="Processing\CoordinateTransformer.cs" />
+    <Compile Include="Processing\CoordinateTransformerForDataStreams.cs" />
+    <Compile Include="Processing\CoordinateTransformerForPoints.cs" />
     <Compile Include="Processing\EarthParameters.cs" />
     <Compile Include="Processing\EvaluateProcessing.cs" />
     <Compile Include="Processing\IClockErrorModel.cs" />
+    <Compile Include="Processing\IMUInitialization.cs" />
     <Compile Include="Processing\IMUProcessing.cs" />
     <Compile Include="Processing\Optimzers\LevenberMarquardtOptimzer.cs" />
     <Compile Include="Processing\Statistics.cs" />
+    <Compile Include="Processing\TimeStampOrderCheckProcessing.cs" />
     <Compile Include="Processing\Utilities.cs" />
     <Compile Include="Processing\UWBProcessing.cs" />
     <Compile Include="Project.cs" />

@@ -9,6 +9,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Gaia.Core.Processing.Optimzers;
+using Gaia.Exceptions;
 
 namespace Gaia.Core.Processing
 {
@@ -17,6 +18,10 @@ namespace Gaia.Core.Processing
     /// </summary>
     public sealed class UWBProcessing : Algorithm
     {
+
+        public UWBDataStream SourceDataStream { get; set; }
+        public CoordinateDataStream OutputDataStream { get; set; }
+
         public int BufferSize { get; set; }
         public int MaxIterNum { get; set; }
         public double DeepOptimizationDistance { get; set; }
@@ -24,13 +29,33 @@ namespace Gaia.Core.Processing
         public double FiltringByResidual { get; set; }
 
         //private Vector<double> localTransformation = Vector<double>.Build.Dense(new double[] { 316210.749, 4254160.421, -25 });
-
         //public Vector<double> x0 = null;
         Vector<double> x0 = Vector<double>.Build.Dense(new double[] { 59.0, 88.0, -1.7 });
+        private const int bigNum = 100000;
 
-        private const int bigNum = 100;
+        public static UWBProcessingFactory Factory
+        {
+            get
+            {
+                return new UWBProcessingFactory();
+            }
+        }
 
-        public UWBProcessing(Project project, IMessanger messanger) : base(project, messanger)
+        public class UWBProcessingFactory : AlgorithmFactory
+        {
+            public String Name { get { return "UWB Trajectory Calculation"; } }
+            public String Description { get { return "Calculate UWB trajectory from data stream."; } }
+
+            public UWBProcessing Create(Project project, IMessanger messanger, UWBDataStream sourceDataStream, CoordinateDataStream outputDataStream)
+            {
+                UWBProcessing algorithm = new UWBProcessing(project, messanger, Name, Description);
+                algorithm.SourceDataStream = sourceDataStream;
+                algorithm.OutputDataStream = outputDataStream;
+                return algorithm;
+            }
+        }
+
+        private UWBProcessing(Project project, IMessanger messanger, String name, String description) : base(project, messanger, name, description)
         {
             BufferSize = 6;
             MaxIterNum = 200;
@@ -38,30 +63,40 @@ namespace Gaia.Core.Processing
             TimeIntervalToClearBuffer = 5;
             FiltringByResidual = 1;
        }
+               
 
-
-        public AlgorithmResult CalculateTrajectory(UWBDataStream uwbDataStream, CoordinateDataStream output)
+        public override AlgorithmResult Run()
         {
-            uwbDataStream.Open();
-            uwbDataStream.Begin();
+            if (SourceDataStream == null)
+            {
+                new GaiaAssertException("UWB data stream is null!");
+            }
 
-            output.Open();
-            output.Begin();
+            if (OutputDataStream == null)
+            {
+                new GaiaAssertException("Output data stream is null!");
+            }
+
+            SourceDataStream.Open();
+            SourceDataStream.Begin();
+
+            OutputDataStream.Open();
+            OutputDataStream.Begin();
 
             List<UWBDataLine> buffer = new List<UWBDataLine>();
             Dictionary<string, GPoint> pointList = new Dictionary<string, GPoint>();
 
-            while (!uwbDataStream.IsEOF())
+            while (!SourceDataStream.IsEOF())
             {
                 if (IsCanceled())
                 {
-                    uwbDataStream.Close();
+                    SourceDataStream.Close();
                     WriteMessage("Processing canceled");
                     return AlgorithmResult.Failure;
                 }
 
-                UWBDataLine dataLine = uwbDataStream.ReadLine() as UWBDataLine;
-                WriteProgress((double)uwbDataStream.GetPosition() / (double)uwbDataStream.DataNumber * 100);
+                UWBDataLine dataLine = SourceDataStream.ReadLine() as UWBDataLine;
+                WriteProgress((double)SourceDataStream.GetPosition() / (double)SourceDataStream.DataNumber * 100);
 
                 if (getStationPoint(dataLine, pointList) != null)
                 {
@@ -140,7 +175,7 @@ namespace Gaia.Core.Processing
                         outputDataLine.Z = x0[2];
                         outputDataLine.Sigma = residual;
                         outputDataLine.TimeStamp = timestamps.Average();
-                        output.AddDataLine(outputDataLine);
+                        OutputDataStream.AddDataLine(outputDataLine);
                     }
                     else
                     {
@@ -152,14 +187,14 @@ namespace Gaia.Core.Processing
                     buffer.Clear();
                 }                 
 
-                WriteProgress((double)uwbDataStream.GetPosition() / (double)uwbDataStream.DataNumber * 100.0);
+                WriteProgress((double)SourceDataStream.GetPosition() / (double)SourceDataStream.DataNumber * 100.0);
             }
 
 
             WriteMessage("Done!");
 
-            output.Close();
-            uwbDataStream.Close();
+            OutputDataStream.Close();
+            SourceDataStream.Close();
 
             this.Project.Save();
             return AlgorithmResult.Sucess;
