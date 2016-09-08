@@ -165,13 +165,20 @@ namespace Gaia.GUI.Dialogs
                 if (e.UserState != null)
                 {
                     ReportProgressMessage msg = e.UserState as ReportProgressMessage;
+
+                    int dataSeriesIndex = -1;
+                    if (msg != null)
+                    {
+                        dataSeriesIndex = this.dataSeriesList.FindIndex(x => x.Name == msg.DataSeries.Name);
+                    }
+
                     if ((msg != null) && (msg.Points.Count() != 0))
                     {
                         foreach (double[] point in msg.Points)
                         {
                             String seriesName = getSeriesName(msg.DataSeries);
                             chartSeries.BeginInvoke(new Action(() => chartSeries.Series[seriesName].Points.AddXY(point[0], point[1])));
-                            //stat.Numbers.Add(point[1]);
+                            if(dataSeriesIndex==0) stat.Numbers.Add(point[1]);
                         }
 
                         double miny = msg.MinY;

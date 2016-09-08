@@ -19,6 +19,9 @@ namespace Gaia.Core.Processing
     {
         public int BufferSize { get; set; }
         public int MaxIterNum { get; set; }
+        public double DeepOptimizationDistance { get; set; }
+        public double TimeIntervalToClearBuffer { get; set; }
+        public double FiltringByResidual { get; set; }
 
         //private Vector<double> localTransformation = Vector<double>.Build.Dense(new double[] { 316210.749, 4254160.421, -25 });
 
@@ -29,9 +32,12 @@ namespace Gaia.Core.Processing
 
         public UWBProcessing(Project project, IMessanger messanger) : base(project, messanger)
         {
-            BufferSize = 10;
-            MaxIterNum = 10;
-        }
+            BufferSize = 6;
+            MaxIterNum = 200;
+            DeepOptimizationDistance = 2;
+            TimeIntervalToClearBuffer = 5;
+            FiltringByResidual = 1;
+       }
 
 
         public AlgorithmResult CalculateTrajectory(UWBDataStream uwbDataStream, CoordinateDataStream output)
@@ -60,6 +66,21 @@ namespace Gaia.Core.Processing
                 if (getStationPoint(dataLine, pointList) != null)
                 {
                     buffer.Add(dataLine);
+
+                    // check that the buffer's content is within a timeperiod
+                    if (buffer.Count > 1)
+                    {
+                        double maxTime = buffer.Max(x => x.TimeStamp);
+                        double minTime = buffer.Min(x => x.TimeStamp);
+                        if ((maxTime - minTime) > TimeIntervalToClearBuffer)
+                        {
+                            WriteMessage("The time period of the ranges in the buffer is " + (maxTime - minTime) + " greater than " + TimeIntervalToClearBuffer);
+                            WriteMessage("Buffer is cleared at " + dataLine.TimeStamp);
+                            WriteMessage(" ");
+                            buffer.Clear();
+                        }
+
+                    }
                 }
 
 
@@ -67,6 +88,8 @@ namespace Gaia.Core.Processing
                 {
                     Matrix<double> stations = Matrix<double>.Build.Dense(buffer.Count, 3);
                     Vector<double> distances = Vector<double>.Build.Dense(buffer.Count);
+                    Vector<double> timestamps = Vector<double>.Build.Dense(buffer.Count);
+
                     int buffer_item_index = 0;
                     foreach (UWBDataLine line in buffer)
                     {
@@ -75,39 +98,57 @@ namespace Gaia.Core.Processing
                         {
                             stations.SetRow(buffer_item_index, targetCoor);
                             distances[buffer_item_index] = line.Distance;
+                            timestamps[buffer_item_index] = line.TimeStamp;
                             buffer_item_index++;
                         }
                     }
                     
+                    // Optimization function
                     Func<Vector<double>, Vector<double>> fn = new Func<Vector<double>, Vector<double>>(delegate (Vector<double> pos) {
                         return ((stations.Column(0) - pos[0]).PointwisePower(2) +
                         (stations.Column(1) - pos[1]).PointwisePower(2) +
                         (stations.Column(2) - pos[2]).PointwisePower(2)).PointwisePower(0.5) - distances;
 
-
                     });
 
                     LevenberMarquardtOptimzer optimizer = new LevenberMarquardtOptimzer();
+                    optimizer.MaximumIterationNumber = MaxIterNum;
                     Vector<double> x0cand = optimizer.Run(fn, x0);
 
-                    if ((x0cand - x0).L2Norm() > 2)
+                    double dsol = (x0cand - x0).L2Norm();
+                    if (dsol > DeepOptimizationDistance)
                     {
-                        optimizer.MaximumIterationNumber = 5000;
+                        WriteMessage("The L2 norm of the initial guess and the solution is " + dsol + " greater than " + DeepOptimizationDistance);
+                        WriteMessage("Optimizer is rerun with " + optimizer.MaximumIterationNumber + " iterations! ");
+                        WriteMessage(" ");
+
+                       optimizer.MaximumIterationNumber = 5000;
                         x0cand = optimizer.Run(fn, x0);
                     }
-                    x0 = x0cand;
 
-                    double residual = fn(x0cand).L2Norm();
+                    double residual = fn(x0cand).Average();
 
-                    // Save the data
-                    CoordinateDataLine outputDataLine = new CoordinateDataLine();
-                    outputDataLine.X = x0[0];
-                    outputDataLine.Y = x0[1];
-                    outputDataLine.Z = x0[2];
-                    outputDataLine.Sigma = residual;
-                    output.AddDataLine(outputDataLine);
+                    if (Math.Abs(residual) < FiltringByResidual)
+                    {
+                        x0 = x0cand;
+                        //WriteMessage(x0.ToString());
 
-                    WriteMessage(x0.ToString());
+                        // Save the data
+                        CoordinateDataLine outputDataLine = new CoordinateDataLine();
+                        outputDataLine.X = x0[0];
+                        outputDataLine.Y = x0[1];
+                        outputDataLine.Z = x0[2];
+                        outputDataLine.Sigma = residual;
+                        outputDataLine.TimeStamp = timestamps.Average();
+                        output.AddDataLine(outputDataLine);
+                    }
+                    else
+                    {
+                        WriteMessage("Solution's residual is " + residual + " greater than " + FiltringByResidual);
+                        WriteMessage("Solution is skipped!");
+                        WriteMessage(" ");
+                    }
+
                     buffer.Clear();
                 }                 
 

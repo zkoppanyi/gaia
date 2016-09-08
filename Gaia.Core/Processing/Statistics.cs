@@ -65,7 +65,7 @@ namespace Gaia.Core.Processing
 
             if (max != min)
             {
-                double step = Math.Floor((max - min) / 10);
+                double step = (max - min) / 100.0;
                 SortedSet<double> bounds = new SortedSet<double>();
                 for (double i = min; i <= max; i += step)
                 {

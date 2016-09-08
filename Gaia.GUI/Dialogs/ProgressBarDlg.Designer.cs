@@ -37,7 +37,7 @@
             // 
             this.progressBar.Location = new System.Drawing.Point(12, 12);
             this.progressBar.Name = "progressBar";
-            this.progressBar.Size = new System.Drawing.Size(321, 39);
+            this.progressBar.Size = new System.Drawing.Size(391, 39);
             this.progressBar.TabIndex = 0;
             // 
             // txtMessage
@@ -47,14 +47,15 @@
             this.txtMessage.Multiline = true;
             this.txtMessage.Name = "txtMessage";
             this.txtMessage.ScrollBars = System.Windows.Forms.ScrollBars.Both;
-            this.txtMessage.Size = new System.Drawing.Size(417, 90);
+            this.txtMessage.Size = new System.Drawing.Size(487, 164);
             this.txtMessage.TabIndex = 2;
             this.txtMessage.TextChanged += new System.EventHandler(this.txtMessage_TextChanged);
             // 
             // btnCancel
             // 
+            this.btnCancel.DialogResult = System.Windows.Forms.DialogResult.Cancel;
             this.btnCancel.Image = global::Gaia.Properties.Resources.cancel_button;
-            this.btnCancel.Location = new System.Drawing.Point(339, 12);
+            this.btnCancel.Location = new System.Drawing.Point(409, 12);
             this.btnCancel.Name = "btnCancel";
             this.btnCancel.Size = new System.Drawing.Size(90, 39);
             this.btnCancel.TabIndex = 1;
@@ -68,7 +69,7 @@
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.CancelButton = this.btnCancel;
-            this.ClientSize = new System.Drawing.Size(446, 159);
+            this.ClientSize = new System.Drawing.Size(511, 233);
             this.Controls.Add(this.txtMessage);
             this.Controls.Add(this.btnCancel);
             this.Controls.Add(this.progressBar);
