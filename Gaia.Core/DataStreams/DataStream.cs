@@ -22,7 +22,8 @@ namespace Gaia.Core.DataStreams
         CoordinateAttitudeDataStream,
         IMUDataStream,
         UWBDataStream,
-        GPSLogDataStream
+        GPSLogDataStream,
+        WifiFingerprinting
     }
 
     [Serializable]

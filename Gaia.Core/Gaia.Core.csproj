@@ -68,6 +68,8 @@
     <Compile Include="DataStreams\IMUDataStream.cs" />
     <Compile Include="DataStreams\UWBDataLine.cs" />
     <Compile Include="DataStreams\UWBDataStream.cs" />
+    <Compile Include="DataStreams\WifiFingerprintingDataLine.cs" />
+    <Compile Include="DataStreams\WifiFingerptiningDataStream.cs" />
     <Compile Include="Exceptions\GaiaAssertException.cs" />
     <Compile Include="Exceptions\GaiaException.cs" />
     <Compile Include="Import\Coordinates\CoordinatesImporter.cs" />

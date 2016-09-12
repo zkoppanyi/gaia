@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 
 namespace Gaia.Core.DataStreams
 {
+    [Serializable]
     public class WifiFingerprintingDataLine : DataLine
     {
         [System.ComponentModel.DisplayName("RSSI")]

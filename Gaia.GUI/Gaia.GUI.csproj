@@ -60,6 +60,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="ConsoleMessanger.cs" />
+    <Compile Include="DataAcquisition\Fingerprinting.cs" />
     <Compile Include="Dialogs\CalculateValueDlg.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -133,7 +134,6 @@
     <Compile Include="Dialogs\TransformerDialog.Designer.cs">
       <DependentUpon>TransformerDialog.cs</DependentUpon>
     </Compile>
-    <Compile Include="Fingerprinting.cs" />
     <Compile Include="GlobalAccess.cs" />
     <Compile Include="MainForm.cs">
       <SubType>Form</SubType>

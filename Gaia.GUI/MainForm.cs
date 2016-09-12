@@ -17,6 +17,7 @@ using Gaia.Core;
 using Gaia.Core.DataStreams;
 using Gaia.Core.Processing;
 using Gaia.GUI.Dialogs;
+using Gaia.GUI.DataAcquisition;
 
 namespace Gaia.GUI
 {
@@ -64,6 +65,7 @@ namespace Gaia.GUI
                 importDataStreamToolStripMenuItem.Enabled = false;
                 toolStripDataStream.Enabled = false;
                 toolStripPoints.Enabled = false;
+                dataAcquisitionToolStripMenuItem.Enabled = false;
             }
             else
             {
@@ -71,6 +73,7 @@ namespace Gaia.GUI
                 importDataStreamToolStripMenuItem.Enabled = true;
                 toolStripDataStream.Enabled = true;
                 toolStripPoints.Enabled = true;
+                dataAcquisitionToolStripMenuItem.Enabled = true;
             }
 
             if (Properties.Settings.Default.PreviousProject != "")
@@ -226,8 +229,22 @@ namespace Gaia.GUI
 
         private void wiFiFingerptingMeasurementToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            Fingerprinting printing = new Fingerprinting();
-            printing.Scan();
+                ProgressBarDlg dlgProgress = new ProgressBarDlg();
+                dlgProgress.Worker.DoWork += new DoWorkEventHandler(delegate (object sender1, DoWorkEventArgs e1)
+                {
+                    WifiFingerptiningDataStream output = GlobalAccess.Project.DataStreamManager.CreateDataStream(DataStreamType.WifiFingerprinting) as WifiFingerptiningDataStream;
+                    Fingerprinting proc = Fingerprinting.Factory.Create(GlobalAccess.Project, dlgProgress.Worker, output);
+                    output.Name = "WiFi Fingerprinting Data";
+                    output.Description = "WiFi Fingerprinting Data. Acquired at " + DateTime.Now.ToString("h:mm:ss tt");
+                    AlgorithmResult result = proc.Run();
+                    if ((result == AlgorithmResult.Failure) ||
+                        (result == AlgorithmResult.InputMissing))
+                    {
+                        GlobalAccess.Project.DataStreamManager.RemoveDataStream(output);
+                    }
+                });
+                dlgProgress.ShowDialog();
+
         }
     }
 }

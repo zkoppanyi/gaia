@@ -72,6 +72,10 @@ namespace Gaia.Core
                 {
                     stream = UWBDataStream.Create(project, DateTime.Now.ToString("yyyyMMddhhmmss"));
                 }
+                else if (dataStreamType == DataStreamType.WifiFingerprinting)
+                {
+                    stream = WifiFingerptiningDataStream.Create(project, DateTime.Now.ToString("yyyyMMddhhmmss"));
+                }
 
                 if (stream != null)
                 {

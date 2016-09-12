@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 
 namespace Gaia.Core.DataStreams
 {
+    [Serializable]
     public class WifiFingerptiningDataStream : DataStream
     {
         private WifiFingerptiningDataStream(Project project, string fileId) : base(project, fileId)
