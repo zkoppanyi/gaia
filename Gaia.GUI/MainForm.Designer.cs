@@ -46,6 +46,8 @@
             this.toolStripSeparator3 = new System.Windows.Forms.ToolStripSeparator();
             this.toolStripButton3 = new System.Windows.Forms.ToolStripButton();
             this.toolStripButtonFigure = new System.Windows.Forms.ToolStripButton();
+            this.dataAcquisitionToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.wiFiFingerptingMeasurementToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.statusStrip.SuspendLayout();
             this.menuStrip1.SuspendLayout();
             this.toolStrip1.SuspendLayout();
@@ -70,7 +72,8 @@
             // menuStrip1
             // 
             this.menuStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.fileToolStripMenuItem});
+            this.fileToolStripMenuItem,
+            this.dataAcquisitionToolStripMenuItem});
             this.menuStrip1.Location = new System.Drawing.Point(0, 0);
             this.menuStrip1.Name = "menuStrip1";
             this.menuStrip1.Size = new System.Drawing.Size(897, 24);
@@ -211,6 +214,21 @@
             this.toolStripButtonFigure.ToolTipText = "Create New Figure";
             this.toolStripButtonFigure.Click += new System.EventHandler(this.toolStripButtonFigure_Click);
             // 
+            // dataAcquisitionToolStripMenuItem
+            // 
+            this.dataAcquisitionToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.wiFiFingerptingMeasurementToolStripMenuItem});
+            this.dataAcquisitionToolStripMenuItem.Name = "dataAcquisitionToolStripMenuItem";
+            this.dataAcquisitionToolStripMenuItem.Size = new System.Drawing.Size(106, 20);
+            this.dataAcquisitionToolStripMenuItem.Text = "Data Acquisition";
+            // 
+            // wiFiFingerptingMeasurementToolStripMenuItem
+            // 
+            this.wiFiFingerptingMeasurementToolStripMenuItem.Name = "wiFiFingerptingMeasurementToolStripMenuItem";
+            this.wiFiFingerptingMeasurementToolStripMenuItem.Size = new System.Drawing.Size(161, 22);
+            this.wiFiFingerptingMeasurementToolStripMenuItem.Text = "WiFi Fingerpting";
+            this.wiFiFingerptingMeasurementToolStripMenuItem.Click += new System.EventHandler(this.wiFiFingerptingMeasurementToolStripMenuItem_Click);
+            // 
             // MainForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -255,6 +273,8 @@
         private System.Windows.Forms.ToolStripMenuItem recentProjectsToolStripMenuItem;
         private System.Windows.Forms.ToolStripSeparator toolStripSeparator3;
         private System.Windows.Forms.ToolStripButton toolStripButtonFigure;
+        private System.Windows.Forms.ToolStripMenuItem dataAcquisitionToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem wiFiFingerptingMeasurementToolStripMenuItem;
     }
 }
 

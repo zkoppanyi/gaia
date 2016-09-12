@@ -223,5 +223,11 @@ namespace Gaia.GUI
         {
 
         }
+
+        private void wiFiFingerptingMeasurementToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            Fingerprinting printing = new Fingerprinting();
+            printing.Scan();
+        }
     }
 }
