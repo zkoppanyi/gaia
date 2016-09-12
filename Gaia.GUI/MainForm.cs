@@ -229,22 +229,29 @@ namespace Gaia.GUI
 
         private void wiFiFingerptingMeasurementToolStripMenuItem_Click(object sender, EventArgs e)
         {
-                ProgressBarDlg dlgProgress = new ProgressBarDlg();
-                dlgProgress.Worker.DoWork += new DoWorkEventHandler(delegate (object sender1, DoWorkEventArgs e1)
-                {
-                    WifiFingerptiningDataStream output = GlobalAccess.Project.DataStreamManager.CreateDataStream(DataStreamType.WifiFingerprinting) as WifiFingerptiningDataStream;
-                    Fingerprinting proc = Fingerprinting.Factory.Create(GlobalAccess.Project, dlgProgress.Worker, output);
-                    output.Name = "WiFi Fingerprinting Data";
-                    output.Description = "WiFi Fingerprinting Data. Acquired at " + DateTime.Now.ToString("h:mm:ss tt");
-                    AlgorithmResult result = proc.Run();
-                    if ((result == AlgorithmResult.Failure) ||
-                        (result == AlgorithmResult.InputMissing))
-                    {
-                        GlobalAccess.Project.DataStreamManager.RemoveDataStream(output);
-                    }
-                });
-                dlgProgress.ShowDialog();
+                
+        }
 
+        private void startWiFiDataAcquisition(object sender, EventArgs e)
+        {
+            ToolStripMenuItem item = sender as ToolStripMenuItem;
+
+            ProgressBarDlg dlgProgress = new ProgressBarDlg();
+            dlgProgress.Worker.DoWork += new DoWorkEventHandler(delegate (object sender1, DoWorkEventArgs e1)
+            {
+                WifiFingerptiningDataStream output = GlobalAccess.Project.DataStreamManager.CreateDataStream(DataStreamType.WifiFingerprinting) as WifiFingerptiningDataStream;
+                Fingerprinting proc = Fingerprinting.Factory.Create(GlobalAccess.Project, dlgProgress.Worker, output);
+                if (item.Name == "continousToolStripMenuItem") proc.IsContinous = true;
+                output.Name = "WiFi Fingerprinting Data";
+                output.Description = "WiFi Fingerprinting Data. Acquired at " + DateTime.Now.ToString("h:mm:ss tt");
+                AlgorithmResult result = proc.Run();
+                if ((result == AlgorithmResult.Failure) ||
+                    (result == AlgorithmResult.InputMissing))
+                {
+                    GlobalAccess.Project.DataStreamManager.RemoveDataStream(output);
+                }
+            });
+            dlgProgress.ShowDialog();
         }
     }
 }

@@ -235,5 +235,25 @@ namespace Gaia.Core.Processing
 
         }
 
+        public static double GetGeneralInternalTimestamp()
+        {
+            //return Convert.ToDouble(DateTime.UtcNow.Millisecond) / 1000;
+            DateTime dt = DateTime.UtcNow;
+            return dt.Hour * 3600 + dt.Minute * 60 + dt.Second + dt.Millisecond / 1000;
+        }
+
+
+        public static string MACAddressToString(byte[] macAddr)
+        {
+            string tMac = "";
+            for (int i = 0; i < macAddr.Length; i++)
+            {
+
+                tMac += macAddr[i].ToString("x2").PadLeft(2, '0').ToUpper();
+                if (i != macAddr.Length - 1) tMac += "-";
+
+            }
+            return tMac;
+        }
     }
 }

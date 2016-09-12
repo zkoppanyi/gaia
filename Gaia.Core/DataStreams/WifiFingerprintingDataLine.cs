@@ -1,5 +1,7 @@
-﻿using System;
+﻿using Gaia.Core.Processing;
+using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -10,23 +12,27 @@ namespace Gaia.Core.DataStreams
     [Serializable]
     public class WifiFingerprintingDataLine : DataLine
     {
-        [System.ComponentModel.DisplayName("RSSI")]
-        public double RSSI { get; set; }
+        [DisplayName("Signal Strength (RSSI)")]
+        public double SignalStrength { get; set; }
 
-        [System.ComponentModel.DisplayName("MAC")]
-        public char[] MAC { get; set; }
+        [Browsable(false)]
+        public byte[] MAC { get; set; }
+
+        [DisplayName("MAC")]
+        [Browsable(true)]
+        public string MACString { get { return Utilities.MACAddressToString(MAC); } }
 
         public override int LineSize()
         {
-            return sizeof(long) + (2 * sizeof(double) + (6*sizeof(char)));
+            return sizeof(long) + (2 * sizeof(double) + (6*sizeof(byte)));
         }
 
         public override void ReadLine(BinaryReader reader)
         {
             this.Index = reader.ReadInt64();
             this.TimeStamp = reader.ReadDouble();
-            this.MAC = reader.ReadChars(6);
-            this.RSSI = reader.ReadDouble();
+            this.MAC = reader.ReadBytes(6);
+            this.SignalStrength = reader.ReadDouble();
 
         }
 
@@ -34,8 +40,8 @@ namespace Gaia.Core.DataStreams
         {
             writer.Write(this.Index);
             writer.Write(this.TimeStamp);
-            writer.Write(this.MAC);
-            writer.Write(this.RSSI);
+            writer.Write(this.MAC.Take(6).ToArray());
+            writer.Write(this.SignalStrength);
         }
     }
 }

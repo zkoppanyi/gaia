@@ -147,7 +147,29 @@ namespace Gaia.GUI.Dialogs
                     col.SortMode = DataGridViewColumnSortMode.NotSortable;
                 }
                 dataGridView.SelectionMode = DataGridViewSelectionMode.ColumnHeaderSelect;
-            }           
+            }
+            else if (dataStream is WifiFingerptiningDataStream)
+            {
+                dataStream.Open();
+                dataStream.Seek(startNum);
+
+                BindingList<WifiFingerprintingDataLine> dataLines = new BindingList<WifiFingerprintingDataLine>();
+                for (int i = 0; i < numPopulateRecords; i++)
+                {
+                    WifiFingerprintingDataLine dataLine = (WifiFingerprintingDataLine)dataStream.ReadLine();
+                    dataLines.Add(dataLine);
+                }
+                dataStream.Close();
+
+                // set up data source
+                dataGridView.SelectionMode = DataGridViewSelectionMode.RowHeaderSelect;
+                dataGridView.DataSource = dataLines;
+                foreach (DataGridViewColumn col in dataGridView.Columns)
+                {
+                    col.SortMode = DataGridViewColumnSortMode.NotSortable;
+                }
+                dataGridView.SelectionMode = DataGridViewSelectionMode.ColumnHeaderSelect;
+            }
             else
             {
                 throw new GaiaException("The DataStream is not suppported in DataViewDlg");
