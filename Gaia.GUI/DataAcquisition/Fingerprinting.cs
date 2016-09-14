@@ -49,8 +49,8 @@ namespace Gaia.GUI.DataAcquisition
 
         private Fingerprinting(Project project, IMessanger messanger, String name, String description) : base(project, messanger, name, description)
         {
-            this.SampleNumber = 5;
-            this.WaitingTime = 0.05;
+            this.SampleNumber = 10;
+            this.WaitingTime = 0.5;
             this.IsContinous = false;
         }
 
