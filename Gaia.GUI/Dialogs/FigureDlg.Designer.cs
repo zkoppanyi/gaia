@@ -28,9 +28,6 @@
         /// </summary>
         private void InitializeComponent()
         {
-            System.Windows.Forms.DataVisualization.Charting.ChartArea chartArea1 = new System.Windows.Forms.DataVisualization.Charting.ChartArea();
-            System.Windows.Forms.DataVisualization.Charting.Legend legend1 = new System.Windows.Forms.DataVisualization.Charting.Legend();
-            System.Windows.Forms.DataVisualization.Charting.Series series1 = new System.Windows.Forms.DataVisualization.Charting.Series();
             System.Windows.Forms.DataVisualization.Charting.ChartArea chartArea2 = new System.Windows.Forms.DataVisualization.Charting.ChartArea();
             System.Windows.Forms.DataVisualization.Charting.Legend legend2 = new System.Windows.Forms.DataVisualization.Charting.Legend();
             System.Windows.Forms.DataVisualization.Charting.Series series2 = new System.Windows.Forms.DataVisualization.Charting.Series();
@@ -39,26 +36,26 @@
             this.textBoxStatus = new System.Windows.Forms.TextBox();
             this.tabControl1 = new System.Windows.Forms.TabControl();
             this.tabPageSeries = new System.Windows.Forms.TabPage();
-            this.chartSeries = new System.Windows.Forms.DataVisualization.Charting.Chart();
             this.tabPageHistogram = new System.Windows.Forms.TabPage();
             this.chartHistogram = new System.Windows.Forms.DataVisualization.Charting.Chart();
             this.statusStrip1 = new System.Windows.Forms.StatusStrip();
             this.toolStripProgressBar = new System.Windows.Forms.ToolStripProgressBar();
             this.toolStripCancelProgress = new System.Windows.Forms.ToolStripStatusLabel();
             this.toolStrip1 = new System.Windows.Forms.ToolStrip();
-            this.toolStripButton1 = new System.Windows.Forms.ToolStripButton();
             this.toolStripSplitButton1 = new System.Windows.Forms.ToolStripSplitButton();
             this.refreshToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.aspectRatioEqualToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.legendToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.toolStripButton1 = new System.Windows.Forms.ToolStripButton();
+            this.figureBox = new System.Windows.Forms.PictureBox();
             this.tableLayoutPanel1.SuspendLayout();
             this.tabControl1.SuspendLayout();
             this.tabPageSeries.SuspendLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.chartSeries)).BeginInit();
             this.tabPageHistogram.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.chartHistogram)).BeginInit();
             this.statusStrip1.SuspendLayout();
             this.toolStrip1.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.figureBox)).BeginInit();
             this.SuspendLayout();
             // 
             // tableLayoutPanel1
@@ -104,7 +101,7 @@
             // 
             // tabPageSeries
             // 
-            this.tabPageSeries.Controls.Add(this.chartSeries);
+            this.tabPageSeries.Controls.Add(this.figureBox);
             this.tabPageSeries.Location = new System.Drawing.Point(4, 22);
             this.tabPageSeries.Name = "tabPageSeries";
             this.tabPageSeries.Padding = new System.Windows.Forms.Padding(3);
@@ -113,30 +110,13 @@
             this.tabPageSeries.Text = "Series";
             this.tabPageSeries.UseVisualStyleBackColor = true;
             // 
-            // chartSeries
-            // 
-            chartArea1.Name = "ChartArea1";
-            this.chartSeries.ChartAreas.Add(chartArea1);
-            this.chartSeries.Dock = System.Windows.Forms.DockStyle.Fill;
-            legend1.Name = "Legend1";
-            this.chartSeries.Legends.Add(legend1);
-            this.chartSeries.Location = new System.Drawing.Point(3, 3);
-            this.chartSeries.Name = "chartSeries";
-            series1.ChartArea = "ChartArea1";
-            series1.Legend = "Legend1";
-            series1.Name = "Series1";
-            this.chartSeries.Series.Add(series1);
-            this.chartSeries.Size = new System.Drawing.Size(634, 372);
-            this.chartSeries.TabIndex = 3;
-            this.chartSeries.Text = "chart1";
-            // 
             // tabPageHistogram
             // 
             this.tabPageHistogram.Controls.Add(this.chartHistogram);
             this.tabPageHistogram.Location = new System.Drawing.Point(4, 22);
             this.tabPageHistogram.Name = "tabPageHistogram";
             this.tabPageHistogram.Padding = new System.Windows.Forms.Padding(3);
-            this.tabPageHistogram.Size = new System.Drawing.Size(640, 320);
+            this.tabPageHistogram.Size = new System.Drawing.Size(640, 378);
             this.tabPageHistogram.TabIndex = 1;
             this.tabPageHistogram.Text = "Histogram";
             this.tabPageHistogram.UseVisualStyleBackColor = true;
@@ -154,7 +134,7 @@
             series2.Legend = "Legend1";
             series2.Name = "Series1";
             this.chartHistogram.Series.Add(series2);
-            this.chartHistogram.Size = new System.Drawing.Size(634, 314);
+            this.chartHistogram.Size = new System.Drawing.Size(634, 372);
             this.chartHistogram.TabIndex = 2;
             this.chartHistogram.Text = "chart1";
             // 
@@ -193,16 +173,6 @@
             this.toolStrip1.TabIndex = 2;
             this.toolStrip1.Text = "toolStrip1";
             // 
-            // toolStripButton1
-            // 
-            this.toolStripButton1.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
-            this.toolStripButton1.Image = ((System.Drawing.Image)(resources.GetObject("toolStripButton1.Image")));
-            this.toolStripButton1.ImageTransparentColor = System.Drawing.Color.Magenta;
-            this.toolStripButton1.Name = "toolStripButton1";
-            this.toolStripButton1.Size = new System.Drawing.Size(23, 22);
-            this.toolStripButton1.Text = "toolStripButton1";
-            this.toolStripButton1.Click += new System.EventHandler(this.toolStripButton1_Click);
-            // 
             // toolStripSplitButton1
             // 
             this.toolStripSplitButton1.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
@@ -239,6 +209,26 @@
             this.legendToolStripMenuItem.Text = "Legend";
             this.legendToolStripMenuItem.Click += new System.EventHandler(this.legendToolStripMenuItem_Click);
             // 
+            // toolStripButton1
+            // 
+            this.toolStripButton1.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
+            this.toolStripButton1.Image = ((System.Drawing.Image)(resources.GetObject("toolStripButton1.Image")));
+            this.toolStripButton1.ImageTransparentColor = System.Drawing.Color.Magenta;
+            this.toolStripButton1.Name = "toolStripButton1";
+            this.toolStripButton1.Size = new System.Drawing.Size(23, 22);
+            this.toolStripButton1.Text = "toolStripButton1";
+            this.toolStripButton1.Click += new System.EventHandler(this.toolStripButton1_Click);
+            // 
+            // figureBox
+            // 
+            this.figureBox.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.figureBox.Location = new System.Drawing.Point(3, 3);
+            this.figureBox.Name = "figureBox";
+            this.figureBox.Size = new System.Drawing.Size(634, 372);
+            this.figureBox.SizeMode = System.Windows.Forms.PictureBoxSizeMode.StretchImage;
+            this.figureBox.TabIndex = 0;
+            this.figureBox.TabStop = false;
+            // 
             // FigureDlg
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -256,13 +246,13 @@
             this.tableLayoutPanel1.PerformLayout();
             this.tabControl1.ResumeLayout(false);
             this.tabPageSeries.ResumeLayout(false);
-            ((System.ComponentModel.ISupportInitialize)(this.chartSeries)).EndInit();
             this.tabPageHistogram.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)(this.chartHistogram)).EndInit();
             this.statusStrip1.ResumeLayout(false);
             this.statusStrip1.PerformLayout();
             this.toolStrip1.ResumeLayout(false);
             this.toolStrip1.PerformLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.figureBox)).EndInit();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -279,12 +269,12 @@
         private System.Windows.Forms.ToolStripButton toolStripButton1;
         private System.Windows.Forms.TabControl tabControl1;
         private System.Windows.Forms.TabPage tabPageSeries;
-        private System.Windows.Forms.DataVisualization.Charting.Chart chartSeries;
         private System.Windows.Forms.TabPage tabPageHistogram;
         private System.Windows.Forms.DataVisualization.Charting.Chart chartHistogram;
         private System.Windows.Forms.ToolStripSplitButton toolStripSplitButton1;
         private System.Windows.Forms.ToolStripMenuItem refreshToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem aspectRatioEqualToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem legendToolStripMenuItem;
+        private System.Windows.Forms.PictureBox figureBox;
     }
 }

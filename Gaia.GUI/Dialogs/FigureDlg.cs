@@ -24,12 +24,14 @@ namespace Gaia.GUI.Dialogs
         private List<GaiaDataSeries> dataSeriesList;
         bool legendIsOn = true;
         ManualResetEvent syncEvent = new ManualResetEvent(false);
+        FigureObject figure;
 
         public FigureDlg(String name)
         {
             InitializeComponent();
             this.dataSeriesList = new List<GaiaDataSeries>();
             this.captionName = name;
+            this.figure = new FigureObject(figureBox.Width, figureBox.Height);
         }
 
         public void AddDataSeries(GaiaDataSeries dataSerises)
@@ -41,15 +43,11 @@ namespace Gaia.GUI.Dialogs
         {
             public GaiaDataSeries DataSeries { get; }
             public List<double[]> Points { get; }
-            public double MinY { get; }
-            public double MaxY { get; }
 
             public ReportProgressMessage(GaiaDataSeries series, List<double[]> points, double minY, double maxY)
             {
                 this.DataSeries = series;
                 this.Points = points;
-                this.MinY = minY;
-                this.MaxY = maxY;
             }
 
         }
@@ -84,35 +82,19 @@ namespace Gaia.GUI.Dialogs
 
                     object valueXobj = Utilities.GetValueByDisplayNameAttribute(line, dataSeries.CaptionX);
                     object valueYobj = Utilities.GetValueByDisplayNameAttribute(line, dataSeries.CaptionY);
+
                     try
                     {
                         double valueX = Convert.ToDouble(valueXobj);
                         double valueY = Convert.ToDouble(valueYobj);
-                        //dlgProgress.Worker.Progress((double)dataStream.GetPosition() / (double)dataStream.DataNumber * 100);
 
-                        miny = miny > valueY ? valueY : miny;
-                        maxy = maxy < valueY ? valueY : maxy;
+                        figure.AddPoint(valueX, valueY);
 
-                        double[] param = new double[] { valueX, valueY };
-
-                        // Details mode
-                        if (backGroundWorkerMode == 1)
-                        {
-                            if (dataStream.GetPosition() != pos) // don't want to read a data twice
-                            {
-                                if (Math.Abs(prevNum - valueY) > (maxy - miny) / 200)
-                                {
-                                    points.Add(param);
-                                    i++;
-                                }
-                            }
-                        }
 
                         // Preview mode
                         pos = dataStream.GetPosition() + under_sampling;
                         if (backGroundWorkerMode == 0)
                         {
-                            points.Add(param);
                             if (pos > dataStream.DataNumber) break;
                             dataStream.Seek(pos);
                             i++;
@@ -133,12 +115,11 @@ namespace Gaia.GUI.Dialogs
                             syncEvent.WaitOne();
 
                         }
-
-
+                        
                         prevNum = valueY;
                         lastProgressReport = progress;
                     }
-                    catch
+                    catch (Exception ex)
                     {
                         //dlgProgress.Worker.Write("Cannot convert the column's values to double!", "Conversion error");
                         dataStream.Close();
@@ -164,40 +145,11 @@ namespace Gaia.GUI.Dialogs
                 toolStripProgressBar.ProgressBar.BeginInvoke(new Action(() => toolStripProgressBar.Value = e.ProgressPercentage));
                 if (e.UserState != null)
                 {
-                    ReportProgressMessage msg = e.UserState as ReportProgressMessage;
 
-                    int dataSeriesIndex = -1;
-                    if (msg != null)
-                    {
-                        dataSeriesIndex = this.dataSeriesList.FindIndex(x => x.Name == msg.DataSeries.Name);
-                    }
-
-                    if ((msg != null) && (msg.Points.Count() != 0))
-                    {
-                        foreach (double[] point in msg.Points)
-                        {
-                            String seriesName = getSeriesName(msg.DataSeries);
-                            chartSeries.BeginInvoke(new Action(() => chartSeries.Series[seriesName].Points.AddXY(point[0], point[1])));
-                            if(dataSeriesIndex==0) stat.Numbers.Add(point[1]);
-                        }
-
-                        double miny = msg.MinY;
-                        double maxy = msg.MaxY;
-                        if ((maxy > miny) && ((this.maxy != maxy) || (this.maxy != maxy)))
-                        {
-                            chartSeries.BeginInvoke(new Action(() => chartSeries.ChartAreas[0].AxisY.Minimum = miny));
-                            chartSeries.BeginInvoke(new Action(() => chartSeries.ChartAreas[0].AxisY.Maximum = maxy));
-                            chartSeries.BeginInvoke(new Action(() => chartSeries.Update()));
-                        }
-                    }
+                    figureBox.Invoke(new Action(() => figureBox.Image = figure.FigureBitmap));
                 }
             }
             syncEvent.Set();
-        }
-
-        private String getSeriesName(GaiaDataSeries series)
-        {
-            return series.CaptionY + Environment.NewLine + " [" + series.Name + "]";
         }
 
         private void Statistics_Load(object sender, EventArgs e)
@@ -216,66 +168,7 @@ namespace Gaia.GUI.Dialogs
                 _backgroundWorker.CancelAsync();
             }
 
-            int nremove = chartSeries.Series.Count();
-            for(int i = 0; i < nremove; i++)
-            {
-                chartSeries.Series[i].Points.Clear() ;
-            }
-            //chartSeries.Series.Clear();
-            chartSeries.Series.Clear();
-
-            foreach (GaiaDataSeries dataSeries in this.dataSeriesList)
-            {
-                String seriesName = getSeriesName(dataSeries);
-
-                try
-                {
-                    chartSeries.Series.Add(seriesName);
-                    chartSeries.Series[seriesName].ChartType = SeriesChartType.Point;
-                    chartSeries.Series[seriesName].MarkerSize = 2;
-                    chartSeries.Series[seriesName].IsVisibleInLegend = legendIsOn;
-                }
-                catch
-                {
-                    this.textBoxStatus.AppendText("Series already exist: " + seriesName + Environment.NewLine);
-                    this.textBoxStatus.AppendText("Skip..." + Environment.NewLine);
-                    continue;
-                    // TODO
-                }
-
-                // TODO
-                chartSeries.ChartAreas[0].AxisY.Minimum = Double.NaN;
-                chartSeries.ChartAreas[0].AxisY.Maximum = Double.NaN;
-
-                chartSeries.ChartAreas[0].AxisX.LabelStyle.Format = "{0.00}";
-                chartSeries.ChartAreas[0].AxisY.LabelStyle.Format = "{0.0000}";
-                chartSeries.ChartAreas[0].AxisX.LabelStyle.Font = new Font(FontFamily.GenericMonospace, 8);
-                chartSeries.ChartAreas[0].AxisY.LabelStyle.Font = new Font(FontFamily.GenericMonospace, 8);
-
-                chartSeries.ChartAreas[0].AxisX.ScaleView.Zoomable = true;
-                chartSeries.ChartAreas[0].AxisY.ScaleView.Zoomable = true;
-
-                chartSeries.ChartAreas[0].AxisX.Title = dataSeries.CaptionX;
-                chartSeries.ChartAreas[0].AxisY.Title = dataSeries.CaptionY;
-                chartSeries.ChartAreas[0].AxisX.TitleFont = new Font(FontFamily.GenericMonospace, 8);
-                chartSeries.ChartAreas[0].AxisY.TitleFont = new Font(FontFamily.GenericMonospace, 8);
-
-                //Zoom 
-                //chartSeries.ChartAreas[0].AxisX.ScaleView.Zoom(1, 1);
-                chartSeries.ChartAreas[0].CursorX.IsUserEnabled = true;
-                chartSeries.ChartAreas[0].CursorY.IsUserEnabled = true;
-                chartSeries.ChartAreas[0].CursorX.IsUserSelectionEnabled = true;
-                chartSeries.ChartAreas[0].CursorY.IsUserSelectionEnabled = true;
-                chartSeries.ChartAreas[0].AxisY.ScaleView.Zoomable = true;
-                chartSeries.ChartAreas[0].AxisX.ScrollBar.IsPositionedInside = true;
-                chartSeries.ChartAreas[0].AxisY.ScrollBar.IsPositionedInside = true;
-
-
-            }
-
             backGroundWorkerMode = 0;
-            miny = Double.PositiveInfinity;
-            maxy = Double.NegativeInfinity;
 
             toolStripProgressBar.Visible = true;
             toolStripCancelProgress.Visible = true;
@@ -330,9 +223,9 @@ namespace Gaia.GUI.Dialogs
                 if (backGroundWorkerMode == 0)
                 {
                     double[] lims = e.Result as double[];
-                    chartSeries.ChartAreas[0].AxisY.Minimum = lims[0];
+                    /*chartSeries.ChartAreas[0].AxisY.Minimum = lims[0];
                     chartSeries.ChartAreas[0].AxisY.Maximum = lims[1];
-                    chartSeries.Update();
+                    chartSeries.Update();*/
 
                     backGroundWorkerMode = 1;
                     toolStripProgressBar.Visible = true;
@@ -346,9 +239,9 @@ namespace Gaia.GUI.Dialogs
                 else
                 {
                     double[] lims = e.Result as double[];
-                    chartSeries.ChartAreas[0].AxisY.Minimum = lims[0];
+                    /*chartSeries.ChartAreas[0].AxisY.Minimum = lims[0];
                     chartSeries.ChartAreas[0].AxisY.Maximum = lims[1];
-                    chartSeries.Update();
+                    chartSeries.Update();*/
 
                     toolStripProgressBar.Visible = false;
                     toolStripCancelProgress.Visible = false;
@@ -411,8 +304,8 @@ namespace Gaia.GUI.Dialogs
 
         private void toolStripButton1_Click(object sender, EventArgs e)
         {
-            chartSeries.ChartAreas[0].AxisX.ScaleView.ZoomReset();
-            chartSeries.ChartAreas[0].AxisY.ScaleView.ZoomReset();
+            /*chartSeries.ChartAreas[0].AxisX.ScaleView.ZoomReset();
+            chartSeries.ChartAreas[0].AxisY.ScaleView.ZoomReset();*/
         }
 
         private void toolStripButtonRefresh_Click(object sender, EventArgs e)
@@ -431,7 +324,7 @@ namespace Gaia.GUI.Dialogs
 
         private void aspectRatioEqualToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            aspectRatioEqual(chartSeries);
+            //aspectRatioEqual(chartSeries);
         }
 
         private void legendToolStripMenuItem_Click(object sender, EventArgs e)

@@ -85,6 +85,7 @@
     <Compile Include="Dialogs\DataViewDlg.Designer.cs">
       <DependentUpon>DataViewDlg.cs</DependentUpon>
     </Compile>
+    <Compile Include="Dialogs\FigureObject.cs" />
     <Compile Include="Dialogs\FigureSeriresSelectorDlg.cs">
       <SubType>Form</SubType>
     </Compile>
