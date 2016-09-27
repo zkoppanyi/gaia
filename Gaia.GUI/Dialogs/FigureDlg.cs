@@ -19,19 +19,40 @@ namespace Gaia.GUI.Dialogs
     {
         private String captionName;
         public String CaptionName { get { return captionName;  } }
-        private BackgroundWorker _backgroundWorker;
-        private Statistics stat;
+
+        private bool isPreviewMode;
+
+        private BackgroundWorker backgroundWorker;
         private List<GaiaDataSeries> dataSeriesList;
-        bool legendIsOn = true;
-        ManualResetEvent syncEvent = new ManualResetEvent(false);
-        FigureObject figure;
+
+        private ManualResetEvent syncFigureEvent = new ManualResetEvent(false);
+        private FigureObject figure;
 
         public FigureDlg(String name)
         {
             InitializeComponent();
+            toolStripAspectRatio.Items.Add(0.0);
+            toolStripAspectRatio.Items.Add(1.0);
+            toolStripAspectRatio.Items.Add(0.5);
+            toolStripAspectRatio.Items.Add(0.25);
+            toolStripAspectRatio.Items.Add(0.1);
+            toolStripAspectRatio.Items.Add(0.01);
+            toolStripAspectRatio.Items.Add(2.0);
+            toolStripAspectRatio.Items.Add(5.0);
+            toolStripAspectRatio.Items.Add(10.0);
+            toolStripAspectRatio.Items.Add(100.0);
+
             this.dataSeriesList = new List<GaiaDataSeries>();
             this.captionName = name;
             this.figure = new FigureObject(figureBox.Width, figureBox.Height);
+            this.isPreviewMode = true;
+
+            backgroundWorker = new BackgroundWorker();
+            backgroundWorker.DoWork += new DoWorkEventHandler(backgroundWorker_DoWork);
+            backgroundWorker.ProgressChanged += new ProgressChangedEventHandler(backgroundWorker_ProgressChanged);
+            backgroundWorker.WorkerReportsProgress = true;
+            backgroundWorker.WorkerSupportsCancellation = true;
+            backgroundWorker.RunWorkerCompleted += new RunWorkerCompletedEventHandler(backgroundWorker_Completed);
         }
 
         public void AddDataSeries(GaiaDataSeries dataSerises)
@@ -42,18 +63,18 @@ namespace Gaia.GUI.Dialogs
         private class ReportProgressMessage
         {
             public GaiaDataSeries DataSeries { get; }
-            public List<double[]> Points { get; }
+            public FigureObject Figure { get; }
 
-            public ReportProgressMessage(GaiaDataSeries series, List<double[]> points, double minY, double maxY)
+            public ReportProgressMessage(GaiaDataSeries series, FigureObject figure)
             {
                 this.DataSeries = series;
-                this.Points = points;
+                this.Figure = figure;
+                figure.XLabel = series.CaptionX;
+                figure.YLabel = series.CaptionY;
             }
 
         }
 
-        private int backGroundWorkerMode = 0;
-        private double miny = Double.PositiveInfinity, maxy = Double.NegativeInfinity;
         public void backgroundWorker_DoWork(object sender, DoWorkEventArgs e)
         {
             foreach (GaiaDataSeries dataSeries in dataSeriesList)
@@ -63,17 +84,16 @@ namespace Gaia.GUI.Dialogs
 
                 dataStream.Open();
                 dataStream.Begin();
-                List<double[]> points = new List<double[]>();
                 int i = 0;
                 double prevNum = Double.NaN;
                 int lastProgressReport = 0;
                 long pos = 0;
                 while (!dataStream.IsEOF())
                 {
-                    if (_backgroundWorker.CancellationPending)
+                    if (backgroundWorker.CancellationPending)
                     {
-                        e.Cancel = true;
                         dataStream.Close();
+                        e.Cancel = true;
                         return;
                     }
 
@@ -90,10 +110,9 @@ namespace Gaia.GUI.Dialogs
 
                         figure.AddPoint(valueX, valueY);
 
-
                         // Preview mode
                         pos = dataStream.GetPosition() + under_sampling;
-                        if (backGroundWorkerMode == 0)
+                        if (this.isPreviewMode == true)
                         {
                             if (pos > dataStream.DataNumber) break;
                             dataStream.Seek(pos);
@@ -102,18 +121,18 @@ namespace Gaia.GUI.Dialogs
 
                         if ((progress % 10 == 0) && (lastProgressReport != progress))
                         {
-                            syncEvent.Reset();
-                            ReportProgressMessage msg = new ReportProgressMessage(dataSeries, points, miny, maxy);
-                            _backgroundWorker.ReportProgress(progress, msg);
-                            syncEvent.WaitOne();
-                            points.Clear();
+                            syncFigureEvent.Reset();
+                            figure.Redraw();
+                            ReportProgressMessage msgl = new ReportProgressMessage(dataSeries, figure);
+                            backgroundWorker.ReportProgress(progress, msgl);
+                            syncFigureEvent.WaitOne();
                         }
+
                         else if ((progress % 2 == 0) && (lastProgressReport != progress))
                         {
-                            syncEvent.Reset();
-                            _backgroundWorker.ReportProgress(progress, null);
-                            syncEvent.WaitOne();
-
+                            syncFigureEvent.Reset();
+                            backgroundWorker.ReportProgress(progress, null);
+                            syncFigureEvent.WaitOne();
                         }
                         
                         prevNum = valueY;
@@ -127,126 +146,87 @@ namespace Gaia.GUI.Dialogs
                     }
                 }
 
-                syncEvent.Reset();
-                _backgroundWorker.ReportProgress(100, points.ToArray());
-                syncEvent.WaitOne();
+                syncFigureEvent.Reset();
+                figure.Redraw();
+                ReportProgressMessage msg = new ReportProgressMessage(dataSeries, figure);
+                backgroundWorker.ReportProgress(100, msg);
+                syncFigureEvent.WaitOne();
                 dataStream.Close();
             }
 
-            e.Result = new double[] { miny, maxy };
             e.Cancel = false;
             return;
         }
 
         private void backgroundWorker_ProgressChanged(object sender, ProgressChangedEventArgs e)
         {
-            if (!_backgroundWorker.CancellationPending)
+            if (!backgroundWorker.CancellationPending)
             {
                 toolStripProgressBar.ProgressBar.BeginInvoke(new Action(() => toolStripProgressBar.Value = e.ProgressPercentage));
                 if (e.UserState != null)
                 {
-
-                    figureBox.Invoke(new Action(() => figureBox.Image = figure.FigureBitmap));
+                    ReportProgressMessage msg = e.UserState as ReportProgressMessage;
+                    //figureBox.Invoke(new Action(() => figureBox.Image = msg.Figure.FigureBitmap));
+                    figureBox.Image = msg.Figure.FigureBitmap;
                 }
             }
-            syncEvent.Set();
+            syncFigureEvent.Set();
         }
 
-        private void Statistics_Load(object sender, EventArgs e)
+        private void FigureDlg_Load(object sender, EventArgs e)
         {
             this.Text = this.captionName;
-            stat = Statistics.Factory.Create(GlobalAccess.Project, null);
-           
             UpdateSeries();
-
         }
 
+        public void CancelFigure()
+        {
+            //if ((this._backgroundWorker != null) && (this._backgroundWorker.IsBusy))
+            if (this.backgroundWorker != null) 
+            {
+                backgroundWorker.CancelAsync();
+            }
+        }
+
+        private bool isUpdateSeriesRequired = false;
         public void UpdateSeries()
         {
-            if ((this._backgroundWorker != null)  && (this._backgroundWorker.IsBusy))
+            if (this.backgroundWorker.IsBusy)
             {
-                _backgroundWorker.CancelAsync();
+                CancelFigure();
+                isUpdateSeriesRequired = true;
             }
-
-            backGroundWorkerMode = 0;
-
-            toolStripProgressBar.Visible = true;
-            toolStripCancelProgress.Visible = true;
-            _backgroundWorker = new BackgroundWorker();
-            _backgroundWorker.DoWork += new DoWorkEventHandler(backgroundWorker_DoWork);
-            _backgroundWorker.ProgressChanged += new ProgressChangedEventHandler(backgroundWorker_ProgressChanged);
-            _backgroundWorker.WorkerReportsProgress = true;
-            _backgroundWorker.WorkerSupportsCancellation = true;
-            _backgroundWorker.RunWorkerCompleted += new RunWorkerCompletedEventHandler(backgroundWorker_Completed);
-            syncEvent.Reset();
-            _backgroundWorker.RunWorkerAsync();
-        }
-
-        ElementPosition ipp0 = null;
-        private void aspectRatioEqual(Chart chart)
-        {
-            ChartArea ca = chart.ChartAreas[0];
-
-            // store the original value:
-            if (ipp0 == null) ipp0 = ca.InnerPlotPosition;
-
-            // get the current chart area :
-            ElementPosition cap = ca.Position;
-
-            // get both area sizes in pixels:
-            Size CaSize = new Size((int)(cap.Width * chart.ClientSize.Width / 100f),
-                                    (int)(cap.Height * chart.ClientSize.Height / 100f));
-
-            Size IppSize = new Size((int)(ipp0.Width * CaSize.Width / 100f),
-                                    (int)(ipp0.Height * CaSize.Height / 100f));
-
-            // we need to use the smaller side:
-            int ippNewSide = Math.Min(IppSize.Width, IppSize.Height);
-
-            // calculate the scaling factors
-            float px = ipp0.Width / IppSize.Width * ippNewSide;
-            float py = ipp0.Height / IppSize.Height * ippNewSide;
-
-            // use one or the other:
-            if (IppSize.Width < IppSize.Height)
-                ca.InnerPlotPosition = new ElementPosition(ipp0.X, ipp0.Y, ipp0.Width, py);
             else
-                ca.InnerPlotPosition = new ElementPosition(ipp0.X, ipp0.Y, px, ipp0.Height);
+            {
+                toolStripProgressBar.Visible = true;
+                toolStripCancelProgress.Visible = true;
+                isPreviewMode = true;
+                syncFigureEvent.Reset();
+                figure.Clear();
+                backgroundWorker.RunWorkerAsync();
+            }
 
         }
 
         private void backgroundWorker_Completed(object sender, RunWorkerCompletedEventArgs e)
         {
-            if (!e.Cancelled)
+            if (!e.Cancelled) 
             {
                 //toolStripProgressBar.Visible = false;
-                if (backGroundWorkerMode == 0)
+                if (isPreviewMode == true)
                 {
                     double[] lims = e.Result as double[];
-                    /*chartSeries.ChartAreas[0].AxisY.Minimum = lims[0];
-                    chartSeries.ChartAreas[0].AxisY.Maximum = lims[1];
-                    chartSeries.Update();*/
-
-                    backGroundWorkerMode = 1;
+                    isPreviewMode = false;
                     toolStripProgressBar.Visible = true;
                     toolStripCancelProgress.Visible = true;
-                    syncEvent.Reset();
-                    _backgroundWorker.RunWorkerAsync();
-
-                    refreshHistogram();
+                    syncFigureEvent.Reset();
+                    backgroundWorker.RunWorkerAsync();
                     textBoxStatus.AppendText("Preview loaded!" + Environment.NewLine);
                 }
                 else
                 {
-                    double[] lims = e.Result as double[];
-                    /*chartSeries.ChartAreas[0].AxisY.Minimum = lims[0];
-                    chartSeries.ChartAreas[0].AxisY.Maximum = lims[1];
-                    chartSeries.Update();*/
-
                     toolStripProgressBar.Visible = false;
                     toolStripCancelProgress.Visible = false;
-
-                    refreshHistogram();
                     textBoxStatus.AppendText("All data is loaded!" + Environment.NewLine);
                 }
             }
@@ -254,42 +234,24 @@ namespace Gaia.GUI.Dialogs
             {
                 if (!this.IsDisposed)
                 {
+                    isPreviewMode = true;
                     toolStripProgressBar.Visible = false;
                     toolStripCancelProgress.Visible = false;
-                    refreshHistogram();
-                    textBoxStatus.AppendText("Data loading is cancelled! The histogram and the figure are not complete!" + Environment.NewLine);
+                    textBoxStatus.AppendText("Data loading is cancelled!" + Environment.NewLine);
+
+                    if(isUpdateSeriesRequired)
+                    {
+                        textBoxStatus.AppendText("Update is required!" + Environment.NewLine);
+                        toolStripProgressBar.Visible = true;
+                        toolStripCancelProgress.Visible = true;
+                        syncFigureEvent.Reset();
+                        figure.Clear();
+                        backgroundWorker.RunWorkerAsync();
+                        isUpdateSeriesRequired = false;
+                    }
                 }
             }
-        }
 
-        private void refreshHistogram()
-        {
-            if (stat.Numbers.Count() != 0)
-            {
-                stat.Run();
-                SortedList<double, double> histogram = stat.Histogram;
-                chartHistogram.Series.Clear();
-                chartHistogram.Series.Add("Histogram");
-                foreach (double xp in histogram.Keys)
-                {
-                    double yp = histogram[xp];
-                    //DataPoint dp = new DataPoint();
-                    //dp.SetValueXY(xp, new double[] { yp });
-                    chartHistogram.Series["Histogram"].Points.AddXY(xp, yp);
-                }
-
-                chartHistogram.ChartAreas[0].AxisX.LabelStyle.Format = "{0.00}";
-                chartHistogram.ChartAreas[0].AxisY.LabelStyle.Format = "{0}";
-                chartHistogram.ChartAreas[0].AxisX.LabelStyle.Font = new Font(FontFamily.GenericMonospace, 8);
-                chartHistogram.ChartAreas[0].AxisY.LabelStyle.Font = new Font(FontFamily.GenericMonospace, 8);
-
-                chartHistogram.ChartAreas[0].AxisX.Title = dataSeriesList[0].CaptionY;
-                chartHistogram.ChartAreas[0].AxisY.Title = "Frequency [-]";
-                chartHistogram.ChartAreas[0].AxisX.TitleFont = new Font(FontFamily.GenericMonospace, 8);
-                chartHistogram.ChartAreas[0].AxisY.TitleFont = new Font(FontFamily.GenericMonospace, 8);
-
-                chartHistogram.Update();
-            }
         }
 
         private void toolStripSplitButton1_ButtonClick(object sender, EventArgs e)
@@ -299,13 +261,12 @@ namespace Gaia.GUI.Dialogs
 
         private void toolStripCancelProgress_Click(object sender, EventArgs e)
         {
-            _backgroundWorker.CancelAsync();
+            CancelFigure();
         }
 
         private void toolStripButton1_Click(object sender, EventArgs e)
         {
-            /*chartSeries.ChartAreas[0].AxisX.ScaleView.ZoomReset();
-            chartSeries.ChartAreas[0].AxisY.ScaleView.ZoomReset();*/
+           
         }
 
         private void toolStripButtonRefresh_Click(object sender, EventArgs e)
@@ -324,19 +285,17 @@ namespace Gaia.GUI.Dialogs
 
         private void aspectRatioEqualToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            //aspectRatioEqual(chartSeries);
+
         }
 
         private void legendToolStripMenuItem_Click(object sender, EventArgs e)
         {
             if (this.legendToolStripMenuItem.Checked == true)
             {
-                this.legendIsOn = false;
                 this.legendToolStripMenuItem.Checked = false; 
             }
             else
             {
-                this.legendIsOn = true;
                 this.legendToolStripMenuItem.Checked = true;
             }
 
@@ -345,8 +304,72 @@ namespace Gaia.GUI.Dialogs
 
         private void StatisticsDlg_FormClosing(object sender, FormClosingEventArgs e)
         {
-            _backgroundWorker.CancelAsync();
+            CancelFigure();
             GlobalAccess.RemoveFigure(this);
+        }
+
+        bool sizing = false;
+        private void FigureDlg_Resize(object sender, EventArgs e)
+        {
+            // ResizeEnd event is triggered, even of the window just moved, not resized.
+            // To workaround, here, I use sizing variable 
+            sizing = true;
+        }
+
+        private void FigureDlg_ResizeEnd(object sender, EventArgs e)
+        {
+            if (!sizing) return;
+
+            if (sizing)
+            {
+                sizing = false;
+                //CancelFigure();
+                figure.SetNewBitmapSizeAndClear(figureBox.Width, figureBox.Height);
+                isPreviewMode = true;
+                this.UpdateSeries();
+            }
+        }
+
+        private void aspectRatioEqualToolStripMenuItem_Click_1(object sender, EventArgs e)
+        {
+           
+        }
+
+        private void toolStripAspectRatio_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            if(toolStripAspectRatio.Selected)
+            {
+                double ratio = (double)toolStripAspectRatio.SelectedItem;
+                figure.AspectRatio = ratio;
+                this.UpdateSeries();
+            }
+        }
+
+        private void toolStripAspectRatio_TextUpdate(object sender, EventArgs e)
+        {
+            try
+            {
+                double ratio = Convert.ToDouble(toolStripAspectRatio.Text);
+                figure.AspectRatio = ratio;
+                this.UpdateSeries();
+            }
+            catch
+            {
+                textBoxStatus.Text = "Invalid double value!";
+            }
+        }
+
+        private void toolStripAspectRatio_Click(object sender, EventArgs e)
+        {
+
+        }
+
+        private void relativeToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            relativeToolStripMenuItem.Checked = relativeToolStripMenuItem.Checked == true ? false : true;
+            figure.IsRelative = relativeToolStripMenuItem.Checked;
+            this.UpdateSeries();
+
         }
     }
 }

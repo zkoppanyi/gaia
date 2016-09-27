@@ -35,7 +35,6 @@ namespace Gaia.GUI
 
             Application.Run(mainForm);
 
-
         }
     }
 }
