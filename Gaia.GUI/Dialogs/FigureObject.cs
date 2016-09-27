@@ -19,8 +19,8 @@ namespace Gaia.GUI.Dialogs
         private Color backGroundColor = Color.White;
         private int axisEdgeOuterX = 100;
         private int axisEdgeOuterY = 40;
-        private int axisEdgeInnerX = 10;
-        private int axisEdgeInnerY = 10;
+        private int axisEdgeInnerX = 0;
+        private int axisEdgeInnerY = 0;
         private int tickSize = 6;
 
 
@@ -202,7 +202,7 @@ namespace Gaia.GUI.Dialogs
             double ratX = (double)(figureBitmap.Width - axisEdgeOuterX * 2 - axisEdgeInnerX * 2) / dx;
             double ratY = (double)(figureBitmap.Height - axisEdgeOuterY * 2 - axisEdgeInnerY * 2) / dy;
 
-            double wrdX = ((double)(x - axisEdgeOuterX - axisEdgeInnerX) / ratX) + xLimMin;
+            double wrdX = ((double)(x - axisEdgeOuterX - axisEdgeInnerX) / ratX) + XLimMin;
             double wrdY = ((double)(-y + figureBitmap.Height + axisEdgeOuterY + axisEdgeInnerY) / ratY) + YLimMin;
             return new FPoint(wrdX, wrdY);
         }
@@ -216,63 +216,81 @@ namespace Gaia.GUI.Dialogs
             double divNX = 5;
             double divNY = 5;
 
-            //Font drawFont = new System.Drawing.Font("Courier New", axisEdgeOuterX - 4 - tickSize);
-
             Point origin = new Point(axisEdgeOuterX, figureBitmap.Height - axisEdgeOuterY);
             Point pX = new Point(figureBitmap.Width - axisEdgeOuterX, figureBitmap.Height - axisEdgeOuterY);
             Point pY = new Point(axisEdgeOuterX, axisEdgeOuterY);
+
             double rX = Math.Sqrt(Math.Pow(pX.X - origin.X, 2) + Math.Pow(pX.Y - origin.Y, 2));
             double rY = Math.Sqrt(Math.Pow(pY.X - origin.X, 2) + Math.Pow(pY.Y - origin.Y, 2));
+
             divNX = Math.Ceiling(rX / (double)textLengthX-3);
             divNX = divNX == 0 ? 1 : divNX;
             divNY = Math.Min(divNX, tickLabelFont.Size+3);
             divNY = divNY == 0 ? 1 : divNY;
 
-            double dX = rX / divNX;
-            double dY = rY / divNY;
+            // Rounding the spacing
+            double ddx = (XLimMax - XLimMin) != 0 ? XLimMax - XLimMin : 1;
+            double ddy = (YLimMax - YLimMin) != 0 ? YLimMax - YLimMin : 1;
+            if (Double.IsPositiveInfinity(ddx) || Double.IsNegativeInfinity(ddx)) return;
 
+            double digitsX = getDigits(ddx / divNX);
+            double digitsY = getDigits(ddy / divNY);
+            double dX = Math.Floor(ddx / divNX / digitsX) * digitsX;
+            double dY = Math.Floor(ddy / divNY / digitsY) * digitsY;
+
+            // Drawing 
             g.DrawLine(axisPen, origin, pX);
             g.DrawLine(axisPen, origin, pY);
 
-
-            for (int i=0; i <= divNX; i++)
+            for (double i = XLimMin; i <= XLimMax; i += dX)
             {
-                Point tickX = new Point((int)(axisEdgeOuterX + i * dX), figureBitmap.Height - axisEdgeOuterY);
-                g.DrawLine(axisPen, new Point(tickX.X, tickX.Y - tickSize/2), new Point(tickX.X, tickX.Y + tickSize / 2));
-                FPoint ptTickX = this.ImageToWord(tickX.X, tickX.Y);
-                if (IsRelative)
-                {
-                    ptTickX.X = ptTickX.X - XLimMin;
-                }
+                FPoint ptTickX = new FPoint(i, YLimMin);
+                FPoint tickX = this.WorldToImage(ptTickX.X, ptTickX.Y);
+                g.DrawLine(axisPen, new Point((int)tickX.X, (int)tickX.Y - tickSize/2), new Point((int)tickX.X, (int)tickX.Y + tickSize / 2));
+                if (IsRelative) ptTickX.X = ptTickX.X - XLimMin;
+
                 String label = ptTickX.X.ToString(tickLabelXFormat);
                 int labelWidth = label.Length * (int)tickLabelFont.Size;
                 int labelHeight = (int)tickLabelFont.Size;
-                g.DrawString(label, tickLabelFont, tickLabelBrush, tickX.X - labelWidth/2, tickX.Y + tickSize , tickLabelFormat);
+                g.DrawString(label, tickLabelFont, tickLabelBrush, (int)tickX.X - labelWidth/2, (int)tickX.Y + tickSize , tickLabelFormat);
             }
 
             g.DrawString(XLabel, labelFont, tickLabelBrush, (int)(origin.X + rX / 2)-XLabel.Length*labelFont.Size/2, origin.Y + tickSize + tickLabelFont.Size*2, labelFormat);
 
             int tickLabelWidth = 0;
-            for (int i = 0; i <= divNY; i++)
+            for (double i = YLimMin; i <= YLimMax; i += dY)
             {
-                Point tickY = new Point(axisEdgeOuterX, (int)(figureBitmap.Height - axisEdgeOuterY - i * dY));
-                g.DrawLine(axisPen, new Point(tickY.X - tickSize / 2, tickY.Y ), new Point(tickY.X + tickSize / 2, tickY.Y ));
-                FPoint ptTickY = this.ImageToWord(tickY.X, tickY.Y);
-                if (IsRelative)
-                {
-                    ptTickY.Y = ptTickY.Y - YLimMin;
-                }
+                FPoint ptTickY = new FPoint(XLimMin, i);
+                FPoint tickY = this.WorldToImage(ptTickY.X, ptTickY.Y);
+                g.DrawLine(axisPen, new Point((int)tickY.X - tickSize / 2, (int)tickY.Y ), new Point((int)tickY.X + tickSize / 2, (int)tickY.Y ));
+                if (IsRelative) ptTickY.Y = ptTickY.Y - YLimMin;
 
                 String label = ptTickY.Y.ToString(tickLabelYFormat);
                 tickLabelWidth = label.Length * (int)tickLabelFont.Size;
                 int labelHeight = (int)tickLabelFont.Size;
-                g.DrawString(label, tickLabelFont, tickLabelBrush, tickY.X - tickLabelWidth, tickY.Y - labelHeight/2, tickLabelFormat);
+                g.DrawString(label, tickLabelFont, tickLabelBrush, (int)tickY.X - tickLabelWidth, (int)tickY.Y - labelHeight, tickLabelFormat);
             }
 
             g.DrawString(YLabel, labelFont, tickLabelBrush, (int)pY.X - tickLabelWidth, (int)(pY.Y - tickSize - tickLabelFont.Size * 2));
 
         }
 
+        private double getDigits(double val)
+        {
+            double digits = 1;
+            val = Math.Abs(val);
+            if (val > 0.0001) digits = 0.0001;
+            if (val > 0.001) digits = 0.001;
+            if (val > 0.01) digits = 0.01;
+            if (val > 0.1) digits = 0.1;
+            if (val > 10.0) digits = 10;
+            if (val > 100.0) digits = 100;
+            if (val > 1000.0) digits = 1000;
+            if (val > 10000.0) digits = 10000;
+
+            return digits;
+
+        }
         private void drawPoint(double x, double y)
         {
             // just for safety, altough: assert

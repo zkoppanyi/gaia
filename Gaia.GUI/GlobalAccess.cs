@@ -26,6 +26,7 @@ namespace Gaia.GUI
             ImporterFactories.Add(UWBStandardImporter.Factory);
             ImporterFactories.Add(IMUMicroStrainLogImporter.Factory);
             ImporterFactories.Add(IMUEpsonLogImporter.Factory);
+            ImporterFactories.Add(IMUTextImporter.Factory);
             ImporterFactories.Add(PointsImporter.Factory);
             ImporterFactories.Add(GPSLogImporter.Factory);
             ImporterFactories.Add(CoordinatesImporter.Factory);

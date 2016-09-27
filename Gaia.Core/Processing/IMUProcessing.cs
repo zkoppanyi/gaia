@@ -141,6 +141,15 @@ namespace Gaia.Core.Processing
                     return AlgorithmResult.Failure;
                 }
 
+                if (Double.IsNaN(prh[0]) || Double.IsNaN(prh[1]) || Double.IsNaN(prh[2]))
+                {
+                    SourceDataStream.Close();
+                    OutputDataStream.Close();
+                    WriteMessage("PRH value(s) is NaN! Stop.");
+                    return AlgorithmResult.Sucess;
+                }
+
+
                 IMUDataLine data = SourceDataStream.ReadLine() as IMUDataLine;
                 WriteProgress((double)SourceDataStream.GetPosition() / (double)SourceDataStream.DataNumber * 100.0);
 
@@ -158,7 +167,7 @@ namespace Gaia.Core.Processing
                 prevTimeStamp = currentTimeStamp;
                 Cbn = quat2dcm(qbn);
                 prh = dcm2prh(Cbn);
-
+                
                 // Write results
                 CoordinateAttitudeDataLine resultData = new CoordinateAttitudeDataLine();
                 double x, y, z;

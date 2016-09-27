@@ -8,6 +8,7 @@ using System.IO;
 using Gaia.Core.DataStreams;
 using Gaia.Core;
 using Gaia.Exceptions;
+using Gaia.Core.Processing;
 
 namespace Gaia.Core.Import
 {
@@ -22,46 +23,50 @@ namespace Gaia.Core.Import
             }
         }
 
-        public class IMUMicroStrainLogImporterFactory : ImporterFactory
+        public class IMUMicroStrainLogImporterFactory : IMUTextImporterFactory
         {
-            public String Name { get { return "Import Microstrain CSV Log file!" + Environment.NewLine + "Format: check the sample file!"; } }
-            public String Description { get { return "MicroStrain Import CSV"; } }
+            public new String Name { get { return "Import Microstrain CSV Log file!" + Environment.NewLine + "Format: check the sample file!"; } }
+            public new String Description { get { return "MicroStrain Import CSV"; } }
 
-            public DataStreamType GetDataStreamType()
+            public IMUMicroStrainLogImporterFactory()
             {
-                return DataStreamType.IMUDataStream;
+                Separator = ',';
+                ColumnTimeStamp = 2;
+                ColumnAx = 7;
+                ColumnAy = 8;
+                ColumnAz = 9;
+                ColumnWx = 10;
+                ColumnWy = 11;
+                ColumnWz = 12;
+                ColumnRatioAx = Utilities.g;
+                ColumnRatioAy = Utilities.g;
+                ColumnRatioAz = Utilities.g;
+                ColumnRatioWx = 180.0/ Math.PI;
+                ColumnRatioWy = 180.0/ Math.PI;
+                ColumnRatioWz = 180.0/ Math.PI;
+                HeaderRowNo = 16;
+                ParseAllYouCan = true;
             }
 
-
-            public Importer Create(string filePath, DataStream dataStream, Project project, IMessanger messanger = null)
+            public new Importer Create(string filePath, DataStream dataStream, Project project, IMessanger messanger = null)
             {
-                IMUMicroStrainLogImporter importer = new IMUMicroStrainLogImporter(project, messanger, Name, Description, filePath, dataStream);
+
+                IMUMicroStrainLogImporter importer = new IMUMicroStrainLogImporter(project, messanger, Name, Description, filePath, dataStream,
+                        ColumnTimeStamp, ColumnAx, ColumnAy, ColumnAz, ColumnWx, ColumnWy, ColumnWz,
+                        ColumnRatioAx, ColumnRatioAy, ColumnRatioAz, ColumnRatioWx, ColumnRatioWy, ColumnRatioWz, HeaderRowNo, ParseAllYouCan);
+
                 return importer;
             }
         }
 
-        private IMUMicroStrainLogImporter(Project project, IMessanger messanger, String name, String description, String filePath, DataStream dataStream) : base(project, messanger, name, description, filePath, dataStream)
-
+        private IMUMicroStrainLogImporter(Project project, IMessanger messanger, String name, String description, String filePath, DataStream dataStream,
+            int columnTimeStamp, int columnAx, int columnAy, int columnAz, int columnWx, int columnWy, int columnWz,
+            double columnRatioAx, double columnRatioAy, double columnRatioAz,
+            double columnRatioWx, double columnRatioWy, double columnRatioWz, int headerRowNo, bool parseAllYouCan) : base(project, messanger, name, description, filePath, dataStream,
+                        columnTimeStamp, columnAx, columnAy, columnAz, columnWx, columnWy, columnWz,
+                        columnRatioAx, columnRatioAy, columnRatioAz, columnRatioWx, columnRatioWy, columnRatioWz, headerRowNo, parseAllYouCan)
         {
-            Separator = ',';
-            ColumnTimeStamp = 2;
-            ColumnAx = 7;
-            ColumnAy = 8;
-            ColumnAz = 9;
-            ColumnWx = 10;
-            ColumnWy = 11;
-            ColumnWz = 12;
-            ColumnRatioAx = 1;
-            ColumnRatioAy = 1;
-            ColumnRatioAz = 1;
-            ColumnRatioWx = 1;
-            ColumnRatioWy = 1;
-            ColumnRatioWz = 1;
-            HeaderRowNo = 16;
-            this.Name = name;
-            this.Description = description;
-            this.dataStream = dataStream;
-            this.filePath = filePath;
+
         }
 
         public override string SupportedFileFormats()

@@ -42,6 +42,7 @@
             this.calculateToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.iMUInitializationToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.calculateTrajectoryToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.updateOrderFlagToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.toolStrip = new System.Windows.Forms.ToolStrip();
             this.toolStripButton3 = new System.Windows.Forms.ToolStripButton();
             this.toolStripButton1 = new System.Windows.Forms.ToolStripButton();
@@ -57,7 +58,6 @@
             this.iDataStreamBindingSource = new System.Windows.Forms.BindingSource(this.components);
             this.dataGridViewImageColumn1 = new System.Windows.Forms.DataGridViewImageColumn();
             this.dataGridViewImageColumn2 = new System.Windows.Forms.DataGridViewImageColumn();
-            this.updateOrderFlagToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.menuStripDataStream.SuspendLayout();
             this.toolStrip.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.dataStreamGridView)).BeginInit();
@@ -72,7 +72,7 @@
             this.calculateToolStripMenuItem});
             this.menuStripDataStream.Location = new System.Drawing.Point(0, 0);
             this.menuStripDataStream.Name = "menuStripDataStream";
-            this.menuStripDataStream.Size = new System.Drawing.Size(459, 24);
+            this.menuStripDataStream.Size = new System.Drawing.Size(921, 24);
             this.menuStripDataStream.TabIndex = 0;
             this.menuStripDataStream.Text = "menuStrip";
             // 
@@ -146,6 +146,13 @@
             this.calculateTrajectoryToolStripMenuItem.Text = "Calculate Trajectory";
             this.calculateTrajectoryToolStripMenuItem.Click += new System.EventHandler(this.calculateTrajectoryToolStripMenuItem_Click);
             // 
+            // updateOrderFlagToolStripMenuItem
+            // 
+            this.updateOrderFlagToolStripMenuItem.Name = "updateOrderFlagToolStripMenuItem";
+            this.updateOrderFlagToolStripMenuItem.Size = new System.Drawing.Size(179, 22);
+            this.updateOrderFlagToolStripMenuItem.Text = "Update Order Flag";
+            this.updateOrderFlagToolStripMenuItem.Click += new System.EventHandler(this.updateOrderFlagToolStripMenuItem_Click);
+            // 
             // toolStrip
             // 
             this.toolStrip.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
@@ -158,7 +165,7 @@
             this.toolStrip.LayoutStyle = System.Windows.Forms.ToolStripLayoutStyle.HorizontalStackWithOverflow;
             this.toolStrip.Location = new System.Drawing.Point(0, 24);
             this.toolStrip.Name = "toolStrip";
-            this.toolStrip.Size = new System.Drawing.Size(459, 25);
+            this.toolStrip.Size = new System.Drawing.Size(921, 25);
             this.toolStrip.TabIndex = 1;
             this.toolStrip.Text = "toolStrip1";
             // 
@@ -244,7 +251,7 @@
             this.dataStreamGridView.DataSource = this.iDataStreamBindingSource;
             dataGridViewCellStyle2.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleLeft;
             dataGridViewCellStyle2.BackColor = System.Drawing.SystemColors.Window;
-            dataGridViewCellStyle2.Font = new System.Drawing.Font("Courier New", 9.75F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            dataGridViewCellStyle2.Font = new System.Drawing.Font("Courier New", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             dataGridViewCellStyle2.ForeColor = System.Drawing.SystemColors.ControlText;
             dataGridViewCellStyle2.SelectionBackColor = System.Drawing.SystemColors.Highlight;
             dataGridViewCellStyle2.SelectionForeColor = System.Drawing.SystemColors.HighlightText;
@@ -255,7 +262,7 @@
             this.dataStreamGridView.Name = "dataStreamGridView";
             this.dataStreamGridView.ReadOnly = true;
             this.dataStreamGridView.SelectionMode = System.Windows.Forms.DataGridViewSelectionMode.FullRowSelect;
-            this.dataStreamGridView.Size = new System.Drawing.Size(459, 275);
+            this.dataStreamGridView.Size = new System.Drawing.Size(921, 232);
             this.dataStreamGridView.TabIndex = 2;
             this.dataStreamGridView.CellContentClick += new System.Windows.Forms.DataGridViewCellEventHandler(this.dataStreamGridView_CellContentClick);
             this.dataStreamGridView.ColumnHeaderMouseDoubleClick += new System.Windows.Forms.DataGridViewCellMouseEventHandler(this.dataStreamGridView_ColumnHeaderMouseDoubleClick);
@@ -311,18 +318,11 @@
             this.dataGridViewImageColumn2.ReadOnly = true;
             this.dataGridViewImageColumn2.Width = 25;
             // 
-            // updateOrderFlagToolStripMenuItem
-            // 
-            this.updateOrderFlagToolStripMenuItem.Name = "updateOrderFlagToolStripMenuItem";
-            this.updateOrderFlagToolStripMenuItem.Size = new System.Drawing.Size(179, 22);
-            this.updateOrderFlagToolStripMenuItem.Text = "Update Order Flag";
-            this.updateOrderFlagToolStripMenuItem.Click += new System.EventHandler(this.updateOrderFlagToolStripMenuItem_Click);
-            // 
             // DataStreamDlg
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(459, 324);
+            this.ClientSize = new System.Drawing.Size(921, 281);
             this.Controls.Add(this.dataStreamGridView);
             this.Controls.Add(this.toolStrip);
             this.Controls.Add(this.menuStripDataStream);

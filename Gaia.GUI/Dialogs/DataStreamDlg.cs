@@ -226,8 +226,7 @@ namespace Gaia.GUI.Dialogs
                         ProgressBarDlg dlgProgress = new ProgressBarDlg();
                         dlgProgress.Worker.DoWork += new DoWorkEventHandler(delegate (object sender1, DoWorkEventArgs e1)
                         {
-                            CoordinateAttitudeDataStream outputStream = (CoordinateAttitudeDataStream)GlobalAccess.Project.DataStreamManager.CreateDataStream(DataStreamType.CoordinateAttitudeDataStream);
-                            IMUProcessing proc = IMUProcessing.Factory.Create(GlobalAccess.Project, dlgProgress.Worker, imuStream, outputStream);
+                            IMUInitialization proc = IMUInitialization.Factory.Create(GlobalAccess.Project, dlgProgress.Worker, imuStream, coorStream);
                             proc.Run();
                         });
                         dlgProgress.ShowDialog();
