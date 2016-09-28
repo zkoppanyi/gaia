@@ -1,14 +1,8 @@
 ﻿using MathNet.Numerics.LinearAlgebra;
 using ProjNet.CoordinateSystems;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 using Gaia.Exceptions;
-using Gaia.Core;
-using Gaia.Core.Processing;
 using Gaia.Core.DataStreams;
 
 namespace Gaia.Core.Processing
@@ -19,8 +13,7 @@ namespace Gaia.Core.Processing
         public IMUDataStream SourceDataStream;
         public CoordinateAttitudeDataStream OutputDataStream;
 
-        [System.ComponentModel.DisplayName("Minimum time matching difference [s]")]
-        public double TimeMatchingDifference { get; set; }
+        private double timeMatchingDifference;
 
         public static IMUProcessingFactory Factory
         {
@@ -35,18 +28,26 @@ namespace Gaia.Core.Processing
             public String Name { get { return "Evaulate an expression in data streams"; } }
             public String Description { get { return "Evaulate an expression on data lines in stream."; } }
 
+            [System.ComponentModel.DisplayName("Minimum time matching difference [s]")]
+            public double TimeMatchingDifference { get; set; }
+
+            public IMUProcessingFactory()
+            {
+                TimeMatchingDifference = 1;
+            }
+
             public IMUProcessing Create(Project project, IMessanger messanger, IMUDataStream sourceDataStream, CoordinateAttitudeDataStream outputDataStream)
             {
-                IMUProcessing algorithm = new IMUProcessing(project, messanger, Name, Description);
+                IMUProcessing algorithm = new IMUProcessing(project, messanger, Name, Description, TimeMatchingDifference);
                 algorithm.SourceDataStream = sourceDataStream;
                 algorithm.OutputDataStream = outputDataStream;
                 return algorithm;
             }
         }
 
-        private IMUProcessing(Project project, IMessanger messanger, String name, String description) : base(project, messanger, name, description)
+        private IMUProcessing(Project project, IMessanger messanger, String name, String description, double timeMatchingDifference) : base(project, messanger, name, description)
         {
-            TimeMatchingDifference = 1;            
+            this.timeMatchingDifference = timeMatchingDifference;            
         }
        
         /// <summary>
@@ -106,9 +107,9 @@ namespace Gaia.Core.Processing
                     }
                 }
 
-                if (data == null || SourceDataStream.IsEOF() || (Math.Abs(data.TimeStamp - SourceDataStream.StartTime) > this.TimeMatchingDifference))
+                if (data == null || SourceDataStream.IsEOF() || (Math.Abs(data.TimeStamp - SourceDataStream.StartTime) > this.timeMatchingDifference))
                 {
-                    String msg = "Starting data is not found. The start time may not be correct. Threshold: " + this.TimeMatchingDifference;
+                    String msg = "Starting data is not found. The start time may not be correct. Threshold: " + this.timeMatchingDifference;
                     WriteMessage(msg);
                     return AlgorithmResult.Failure;
                 }

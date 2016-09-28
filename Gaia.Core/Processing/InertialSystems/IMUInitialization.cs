@@ -14,14 +14,9 @@ namespace Gaia.Core.Processing
         public IMUDataStream SourceDataStream;
         public CoordinateDataStream CoordinateDataStream;
 
-        [System.ComponentModel.DisplayName("Minimum time matching difference [s]")]
-        public double TimeMatchingDifference { get; set; }
-
-        [System.ComponentModel.DisplayName("Time for calculating initialization [s]")]
-        public double InitilaizationTime { get; set; }
-
-        [System.ComponentModel.DisplayName("Threshold to detect first movement [m]")]
-        public double DetectFirstMovemnetThreshold { get; set; }
+        private double timeMatchingDifference;
+        private double initilaizationTime;
+        private double detectFirstMovemnetThreshold;
 
         public static IMUInitializationFactory Factory { get { return new IMUInitializationFactory(); } }
 
@@ -30,28 +25,43 @@ namespace Gaia.Core.Processing
             public String Name { get { return "Evaulate an expression in data streams"; } }
             public String Description { get { return "Evaulate an expression on data lines in stream."; } }
 
+            [System.ComponentModel.DisplayName("Minimum time matching difference [s]")]
+            public double TimeMatchingDifference { get; set; }
+
+            [System.ComponentModel.DisplayName("Time for calculating initialization [s]")]
+            public double InitilaizationTime { get; set; }
+
+            [System.ComponentModel.DisplayName("Threshold to detect first movement [m]")]
+            public double DetectFirstMovemnetThreshold { get; set; }
+
+            public IMUInitializationFactory()
+            {
+                TimeMatchingDifference = 1;
+                InitilaizationTime = 120;
+                DetectFirstMovemnetThreshold = 0.01;
+            }
+
             public IMUInitialization Create(Project project, IMessanger messanger, IMUDataStream sourceDataStream, CoordinateDataStream coordinateDataStream)
             {
-                IMUInitialization algorithm = new IMUInitialization(project, messanger, this.Name, this.Description);
+                IMUInitialization algorithm = new IMUInitialization(project, messanger, this.Name, this.Description, TimeMatchingDifference, InitilaizationTime, DetectFirstMovemnetThreshold);
                 algorithm.SourceDataStream = sourceDataStream;
                 algorithm.CoordinateDataStream = coordinateDataStream;
                 return algorithm;
             }
         }
 
-        private IMUInitialization(Project project, IMessanger messanger, String name, String description) : base(project, messanger, name, description)
+        private IMUInitialization(Project project, IMessanger messanger, String name, String description,
+                                    double timeMatchingDifference, double initilaizationTime, double detectFirstMovemnetThreshold) : base(project, messanger, name, description)
         {
-            TimeMatchingDifference = 1;
-            InitilaizationTime = 120;
-            DetectFirstMovemnetThreshold = 0.01;
+            this.timeMatchingDifference = timeMatchingDifference;
+            this.initilaizationTime = initilaizationTime;
+            this.detectFirstMovemnetThreshold = detectFirstMovemnetThreshold;
         }
        
 
         /// <summary>
         /// Calculate initilaization parameters for IMU using coordinate stream
         /// </summary>
-        /// <param name="imu">IMU stream</param>
-        /// <param name="coor">Coordinate stream</param>
         /// <returns>Result object</returns>
         public override AlgorithmResult Run()
         {
@@ -113,9 +123,9 @@ namespace Gaia.Core.Processing
                 }
             }
 
-            if (Math.Abs(imuLine.TimeStamp - coorLine.TimeStamp) > this.TimeMatchingDifference)
+            if (Math.Abs(imuLine.TimeStamp - coorLine.TimeStamp) > this.timeMatchingDifference)
             {
-                String msg = "Minimum time difference between starting IMU and coordinate stream is higher than the threshold: " + this.TimeMatchingDifference;
+                String msg = "Minimum time difference between starting IMU and coordinate stream is higher than the threshold: " + this.timeMatchingDifference;
                 WriteMessage(msg);
                 return AlgorithmResult.Failure;
             }
@@ -123,7 +133,7 @@ namespace Gaia.Core.Processing
             // Calculate initial accelerations and roll and pitch
             double mean_ax = 0, mean_ay = 0, mean_az = 0;
             long data_num = 0;
-            double initEnd = imuLine.TimeStamp + InitilaizationTime;
+            double initEnd = imuLine.TimeStamp + initilaizationTime;
             while ((imuLine.TimeStamp <= initEnd) && !CoordinateDataStream.IsEOF())
             {
                 imuLine = SourceDataStream.ReadLine() as IMUDataLine;
@@ -133,9 +143,9 @@ namespace Gaia.Core.Processing
                 data_num++;
             }
 
-            if ((Math.Abs(imuLine.TimeStamp - initEnd) > this.TimeMatchingDifference) || CoordinateDataStream.IsEOF())
+            if ((Math.Abs(imuLine.TimeStamp - initEnd) > this.timeMatchingDifference) || CoordinateDataStream.IsEOF())
             {
-                String msg = "Minimum time difference between the last IMU and the end of the initilization periods is higher than the threshold: " + this.TimeMatchingDifference;
+                String msg = "Minimum time difference between the last IMU and the end of the initilization periods is higher than the threshold: " + this.timeMatchingDifference;
                 WriteMessage(msg);
                 return AlgorithmResult.Failure;
             }
@@ -157,7 +167,7 @@ namespace Gaia.Core.Processing
             {
                 currPoint = CoordinateDataStream.ReadDataLineAsGPoint();
                 double dr = Utilities.L2Distance2d(lastPoint, currPoint);
-                if (dr > this.DetectFirstMovemnetThreshold)
+                if (dr > this.detectFirstMovemnetThreshold)
                 {
                     isFound = true;
                     nextPoint = currPoint;
@@ -169,7 +179,7 @@ namespace Gaia.Core.Processing
 
             if (!isFound)
             {
-                String msg = "First movement in " + CoordinateDataStream.Name + " stream is not found! Threshold: " + this.DetectFirstMovemnetThreshold;
+                String msg = "First movement in " + CoordinateDataStream.Name + " stream is not found! Threshold: " + this.detectFirstMovemnetThreshold;
                 WriteMessage(msg);
                 return AlgorithmResult.Failure;
             }

@@ -1,0 +1,101 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<CodeSnippets  xmlns="http://schemas.microsoft.com/VisualStudio/2005/CodeSnippet">
+  <CodeSnippet Format="1.0.0">
+    <Header>
+      <Title>algorithm</Title>
+      <Shortcut>algorithm</Shortcut>
+      <Description>Code snippet for creating algorithm pattern</Description>
+      <Author>Zoltan Koppanyi</Author>
+    </Header>
+    <Snippet>
+      <Declarations>
+
+        <Literal>
+          <ID>AlgorithmName</ID>
+          <ToolTip>Name of the algorithm class</ToolTip>
+          <Default>MyAlgorithm</Default>
+        </Literal>
+
+        <Literal>
+          <ID>DataStreamClass</ID>
+          <ToolTip>The class of the datastream that the algorithm work on</ToolTip>
+          <Default>DataStream</Default>
+        </Literal>
+
+        <Literal>
+          <ID>CustomParameterLocal</ID>
+          <ToolTip>Specify a local custom parameter</ToolTip>
+          <Default>myCustomParamterLocal</Default>
+        </Literal>
+
+        <Literal>
+          <ID>CustomParameter</ID>
+          <ToolTip>Specify a parameter</ToolTip>
+          <Default>MyCustomParamter</Default>
+        </Literal>
+
+        <Literal>
+          <ID>CustomParameterType</ID>
+          <ToolTip>Specify the type of the parameter</ToolTip>
+          <Default>double</Default>
+        </Literal>
+
+      </Declarations>
+      
+      <Code Language="csharp">
+        <![CDATA[
+    public class $AlgorithmName$ : Algorithm
+    {
+    
+        private $DataStreamClass$ sourceDataStream;
+        private $CustomParameterType$ $CustomParameterLocal$;
+
+        public static $AlgorithmName$Factory Factory
+        {
+            get
+            {
+                return new $AlgorithmName$Factory();
+            }
+        }
+
+        public class $AlgorithmName$Factory : AlgorithmFactory
+        {
+            public String Name { get { return "Evaulate an expression in data streams"; } }
+            public String Description { get { return "Evaulate an expression on data lines in stream."; } }
+
+            [System.ComponentModel.DisplayName("Custom parameter description [-]")]
+            public $CustomParameterType$ $CustomParameter$ { get; set; }
+
+            public $AlgorithmName$Factory()
+            {
+                // Initialize parameter here
+                $CustomParameter$ = 0;
+            }
+
+            public $AlgorithmName$ Create(Project project, IMessanger messanger, $DataStreamClass$ sourceDataStream)
+            {
+                $AlgorithmName$ algorithm = new $AlgorithmName$(project, messanger, Name, Description, $CustomParameter$);
+                algorithm.sourceDataStream = sourceDataStream;
+                return algorithm;
+            }
+        }
+
+        private $AlgorithmName$(Project project, IMessanger messanger, String name, String description, double $CustomParameterLocal$) : base(project, messanger, name, description)
+        {
+            this.$CustomParameterLocal$ = $CustomParameterLocal$;            
+        }
+       
+        /// <summary>
+        /// Algorithm run
+        /// </summary>
+        /// <returns>Result object</returns>
+        public override AlgorithmResult Run()
+        {
+            throw new NotImplementedException();
+        }       
+
+    }]]>
+      </Code>
+    </Snippet>
+  </CodeSnippet>
+</CodeSnippets>
