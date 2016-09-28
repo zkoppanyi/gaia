@@ -22,13 +22,7 @@
           <Default>DataStream</Default>
         </Literal>
 
-        <Literal>
-          <ID>CustomParameterLocal</ID>
-          <ToolTip>Specify a local custom parameter</ToolTip>
-          <Default>myCustomParamterLocal</Default>
-        </Literal>
-
-        <Literal>
+       <Literal>
           <ID>CustomParameter</ID>
           <ToolTip>Specify a parameter</ToolTip>
           <Default>MyCustomParamter</Default>
@@ -45,10 +39,12 @@
       <Code Language="csharp">
         <![CDATA[
     public class $AlgorithmName$ : Algorithm
-    {
-    
+    {    
         private $DataStreamClass$ sourceDataStream;
-        private $CustomParameterType$ $CustomParameterLocal$;
+        
+        private $CustomParameterType$ _$CustomParameter$;
+        [System.ComponentModel.DisplayName("Custom parameter description [-]")]
+        public $CustomParameterType$ $CustomParameter$ { get { return  _$CustomParameter$; } }
 
         public static $AlgorithmName$Factory Factory
         {
@@ -74,15 +70,16 @@
 
             public $AlgorithmName$ Create(Project project, IMessanger messanger, $DataStreamClass$ sourceDataStream)
             {
-                $AlgorithmName$ algorithm = new $AlgorithmName$(project, messanger, Name, Description, $CustomParameter$);
+                $AlgorithmName$ algorithm = new $AlgorithmName$(project, messanger, Name, Description);
                 algorithm.sourceDataStream = sourceDataStream;
+                algorithm._$CustomParameter$ = $CustomParameter$;            
                 return algorithm;
             }
         }
 
-        private $AlgorithmName$(Project project, IMessanger messanger, String name, String description, double $CustomParameterLocal$) : base(project, messanger, name, description)
+        private $AlgorithmName$(Project project, IMessanger messanger, String name, String description) : base(project, messanger, name, description)
         {
-            this.$CustomParameterLocal$ = $CustomParameterLocal$;            
+            
         }
        
         /// <summary>

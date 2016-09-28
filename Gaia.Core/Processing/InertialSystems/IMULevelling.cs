@@ -11,7 +11,10 @@ namespace Gaia.Core.Processing.InertialSystems
     public class IMULevelling : Algorithm
     {
         public IMUDataStream sourceDataStream;
-        private double initilaizationTime;
+
+        private double _initilaizationTime;
+        [System.ComponentModel.DisplayName("Time for calculating initialization [s]")]
+        public double InitilaizationTime { get { return _initilaizationTime; } }
 
         public static IMULevellingFactory Factory { get { return new IMULevellingFactory(); } }
 
@@ -30,15 +33,16 @@ namespace Gaia.Core.Processing.InertialSystems
 
             public IMULevelling Create(Project project, IMessanger messanger, IMUDataStream sourceDataStream)
             {
-                IMULevelling algorithm = new IMULevelling(project, messanger, this.Name, this.Description, this.InitilaizationTime);
+                IMULevelling algorithm = new IMULevelling(project, messanger, this.Name, this.Description);
                 algorithm.sourceDataStream = sourceDataStream;
+                algorithm._initilaizationTime = InitilaizationTime;
+
                 return algorithm;
             }
         }
 
-        private IMULevelling(Project project, IMessanger messanger, String name, String description, double initilaizationTime) : base(project, messanger, name, description)
+        private IMULevelling(Project project, IMessanger messanger, String name, String description) : base(project, messanger, name, description)
         {
-            this.initilaizationTime = initilaizationTime;
         }
 
 
@@ -67,7 +71,7 @@ namespace Gaia.Core.Processing.InertialSystems
             // Calculate initial accelerations and roll and pitch
             double mean_ax = 0, mean_ay = 0, mean_az = 0;
             long data_num = 0;
-            double initEnd = imuLine.TimeStamp + initilaizationTime;
+            double initEnd = imuLine.TimeStamp + _initilaizationTime;
             while (imuLine.TimeStamp <= initEnd)
             {
                 imuLine = sourceDataStream.ReadLine() as IMUDataLine;

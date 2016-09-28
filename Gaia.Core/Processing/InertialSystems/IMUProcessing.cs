@@ -10,10 +10,13 @@ namespace Gaia.Core.Processing
 
     public class IMUProcessing : Algorithm
     {
-        public IMUDataStream SourceDataStream;
-        public CoordinateAttitudeDataStream OutputDataStream;
+        private IMUDataStream SourceDataStream;
 
-        private double timeMatchingDifference;
+        private CoordinateAttitudeDataStream _outputDataStream;
+        public CoordinateAttitudeDataStream OutputDataStream { get { return _outputDataStream; } }
+
+        private double _timeMatchingDifference;
+        public double TimeMatchingDifference { get { return _timeMatchingDifference;  } }
 
         public static IMUProcessingFactory Factory
         {
@@ -38,16 +41,16 @@ namespace Gaia.Core.Processing
 
             public IMUProcessing Create(Project project, IMessanger messanger, IMUDataStream sourceDataStream, CoordinateAttitudeDataStream outputDataStream)
             {
-                IMUProcessing algorithm = new IMUProcessing(project, messanger, Name, Description, TimeMatchingDifference);
+                IMUProcessing algorithm = new IMUProcessing(project, messanger, Name, Description);
                 algorithm.SourceDataStream = sourceDataStream;
-                algorithm.OutputDataStream = outputDataStream;
+                algorithm._outputDataStream = outputDataStream;
+                algorithm._timeMatchingDifference = TimeMatchingDifference;
                 return algorithm;
             }
         }
 
-        private IMUProcessing(Project project, IMessanger messanger, String name, String description, double timeMatchingDifference) : base(project, messanger, name, description)
+        private IMUProcessing(Project project, IMessanger messanger, String name, String description) : base(project, messanger, name, description)
         {
-            this.timeMatchingDifference = timeMatchingDifference;            
         }
        
         /// <summary>
@@ -61,7 +64,7 @@ namespace Gaia.Core.Processing
                 new GaiaAssertException("IMU data stream is null!");
             }
 
-            if (OutputDataStream == null)
+            if (_outputDataStream == null)
             {
                 new GaiaAssertException("Output data stream is null!");
             }
@@ -107,9 +110,9 @@ namespace Gaia.Core.Processing
                     }
                 }
 
-                if (data == null || SourceDataStream.IsEOF() || (Math.Abs(data.TimeStamp - SourceDataStream.StartTime) > this.timeMatchingDifference))
+                if (data == null || SourceDataStream.IsEOF() || (Math.Abs(data.TimeStamp - SourceDataStream.StartTime) > this._timeMatchingDifference))
                 {
-                    String msg = "Starting data is not found. The start time may not be correct. Threshold: " + this.timeMatchingDifference;
+                    String msg = "Starting data is not found. The start time may not be correct. Threshold: " + this._timeMatchingDifference;
                     WriteMessage(msg);
                     return AlgorithmResult.Failure;
                 }
@@ -131,13 +134,13 @@ namespace Gaia.Core.Processing
             Matrix<double> Cbn = prh2dcm(prh);
             Vector<double> qbn = dcm2quat(Cbn);
 
-            OutputDataStream.Open();
+            _outputDataStream.Open();
             while (!SourceDataStream.IsEOF())
             {
                 if (IsCanceled())
                 {
                     SourceDataStream.Close();
-                    OutputDataStream.Close();
+                    _outputDataStream.Close();
                     WriteMessage("Processing canceled!");
                     return AlgorithmResult.Failure;
                 }
@@ -145,7 +148,7 @@ namespace Gaia.Core.Processing
                 if (Double.IsNaN(prh[0]) || Double.IsNaN(prh[1]) || Double.IsNaN(prh[2]))
                 {
                     SourceDataStream.Close();
-                    OutputDataStream.Close();
+                    _outputDataStream.Close();
                     WriteMessage("PRH value(s) is NaN! Stop.");
                     return AlgorithmResult.Sucess;
                 }
@@ -183,12 +186,12 @@ namespace Gaia.Core.Processing
                 resultData.Heading = Utilities.ConvertRadToDeg(prh[2]);
                 resultData.AttitudeSigma = Utilities.Unknown;
 
-                OutputDataStream.AddDataLine(resultData);
-                OutputDataStream.CRS = SourceDataStream.CRS;
-                OutputDataStream.TRS = SourceDataStream.TRS; 
+                _outputDataStream.AddDataLine(resultData);
+                _outputDataStream.CRS = SourceDataStream.CRS;
+                _outputDataStream.TRS = SourceDataStream.TRS; 
             }
 
-            OutputDataStream.Close();
+            _outputDataStream.Close();
             SourceDataStream.Close();
 
             this.Project.Save();
