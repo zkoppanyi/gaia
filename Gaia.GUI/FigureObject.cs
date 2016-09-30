@@ -52,12 +52,17 @@ namespace Gaia.GUI
         private double yLimMax;
         public double YLimMax { get { return yLimMax; } }
 
+        private readonly object locker = new object();
+
         private static Bitmap figureBitmap;
         public Bitmap FigureBitmap
         {
             get
             {
-                return new Bitmap(figureBitmap);
+                lock (locker)
+                {
+                    return new Bitmap(figureBitmap);
+                }
             }
         }
 
@@ -146,143 +151,159 @@ namespace Gaia.GUI
 
         public void Redraw()
         {
-            if (hasToRedraw)
+            lock (locker)
             {
-
-                this.axisEdgeOuterY = (int)tickLabelFont.Size * 2 + (int)labelFont.Size + (int)tickLabelFont.Size;
-
-                this.axisEdgeOuterX = Math.Max(YLimMax.ToString(tickLabelYFormat).Length * (int)tickLabelFont.Size,
-                               YLimMin.ToString(tickLabelYFormat).Length * (int)tickLabelFont.Size) + (int)labelFont.Size;
-
-                if (AspectRatio != 0)
+                if (hasToRedraw)
                 {
-                    double dx = (XLimMax - XLimMin) != 0 ? XLimMax - XLimMin : 1;
-                    double dy = (YLimMax - YLimMin) != 0 ? YLimMax - YLimMin : 1;
-                    double ratFigEffectiveX = (FigureBitmap.Width - 2 * this.axisEdgeOuterX - 2 * this.axisEdgeInnerX);
-                    double ratFigEffectiveY = (FigureBitmap.Height - 2 * this.axisEdgeOuterY - 2 * this.axisEdgeInnerY);
 
-                    double extraRoomX = ratFigEffectiveX - ratFigEffectiveY / dy * dx * AspectRatio;
-                    double extraRoomY = ratFigEffectiveY - ratFigEffectiveX / dx * dy * AspectRatio;
+                    this.axisEdgeOuterY = (int)tickLabelFont.Size * 2 + (int)labelFont.Size + (int)tickLabelFont.Size;
 
-                    if (extraRoomX > extraRoomY)
+                    this.axisEdgeOuterX = Math.Max(YLimMax.ToString(tickLabelYFormat).Length * (int)tickLabelFont.Size,
+                                   YLimMin.ToString(tickLabelYFormat).Length * (int)tickLabelFont.Size) + (int)labelFont.Size;
+
+                    if (AspectRatio != 0)
                     {
-                        this.axisEdgeOuterX += (int)(extraRoomX / 2);
+                        double dx = (XLimMax - XLimMin) != 0 ? XLimMax - XLimMin : 1;
+                        double dy = (YLimMax - YLimMin) != 0 ? YLimMax - YLimMin : 1;
+                        double ratFigEffectiveX = (FigureBitmap.Width - 2 * this.axisEdgeOuterX - 2 * this.axisEdgeInnerX);
+                        double ratFigEffectiveY = (FigureBitmap.Height - 2 * this.axisEdgeOuterY - 2 * this.axisEdgeInnerY);
+
+                        double extraRoomX = ratFigEffectiveX - ratFigEffectiveY / dy * dx * AspectRatio;
+                        double extraRoomY = ratFigEffectiveY - ratFigEffectiveX / dx * dy * AspectRatio;
+
+                        if (extraRoomX > extraRoomY)
+                        {
+                            this.axisEdgeOuterX += (int)(extraRoomX / 2);
+                        }
+                        else
+                        {
+                            this.axisEdgeOuterY += (int)(extraRoomY / 2);
+                        }
+
                     }
-                    else
+
+                    createNewBitmap();
+                    foreach (FPoint pt in points)
                     {
-                        this.axisEdgeOuterY += (int)(extraRoomY / 2);
+                        drawPoint(pt.X, pt.Y);
                     }
-
+                    hasToRedraw = false;
                 }
-
-                createNewBitmap();
-                foreach (FPoint pt in points)
-                {
-                    drawPoint(pt.X, pt.Y);
-                }
-                hasToRedraw = false;
             }
         }
 
         private void createNewBitmap()
         {
-            figureBitmap = new Bitmap(figureBitmap.Width, FigureBitmap.Height);
-            Graphics g = Graphics.FromImage(figureBitmap);
-            g.Clear(this.backGroundColor);
-            drawAxis(g);
-            g.Flush();
-            g.Dispose();
+            lock (locker)
+            {
+                figureBitmap = new Bitmap(figureBitmap.Width, FigureBitmap.Height);
+                Graphics g = Graphics.FromImage(figureBitmap);
+                g.Clear(this.backGroundColor);
+                drawAxis(g);
+                g.Flush();
+                g.Dispose();
+            }
         }
+
 
         private FPoint WorldToImage(double x, double y)
         {
-            double dx = (XLimMax - XLimMin) != 0 ? XLimMax - XLimMin : 1;
-            double dy = (YLimMax - YLimMin) != 0 ? YLimMax - YLimMin : 1;
-            double ratX = (double)(figureBitmap.Width - axisEdgeOuterX*2 - axisEdgeInnerX*2) / dx;
-            double ratY = (double)(figureBitmap.Height - axisEdgeOuterY*2 - axisEdgeInnerY*2) / dy;
+            lock (locker)
+            {
+                double dx = (XLimMax - XLimMin) != 0 ? XLimMax - XLimMin : 1;
+                double dy = (YLimMax - YLimMin) != 0 ? YLimMax - YLimMin : 1;
+                double ratX = (double)(figureBitmap.Width - axisEdgeOuterX * 2 - axisEdgeInnerX * 2) / dx;
+                double ratY = (double)(figureBitmap.Height - axisEdgeOuterY * 2 - axisEdgeInnerY * 2) / dy;
 
-            int picX = (int)((x - XLimMin) * ratX) + axisEdgeOuterX + axisEdgeInnerX;
-            int picY = figureBitmap.Height - (int)((y - YLimMin) * ratY) - axisEdgeOuterY - axisEdgeInnerY;
-            return new FPoint(picX, picY);
+                int picX = (int)((x - XLimMin) * ratX) + axisEdgeOuterX + axisEdgeInnerX;
+                int picY = figureBitmap.Height - (int)((y - YLimMin) * ratY) - axisEdgeOuterY - axisEdgeInnerY;
+                return new FPoint(picX, picY);
+            }
         }
+
 
         private FPoint ImageToWord(int x, int y)
         {
-            double dx = (XLimMax - XLimMin) != 0 ? XLimMax - XLimMin : 1;
-            double dy = (YLimMax - YLimMin) != 0 ? YLimMax - YLimMin : 1;
-            double ratX = (double)(figureBitmap.Width - axisEdgeOuterX * 2 - axisEdgeInnerX * 2) / dx;
-            double ratY = (double)(figureBitmap.Height - axisEdgeOuterY * 2 - axisEdgeInnerY * 2) / dy;
+            lock (locker)
+            {
+                double dx = (XLimMax - XLimMin) != 0 ? XLimMax - XLimMin : 1;
+                double dy = (YLimMax - YLimMin) != 0 ? YLimMax - YLimMin : 1;
+                double ratX = (double)(figureBitmap.Width - axisEdgeOuterX * 2 - axisEdgeInnerX * 2) / dx;
+                double ratY = (double)(figureBitmap.Height - axisEdgeOuterY * 2 - axisEdgeInnerY * 2) / dy;
 
-            double wrdX = ((double)(x - axisEdgeOuterX - axisEdgeInnerX) / ratX) + XLimMin;
-            double wrdY = ((double)(-y + figureBitmap.Height + axisEdgeOuterY + axisEdgeInnerY) / ratY) + YLimMin;
-            return new FPoint(wrdX, wrdY);
+                double wrdX = ((double)(x - axisEdgeOuterX - axisEdgeInnerX) / ratX) + XLimMin;
+                double wrdY = ((double)(-y + figureBitmap.Height + axisEdgeOuterY + axisEdgeInnerY) / ratY) + YLimMin;
+                return new FPoint(wrdX, wrdY);
+            }
         }
 
         private void drawAxis(Graphics g)
         {
-
-            int textLengthX = Math.Max(XLimMax.ToString(tickLabelXFormat).Length * (int)tickLabelFont.Size,
-                           XLimMin.ToString(tickLabelXFormat).Length * (int)tickLabelFont.Size);
-
-            double divNX = 5;
-            double divNY = 5;
-
-            Point origin = new Point(axisEdgeOuterX, figureBitmap.Height - axisEdgeOuterY);
-            Point pX = new Point(figureBitmap.Width - axisEdgeOuterX, figureBitmap.Height - axisEdgeOuterY);
-            Point pY = new Point(axisEdgeOuterX, axisEdgeOuterY);
-
-            double rX = Math.Sqrt(Math.Pow(pX.X - origin.X, 2) + Math.Pow(pX.Y - origin.Y, 2));
-            double rY = Math.Sqrt(Math.Pow(pY.X - origin.X, 2) + Math.Pow(pY.Y - origin.Y, 2));
-
-            divNX = Math.Ceiling(rX / (double)textLengthX-3);
-            divNX = divNX == 0 ? 1 : divNX;
-            divNY = Math.Min(divNX, tickLabelFont.Size+3);
-            divNY = divNY == 0 ? 1 : divNY;
-
-            // Rounding the spacing
-            double ddx = (XLimMax - XLimMin) != 0 ? XLimMax - XLimMin : 1;
-            double ddy = (YLimMax - YLimMin) != 0 ? YLimMax - YLimMin : 1;
-            if (Double.IsPositiveInfinity(ddx) || Double.IsNegativeInfinity(ddx)) return;
-
-            double digitsX = getDigits(ddx / divNX);
-            double digitsY = getDigits(ddy / divNY);
-            double dX = Math.Floor(ddx / divNX / digitsX) * digitsX;
-            double dY = Math.Floor(ddy / divNY / digitsY) * digitsY;
-
-            // Drawing 
-            g.DrawLine(axisPen, origin, pX);
-            g.DrawLine(axisPen, origin, pY);
-
-            for (double i = XLimMin; i <= XLimMax; i += dX)
+            lock (locker)
             {
-                FPoint ptTickX = new FPoint(i, YLimMin);
-                FPoint tickX = this.WorldToImage(ptTickX.X, ptTickX.Y);
-                g.DrawLine(axisPen, new Point((int)tickX.X, (int)tickX.Y - tickSize/2), new Point((int)tickX.X, (int)tickX.Y + tickSize / 2));
-                if (IsRelative) ptTickX.X = ptTickX.X - XLimMin;
+                int textLengthX = Math.Max(XLimMax.ToString(tickLabelXFormat).Length * (int)tickLabelFont.Size,
+                               XLimMin.ToString(tickLabelXFormat).Length * (int)tickLabelFont.Size);
 
-                String label = ptTickX.X.ToString(tickLabelXFormat);
-                int labelWidth = label.Length * (int)tickLabelFont.Size;
-                int labelHeight = (int)tickLabelFont.Size;
-                g.DrawString(label, tickLabelFont, tickLabelBrush, (int)tickX.X - labelWidth/2, (int)tickX.Y + tickSize , tickLabelFormat);
+                double divNX = 5;
+                double divNY = 5;
+
+                Point origin = new Point(axisEdgeOuterX, figureBitmap.Height - axisEdgeOuterY);
+                Point pX = new Point(figureBitmap.Width - axisEdgeOuterX, figureBitmap.Height - axisEdgeOuterY);
+                Point pY = new Point(axisEdgeOuterX, axisEdgeOuterY);
+
+                double rX = Math.Sqrt(Math.Pow(pX.X - origin.X, 2) + Math.Pow(pX.Y - origin.Y, 2));
+                double rY = Math.Sqrt(Math.Pow(pY.X - origin.X, 2) + Math.Pow(pY.Y - origin.Y, 2));
+
+                divNX = Math.Ceiling(rX / (double)textLengthX - 3);
+                divNX = divNX == 0 ? 1 : divNX;
+                divNY = Math.Min(divNX, tickLabelFont.Size + 3);
+                divNY = divNY == 0 ? 1 : divNY;
+
+                // Rounding the spacing
+                double ddx = (XLimMax - XLimMin) != 0 ? XLimMax - XLimMin : 1;
+                double ddy = (YLimMax - YLimMin) != 0 ? YLimMax - YLimMin : 1;
+                if (Double.IsPositiveInfinity(ddx) || Double.IsNegativeInfinity(ddx)) return;
+
+                double digitsX = getDigits(ddx / divNX);
+                double digitsY = getDigits(ddy / divNY);
+                double dX = Math.Floor(ddx / divNX / digitsX) * digitsX;
+                double dY = Math.Floor(ddy / divNY / digitsY) * digitsY;
+
+                // Drawing 
+                g.DrawLine(axisPen, origin, pX);
+                g.DrawLine(axisPen, origin, pY);
+
+                for (double i = XLimMin; i <= XLimMax; i += dX)
+                {
+                    FPoint ptTickX = new FPoint(i, YLimMin);
+                    FPoint tickX = this.WorldToImage(ptTickX.X, ptTickX.Y);
+                    g.DrawLine(axisPen, new Point((int)tickX.X, (int)tickX.Y - tickSize / 2), new Point((int)tickX.X, (int)tickX.Y + tickSize / 2));
+                    if (IsRelative) ptTickX.X = ptTickX.X - XLimMin;
+
+                    String label = ptTickX.X.ToString(tickLabelXFormat);
+                    int labelWidth = label.Length * (int)tickLabelFont.Size;
+                    int labelHeight = (int)tickLabelFont.Size;
+                    g.DrawString(label, tickLabelFont, tickLabelBrush, (int)tickX.X - labelWidth / 2, (int)tickX.Y + tickSize, tickLabelFormat);
+                }
+
+                g.DrawString(XLabel, labelFont, tickLabelBrush, (int)(origin.X + rX / 2) - XLabel.Length * labelFont.Size / 2, origin.Y + tickSize + tickLabelFont.Size * 2, labelFormat);
+
+                int tickLabelWidth = 0;
+                for (double i = YLimMin; i <= YLimMax; i += dY)
+                {
+                    FPoint ptTickY = new FPoint(XLimMin, i);
+                    FPoint tickY = this.WorldToImage(ptTickY.X, ptTickY.Y);
+                    g.DrawLine(axisPen, new Point((int)tickY.X - tickSize / 2, (int)tickY.Y), new Point((int)tickY.X + tickSize / 2, (int)tickY.Y));
+                    if (IsRelative) ptTickY.Y = ptTickY.Y - YLimMin;
+
+                    String label = ptTickY.Y.ToString(tickLabelYFormat);
+                    tickLabelWidth = label.Length * (int)tickLabelFont.Size;
+                    int labelHeight = (int)tickLabelFont.Size;
+                    g.DrawString(label, tickLabelFont, tickLabelBrush, (int)tickY.X - tickLabelWidth, (int)tickY.Y - labelHeight, tickLabelFormat);
+                }
+
+                g.DrawString(YLabel, labelFont, tickLabelBrush, (int)pY.X - tickLabelWidth, (int)(pY.Y - tickSize - tickLabelFont.Size * 2));
             }
-
-            g.DrawString(XLabel, labelFont, tickLabelBrush, (int)(origin.X + rX / 2)-XLabel.Length*labelFont.Size/2, origin.Y + tickSize + tickLabelFont.Size*2, labelFormat);
-
-            int tickLabelWidth = 0;
-            for (double i = YLimMin; i <= YLimMax; i += dY)
-            {
-                FPoint ptTickY = new FPoint(XLimMin, i);
-                FPoint tickY = this.WorldToImage(ptTickY.X, ptTickY.Y);
-                g.DrawLine(axisPen, new Point((int)tickY.X - tickSize / 2, (int)tickY.Y ), new Point((int)tickY.X + tickSize / 2, (int)tickY.Y ));
-                if (IsRelative) ptTickY.Y = ptTickY.Y - YLimMin;
-
-                String label = ptTickY.Y.ToString(tickLabelYFormat);
-                tickLabelWidth = label.Length * (int)tickLabelFont.Size;
-                int labelHeight = (int)tickLabelFont.Size;
-                g.DrawString(label, tickLabelFont, tickLabelBrush, (int)tickY.X - tickLabelWidth, (int)tickY.Y - labelHeight, tickLabelFormat);
-            }
-
-            g.DrawString(YLabel, labelFont, tickLabelBrush, (int)pY.X - tickLabelWidth, (int)(pY.Y - tickSize - tickLabelFont.Size * 2));
 
         }
 

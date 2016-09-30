@@ -22,6 +22,7 @@ namespace Gaia.GUI.Dialogs
 
         private FigureObject figure;
         private bool closeWindowAfterCancellation = false;
+        private bool isUserCancelled = true;
 
         public FigureDlg(String name)
         {
@@ -56,10 +57,14 @@ namespace Gaia.GUI.Dialogs
 
             figureBox.Image = e.Figure.FigureBitmap;
             toolStripProgressBar.ProgressBar.Value = e.Progress;
-            textBoxStatus.AppendText("Cancelled");
+            textBoxStatus.AppendText("Cancelled" + Environment.NewLine);
             if (e.Message != null) textBoxStatus.AppendText(e.Message + Environment.NewLine);
-            toolStripProgressBar.Visible = false;
-            toolStripCancelProgress.Visible = false;
+
+            if (isUserCancelled)
+            {
+                toolStripProgressBar.Visible = false;
+                toolStripCancelProgress.Visible = false;
+            }
         }
 
 
@@ -113,9 +118,25 @@ namespace Gaia.GUI.Dialogs
 
         }
 
+        protected override void OnFormClosing(FormClosingEventArgs e)
+        {
+            if (figure.IsBusy())
+            {
+                closeWindowAfterCancellation = true;
+                figure.Cancel();
+                e.Cancel = true;
+                textBoxStatus.AppendText("Waiting for the background thread for closing!" + Environment.NewLine);
+                return;
+            }
+            else
+            {
+                base.OnFormClosing(e);
+            }
+        }
+
         private void toolStripCancelProgress_Click(object sender, EventArgs e)
         {
-            figure.Cancel();
+
         }
 
         private void toolStripButton1_Click(object sender, EventArgs e)
@@ -179,7 +200,9 @@ namespace Gaia.GUI.Dialogs
             if (sizing)
             {
                 sizing = false;
-                //figure.SetNewBitmapSizeAndClear(figureBox.Width, figureBox.Height);
+                toolStripProgressBar.Visible = true;
+                toolStripCancelProgress.Visible = true;
+                isUserCancelled = false;
                 figure.Update(figureBox.Width, figureBox.Height);
             }
         }

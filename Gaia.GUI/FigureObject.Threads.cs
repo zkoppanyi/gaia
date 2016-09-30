@@ -145,6 +145,7 @@ namespace Gaia.GUI
         {
             if ((this.backgroundWorker != null) && (this.backgroundWorker.IsBusy))
             {
+                isUpdateSeriesRequired = false;
                 backgroundWorker.CancelAsync();
             }
         }
@@ -165,6 +166,11 @@ namespace Gaia.GUI
                 syncFigureEvent.Reset();
             }
 
+        }
+
+        public bool IsBusy()
+        {
+            return backgroundWorker.IsBusy;
         }
 
         public void Update(int width, int height)
