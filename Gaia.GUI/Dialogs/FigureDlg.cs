@@ -22,7 +22,6 @@ namespace Gaia.GUI.Dialogs
 
         private FigureObject figure;
         private bool closeWindowAfterCancellation = false;
-        private bool isUserCancelled = true;
 
         public FigureDlg(String name)
         {
@@ -59,12 +58,6 @@ namespace Gaia.GUI.Dialogs
             toolStripProgressBar.ProgressBar.Value = e.Progress;
             textBoxStatus.AppendText("Cancelled" + Environment.NewLine);
             if (e.Message != null) textBoxStatus.AppendText(e.Message + Environment.NewLine);
-
-            if (isUserCancelled)
-            {
-                toolStripProgressBar.Visible = false;
-                toolStripCancelProgress.Visible = false;
-            }
         }
 
 
@@ -136,7 +129,9 @@ namespace Gaia.GUI.Dialogs
 
         private void toolStripCancelProgress_Click(object sender, EventArgs e)
         {
-
+            toolStripProgressBar.Visible = false;
+            toolStripCancelProgress.Visible = false;
+            figure.Cancel();
         }
 
         private void toolStripButton1_Click(object sender, EventArgs e)
@@ -155,6 +150,8 @@ namespace Gaia.GUI.Dialogs
 
         private void refreshToolStripMenuItem_Click(object sender, EventArgs e)
         {
+            toolStripProgressBar.Visible = true;
+            toolStripCancelProgress.Visible = true;
             figure.Update();
         }
 
@@ -202,7 +199,6 @@ namespace Gaia.GUI.Dialogs
                 sizing = false;
                 toolStripProgressBar.Visible = true;
                 toolStripCancelProgress.Visible = true;
-                isUserCancelled = false;
                 figure.Update(figureBox.Width, figureBox.Height);
             }
         }
@@ -218,6 +214,8 @@ namespace Gaia.GUI.Dialogs
             {
                 double ratio = (double)toolStripAspectRatio.SelectedItem;
                 figure.AspectRatio = ratio;
+                toolStripProgressBar.Visible = true;
+                toolStripCancelProgress.Visible = true;
                 figure.Update();
 
             }
