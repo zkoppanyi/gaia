@@ -325,25 +325,28 @@ namespace Gaia.GUI
         }
         private void drawPoint(double x, double y)
         {
-            // just for safety, altough: assert
-            if (figureBitmap == null)
+            lock (locker)
             {
-                createNewBitmap();
-            }
+                // just for safety, altough: assert
+                if (figureBitmap == null)
+                {
+                    createNewBitmap();
+                }
 
-            FPoint picP = WorldToImage(x, y);
+                FPoint picP = WorldToImage(x, y);
 
-            if ((picP.X >= 0) && (picP.X <= figureBitmap.Width) && (picP.Y >= 0) && (picP.Y < figureBitmap.Height))
-            { 
-                Point dPoint = new Point((int)picP.X, (int)picP.Y);
+                if ((picP.X >= 0) && (picP.X <= figureBitmap.Width) && (picP.Y >= 0) && (picP.Y < figureBitmap.Height))
+                {
+                    Point dPoint = new Point((int)picP.X, (int)picP.Y);
 
-                dPoint.X = dPoint.X - markerSize / 2;
-                dPoint.Y = dPoint.Y - markerSize / 2;
-                Rectangle rect = new Rectangle(dPoint, new Size(markerSize, markerSize));
+                    dPoint.X = dPoint.X - markerSize / 2;
+                    dPoint.Y = dPoint.Y - markerSize / 2;
+                    Rectangle rect = new Rectangle(dPoint, new Size(markerSize, markerSize));
 
-                Graphics g = Graphics.FromImage(figureBitmap);
-                g.FillEllipse(brush, rect);
-                g.Dispose();
+                    Graphics g = Graphics.FromImage(figureBitmap);
+                    g.FillEllipse(brush, rect);
+                    g.Dispose();
+                }
             }
         }
 
