@@ -1,16 +1,21 @@
-﻿using Gaia.Core.Processing;
+﻿using Gaia.Core.DataStreams;
+using Gaia.Core.Processing;
+using Gaia.Exceptions;
+using Gaia.GUI.Dialogs;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Drawing;
 using System.Drawing.Imaging;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 
-namespace Gaia.GUI.Dialogs
+namespace Gaia.GUI
 {
-    public class FigureObject
+    public partial class FigureObject
     {
 
         private SolidBrush brush = new SolidBrush(Color.LimeGreen);
@@ -47,8 +52,15 @@ namespace Gaia.GUI.Dialogs
         private double yLimMax;
         public double YLimMax { get { return yLimMax; } }
 
-        private Bitmap figureBitmap;
-        public Bitmap FigureBitmap { get { return new Bitmap(figureBitmap);  } }
+        private static Bitmap figureBitmap;
+        public Bitmap FigureBitmap
+        {
+            get
+            {
+                return new Bitmap(figureBitmap);
+            }
+        }
+
         public double AspectRatio { get; set; }
         public bool IsRelative { get; set; }
 
@@ -61,19 +73,21 @@ namespace Gaia.GUI.Dialogs
             YLabel = "Y [-]";
             createNewBitmap();
             this.Clear();
+
+            backgroundWorker = new BackgroundWorker();
+            backgroundWorker.DoWork += new DoWorkEventHandler(backgroundWorker_DoWork);
+            backgroundWorker.ProgressChanged += new ProgressChangedEventHandler(backgroundWorker_ProgressChanged);
+            backgroundWorker.WorkerReportsProgress = true;
+            backgroundWorker.WorkerSupportsCancellation = true;
+            backgroundWorker.RunWorkerCompleted += new RunWorkerCompletedEventHandler(backgroundWorker_Completed);
+
+            this.isPreviewMode = true;
+            this.dataSeriesList = new List<GaiaDataSeries>();
         }
 
-        public void SetNewBitmapSize(int width, int height)
+        public void AddDataSeries(GaiaDataSeries dataSerises)
         {
-            figureBitmap = new Bitmap(width, height);
-            createNewBitmap();
-            this.Redraw();
-        }
-
-        public void SetNewBitmapSizeAndClear(int width, int height)
-        {
-            figureBitmap = new Bitmap(width, height);
-            this.Clear();
+            this.dataSeriesList.Add(dataSerises);
         }
 
         public void Clear()
@@ -133,22 +147,19 @@ namespace Gaia.GUI.Dialogs
         public void Redraw()
         {
             if (hasToRedraw)
-            {             
+            {
 
-                /*this.axisEdgeOuterX = Math.Max(XLimMax.ToString(labelXFormat).Length * (int)labelFont.Size,
-                                               XLimMin.ToString(labelXFormat).Length * (int)labelFont.Size);*/
-
-                this.axisEdgeOuterY = (int)tickLabelFont.Size*2 + (int)labelFont.Size + (int)tickLabelFont.Size;
+                this.axisEdgeOuterY = (int)tickLabelFont.Size * 2 + (int)labelFont.Size + (int)tickLabelFont.Size;
 
                 this.axisEdgeOuterX = Math.Max(YLimMax.ToString(tickLabelYFormat).Length * (int)tickLabelFont.Size,
-                               YLimMin.ToString(tickLabelYFormat).Length * (int)tickLabelFont.Size)  + (int)labelFont.Size;
+                               YLimMin.ToString(tickLabelYFormat).Length * (int)tickLabelFont.Size) + (int)labelFont.Size;
 
                 if (AspectRatio != 0)
                 {
                     double dx = (XLimMax - XLimMin) != 0 ? XLimMax - XLimMin : 1;
                     double dy = (YLimMax - YLimMin) != 0 ? YLimMax - YLimMin : 1;
-                    double ratFigEffectiveX = (figureBitmap.Width - 2*this.axisEdgeOuterX - 2*this.axisEdgeInnerX);
-                    double ratFigEffectiveY = (figureBitmap.Height - 2*this.axisEdgeOuterY - 2*this.axisEdgeInnerY);
+                    double ratFigEffectiveX = (FigureBitmap.Width - 2 * this.axisEdgeOuterX - 2 * this.axisEdgeInnerX);
+                    double ratFigEffectiveY = (FigureBitmap.Height - 2 * this.axisEdgeOuterY - 2 * this.axisEdgeInnerY);
 
                     double extraRoomX = ratFigEffectiveX - ratFigEffectiveY / dy * dx * AspectRatio;
                     double extraRoomY = ratFigEffectiveY - ratFigEffectiveX / dx * dy * AspectRatio;
@@ -161,9 +172,9 @@ namespace Gaia.GUI.Dialogs
                     {
                         this.axisEdgeOuterY += (int)(extraRoomY / 2);
                     }
-                    
+
                 }
-                
+
                 createNewBitmap();
                 foreach (FPoint pt in points)
                 {
@@ -175,7 +186,7 @@ namespace Gaia.GUI.Dialogs
 
         private void createNewBitmap()
         {
-            figureBitmap = new Bitmap(figureBitmap.Width, figureBitmap.Height);
+            figureBitmap = new Bitmap(figureBitmap.Width, FigureBitmap.Height);
             Graphics g = Graphics.FromImage(figureBitmap);
             g.Clear(this.backGroundColor);
             drawAxis(g);
@@ -315,7 +326,6 @@ namespace Gaia.GUI.Dialogs
             }
         }
 
-
         #region FPoint class
 
         private class FPoint
@@ -369,4 +379,6 @@ namespace Gaia.GUI.Dialogs
         #endregion
 
     }
+   
+
 }

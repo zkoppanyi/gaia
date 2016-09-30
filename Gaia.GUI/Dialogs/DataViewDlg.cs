@@ -326,7 +326,6 @@ namespace Gaia.GUI.Dialogs
                 selectedFigure.AddDataSeries(dataSeries);
                 selectedFigure.MdiParent = this.MdiParent;
                 selectedFigure.Show();
-                if (update) selectedFigure.UpdateSeries();
             }
 
         }
