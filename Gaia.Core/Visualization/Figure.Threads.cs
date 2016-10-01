@@ -1,33 +1,29 @@
 ﻿using Gaia.Core.DataStreams;
 using Gaia.Core.Processing;
-using Gaia.GUI.Dialogs;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Drawing;
-using System.Linq;
-using System.Text;
 using System.Threading;
-using System.Threading.Tasks;
 
-namespace Gaia.GUI
+namespace Gaia.Core.Visualization
 {
     public delegate void FigureUpdatedEventHandler(object source, FigureUpdatedEventArgs e);
 
     public class FigureUpdatedEventArgs
     {
-        private FigureObject figure;
+        private Figure figure;
         private int progress;
         private String msg;
 
-        public FigureUpdatedEventArgs(FigureObject figure, int progress, String msg = null)
+        public FigureUpdatedEventArgs(Figure figure, int progress, String msg = null)
         {
             this.figure = figure;
             this.progress = progress;
             this.msg = msg;
         }
 
-        public FigureObject Figure
+        public Figure Figure
         {
             get { return this.figure; }
         }
@@ -43,10 +39,10 @@ namespace Gaia.GUI
         }
 
     }
-    public partial class FigureObject
+    public partial class Figure
     {
 
-        private List<GaiaDataSeries> dataSeriesList;
+        private List<FigureDataSeries> dataSeriesList;
         private BackgroundWorker backgroundWorker;
         private bool isPreviewMode;
         private ManualResetEvent syncFigureEvent = new ManualResetEvent(false);
@@ -69,7 +65,7 @@ namespace Gaia.GUI
 
         private void backgroundWorker_DoWork(object sender, DoWorkEventArgs e)
         {
-            foreach (GaiaDataSeries dataSeries in dataSeriesList)
+            foreach (FigureDataSeries dataSeries in dataSeriesList)
             {
                 DataStream dataStream = dataSeries.DataStream;
                 int under_sampling = Convert.ToInt32((double)dataStream.DataNumber / 20000.0) + 1;

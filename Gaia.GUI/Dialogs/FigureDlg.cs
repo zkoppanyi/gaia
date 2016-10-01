@@ -1,5 +1,6 @@
 ﻿using Gaia.Core.DataStreams;
 using Gaia.Core.Processing;
+using Gaia.Core.Visualization;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -20,105 +21,73 @@ namespace Gaia.GUI.Dialogs
         private String captionName;
         public String CaptionName { get { return captionName;  } }
 
-        private FigureObject figure;
         private bool closeWindowAfterCancellation = false;
 
         public FigureDlg(String name)
         {
             InitializeComponent();
-            toolStripAspectRatio.Items.Add(0.0);
-            toolStripAspectRatio.Items.Add(1.0);
-            toolStripAspectRatio.Items.Add(0.5);
-            toolStripAspectRatio.Items.Add(0.25);
-            toolStripAspectRatio.Items.Add(0.1);
-            toolStripAspectRatio.Items.Add(0.01);
-            toolStripAspectRatio.Items.Add(2.0);
-            toolStripAspectRatio.Items.Add(5.0);
-            toolStripAspectRatio.Items.Add(10.0);
-            toolStripAspectRatio.Items.Add(100.0);
 
             this.captionName = name;
-            this.figure = new FigureObject(figureBox.Width, figureBox.Height);
-            figure.FigureDone += new FigureUpdatedEventHandler(FigureDone);
-            figure.PreviewLoaded += new FigureUpdatedEventHandler(PreviewLoaded);
-            figure.FigureUpdated += new FigureUpdatedEventHandler(FigureUpdated);
-            figure.FigureError += new FigureUpdatedEventHandler(FigureError);
-            figure.FigureCancelled += new FigureUpdatedEventHandler(FigureCancelled);
+            figureControl.FigureDone += new FigureUpdatedEventHandler(FigureDone);
+            figureControl.PreviewLoaded += new FigureUpdatedEventHandler(PreviewLoaded);
+            figureControl.FigureError += new FigureUpdatedEventHandler(FigureError);
+            figureControl.FigureCancelled += new FigureUpdatedEventHandler(FigureCancelled);
 
         }
+
         private void FigureCancelled(object source, FigureUpdatedEventArgs e)
         {
-            if(closeWindowAfterCancellation)
-            {
+           if (closeWindowAfterCancellation)
+           {
                 this.Close();
-                return;
-            }
-
-            figureBox.Image = e.Figure.FigureBitmap;
-            toolStripProgressBar.ProgressBar.Value = e.Progress;
-            textBoxStatus.AppendText("Cancelled" + Environment.NewLine);
-            if (e.Message != null) textBoxStatus.AppendText(e.Message + Environment.NewLine);
+           }
         }
-
 
         private void FigureDone(object source, FigureUpdatedEventArgs e)
         {
-            figureBox.Image = e.Figure.FigureBitmap;
-            toolStripProgressBar.ProgressBar.Value = e.Progress;
-            if (e.Message != null) textBoxStatus.AppendText(e.Message + Environment.NewLine);
-            toolStripProgressBar.Visible = false;
-            toolStripCancelProgress.Visible = false;
+            if (closeWindowAfterCancellation)
+            {
+                this.Close();
+            }
         }
 
         private void PreviewLoaded(object source, FigureUpdatedEventArgs e)
         {
-            toolStripProgressBar.Visible = true;
-            toolStripCancelProgress.Visible = true;
-            toolStripProgressBar.ProgressBar.Value = e.Progress;
-            figureBox.Image = e.Figure.FigureBitmap;
-            if (e.Message != null) textBoxStatus.AppendText(e.Message + Environment.NewLine);
-        }
-
-        private void FigureUpdated(object source, FigureUpdatedEventArgs e)
-        {
-            toolStripProgressBar.ProgressBar.Value = e.Progress;
-            figureBox.Image = e.Figure.FigureBitmap;
-            if (e.Message != null) textBoxStatus.AppendText(e.Message + Environment.NewLine);
+            if (closeWindowAfterCancellation)
+            {
+                this.Close();
+            }
         }
 
         private void FigureError(object source, FigureUpdatedEventArgs e)
         {
-            toolStripProgressBar.ProgressBar.Value = e.Progress;
-            figureBox.Image = e.Figure.FigureBitmap;
-            if (e.Message != null) textBoxStatus.AppendText("Error: " + e.Message + Environment.NewLine);
+            if (closeWindowAfterCancellation)
+            {
+                this.Close();
+            }
         }
 
-        public void AddDataSeries(GaiaDataSeries dataSerises)
+        public void AddDataSeries(FigureDataSeries dataSerises)
         {
-            figure.AddDataSeries(dataSerises);
+            figureControl.AddDataSeries(dataSerises);
         }
 
 
         private void FigureDlg_Load(object sender, EventArgs e)
         {
             this.Text = this.captionName;
-            figure.Update();
-        }
-      
-
-        private void toolStripSplitButton1_ButtonClick(object sender, EventArgs e)
-        {
-
+            figureControl.Update();
         }
 
         protected override void OnFormClosing(FormClosingEventArgs e)
         {
-            if (figure.IsBusy())
+            if (figureControl.IsBusy())
             {
                 closeWindowAfterCancellation = true;
-                figure.Cancel();
+                figureControl.CancelFigure();
                 e.Cancel = true;
-                textBoxStatus.AppendText("Waiting for the background thread for closing!" + Environment.NewLine);
+                GlobalAccess.RemoveFigure(this);
+                //textBoxStatus.AppendText("Waiting for the background thread for closing!" + Environment.NewLine);
                 return;
             }
             else
@@ -127,124 +96,10 @@ namespace Gaia.GUI.Dialogs
             }
         }
 
-        private void toolStripCancelProgress_Click(object sender, EventArgs e)
-        {
-            toolStripProgressBar.Visible = false;
-            toolStripCancelProgress.Visible = false;
-            figure.Cancel();
-        }
-
-        private void toolStripButton1_Click(object sender, EventArgs e)
-        {
-           
-        }
-
-        private void toolStripButtonRefresh_Click(object sender, EventArgs e)
-        {
-
-        }
-
-        private void toolStripButton2_Click(object sender, EventArgs e)
-        {
-        }
-
-        private void refreshToolStripMenuItem_Click(object sender, EventArgs e)
-        {
-            toolStripProgressBar.Visible = true;
-            toolStripCancelProgress.Visible = true;
-            figure.Update();
-        }
-
-        private void aspectRatioEqualToolStripMenuItem_Click(object sender, EventArgs e)
-        {
-
-        }
-
-        private void legendToolStripMenuItem_Click(object sender, EventArgs e)
-        {
-            if (this.legendToolStripMenuItem.Checked == true)
-            {
-                this.legendToolStripMenuItem.Checked = false; 
-            }
-            else
-            {
-                this.legendToolStripMenuItem.Checked = true;
-            }
-
-            figure.Update();
-
-        }
-
         private void StatisticsDlg_FormClosing(object sender, FormClosingEventArgs e)
         {
-            figure.Cancel();
-            closeWindowAfterCancellation = true;
-            GlobalAccess.RemoveFigure(this);
         }
 
-        bool sizing = false;
-        private void FigureDlg_Resize(object sender, EventArgs e)
-        {
-            // ResizeEnd event is triggered, even of the window just moved, not resized.
-            // To workaround, here, I use sizing variable 
-            sizing = true;
-        }
 
-        private void FigureDlg_ResizeEnd(object sender, EventArgs e)
-        {
-            if (!sizing) return;
-
-            if (sizing)
-            {
-                sizing = false;
-                toolStripProgressBar.Visible = true;
-                toolStripCancelProgress.Visible = true;
-                figure.Update(figureBox.Width, figureBox.Height);
-            }
-        }
-
-        private void aspectRatioEqualToolStripMenuItem_Click_1(object sender, EventArgs e)
-        {
-           
-        }
-
-        private void toolStripAspectRatio_SelectedIndexChanged(object sender, EventArgs e)
-        {
-            if(toolStripAspectRatio.Selected)
-            {
-                double ratio = (double)toolStripAspectRatio.SelectedItem;
-                figure.AspectRatio = ratio;
-                toolStripProgressBar.Visible = true;
-                toolStripCancelProgress.Visible = true;
-                figure.Update();
-
-            }
-        }
-
-        private void toolStripAspectRatio_TextUpdate(object sender, EventArgs e)
-        {
-            try
-            {
-                double ratio = Convert.ToDouble(toolStripAspectRatio.Text);
-                figure.AspectRatio = ratio;
-                figure.Update();
-            }
-            catch
-            {
-                textBoxStatus.Text = "Invalid double value!";
-            }
-        }
-
-        private void toolStripAspectRatio_Click(object sender, EventArgs e)
-        {
-
-        }
-
-        private void relativeToolStripMenuItem_Click(object sender, EventArgs e)
-        {
-            relativeToolStripMenuItem.Checked = relativeToolStripMenuItem.Checked == true ? false : true;
-            figure.IsRelative = relativeToolStripMenuItem.Checked;
-            figure.Update();
-        }
     }
 }

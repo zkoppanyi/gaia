@@ -1,21 +1,12 @@
-﻿using Gaia.Core.DataStreams;
-using Gaia.Core.Processing;
-using Gaia.Exceptions;
-using Gaia.GUI.Dialogs;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Drawing;
-using System.Drawing.Imaging;
-using System.Linq;
-using System.Text;
-using System.Threading;
-using System.Threading.Tasks;
-using System.Windows.Forms;
 
-namespace Gaia.GUI
+
+namespace Gaia.Core.Visualization
 {
-    public partial class FigureObject
+    public partial class Figure
     {
 
         private SolidBrush brush = new SolidBrush(Color.LimeGreen);
@@ -71,7 +62,7 @@ namespace Gaia.GUI
 
         List<FPoint> points = new List<FPoint>();
 
-        public FigureObject(int width, int height)
+        public Figure(int width, int height)
         {
             figureBitmap = new Bitmap(width, height);
             XLabel = "X [-]";
@@ -87,10 +78,10 @@ namespace Gaia.GUI
             backgroundWorker.RunWorkerCompleted += new RunWorkerCompletedEventHandler(backgroundWorker_Completed);
 
             this.isPreviewMode = true;
-            this.dataSeriesList = new List<GaiaDataSeries>();
+            this.dataSeriesList = new List<FigureDataSeries>();
         }
 
-        public void AddDataSeries(GaiaDataSeries dataSerises)
+        public void AddDataSeries(FigureDataSeries dataSerises)
         {
             this.dataSeriesList.Add(dataSerises);
         }

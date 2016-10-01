@@ -85,13 +85,18 @@
     <Compile Include="Dialogs\DataViewDlg.Designer.cs">
       <DependentUpon>DataViewDlg.cs</DependentUpon>
     </Compile>
+    <Compile Include="Dialogs\FigureControl.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="Dialogs\FigureControl.Designer.cs">
+      <DependentUpon>FigureControl.cs</DependentUpon>
+    </Compile>
     <Compile Include="Dialogs\FigureSeriresSelectorDlg.cs">
       <SubType>Form</SubType>
     </Compile>
     <Compile Include="Dialogs\FigureSeriresSelectorDlg.Designer.cs">
       <DependentUpon>FigureSeriresSelectorDlg.cs</DependentUpon>
     </Compile>
-    <Compile Include="Dialogs\GaiaDataSeries.cs" />
     <Compile Include="Dialogs\ImportDlg.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -134,8 +139,6 @@
     <Compile Include="Dialogs\TransformerDialog.Designer.cs">
       <DependentUpon>TransformerDialog.cs</DependentUpon>
     </Compile>
-    <Compile Include="FigureObject.cs" />
-    <Compile Include="FigureObject.Threads.cs" />
     <Compile Include="GlobalAccess.cs" />
     <Compile Include="MainForm.cs">
       <SubType>Form</SubType>
@@ -156,6 +159,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Dialogs\DataViewDlg.resx">
       <DependentUpon>DataViewDlg.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Dialogs\FigureControl.resx">
+      <DependentUpon>FigureControl.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Dialogs\FigureSeriresSelectorDlg.resx">
       <DependentUpon>FigureSeriresSelectorDlg.cs</DependentUpon>

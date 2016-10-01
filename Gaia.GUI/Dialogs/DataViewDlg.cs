@@ -12,6 +12,7 @@ using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using Gaia.Core.Visualization;
 
 namespace Gaia.GUI.Dialogs
 {
@@ -322,7 +323,7 @@ namespace Gaia.GUI.Dialogs
                     update = false;
                 }
 
-                GaiaDataSeries dataSeries = new GaiaDataSeries(selector.SelectedStreamX.Name, selector.SelectedStreamX, selector.SelectedFieldX, selector.SelectedFieldY);
+                FigureDataSeries dataSeries = new FigureDataSeries(selector.SelectedStreamX.Name, selector.SelectedStreamX, selector.SelectedFieldX, selector.SelectedFieldY);
                 selectedFigure.AddDataSeries(dataSeries);
                 selectedFigure.MdiParent = this.MdiParent;
                 selectedFigure.Show();

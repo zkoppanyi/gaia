@@ -1,21 +1,17 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 using Gaia.Core.DataStreams;
 
-namespace Gaia.GUI.Dialogs
+namespace Gaia.Core.Visualization
 {
-    public class GaiaDataSeries
+    public class FigureDataSeries
     {
         public String Name { get; }
         public DataStream DataStream { get; }
         public String CaptionX { get; }
         public String CaptionY { get; }
 
-        public GaiaDataSeries(String name, DataStream dataStream, String captionX, String captionY)
+        public FigureDataSeries(String name, DataStream dataStream, String captionX, String captionY)
         {
             this.Name = name;
             this.DataStream = dataStream;
