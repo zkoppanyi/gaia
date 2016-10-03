@@ -36,6 +36,8 @@
             this.relativeToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.toolStripButtonCancelProgress = new System.Windows.Forms.ToolStripButton();
             this.toolStripAspectRatio = new System.Windows.Forms.ToolStripComboBox();
+            this.toolStripButtonZoomIn = new System.Windows.Forms.ToolStripButton();
+            this.toolStripButtonZoomExtent = new System.Windows.Forms.ToolStripButton();
             this.figureArea = new System.Windows.Forms.PictureBox();
             this.toolStrip.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.figureArea)).BeginInit();
@@ -47,7 +49,9 @@
             this.progressBar,
             this.toolStripSplitButton1,
             this.toolStripButtonCancelProgress,
-            this.toolStripAspectRatio});
+            this.toolStripAspectRatio,
+            this.toolStripButtonZoomIn,
+            this.toolStripButtonZoomExtent});
             this.toolStrip.Location = new System.Drawing.Point(0, 0);
             this.toolStrip.Name = "toolStrip";
             this.toolStrip.Size = new System.Drawing.Size(641, 25);
@@ -100,7 +104,6 @@
             // 
             this.toolStripButtonCancelProgress.Alignment = System.Windows.Forms.ToolStripItemAlignment.Right;
             this.toolStripButtonCancelProgress.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
-            this.toolStripButtonCancelProgress.Image = global::Gaia.Properties.Resources.cancel_button;
             this.toolStripButtonCancelProgress.ImageTransparentColor = System.Drawing.Color.Magenta;
             this.toolStripButtonCancelProgress.Name = "toolStripButtonCancelProgress";
             this.toolStripButtonCancelProgress.Size = new System.Drawing.Size(23, 22);
@@ -115,6 +118,26 @@
             this.toolStripAspectRatio.TextUpdate += new System.EventHandler(this.toolStripAspectRatio_TextUpdate);
             this.toolStripAspectRatio.Click += new System.EventHandler(this.toolStripAspectRatio_Click);
             // 
+            // toolStripButtonZoomIn
+            // 
+            this.toolStripButtonZoomIn.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
+            this.toolStripButtonZoomIn.Image = global::Gaia.Properties.Resources.zoom_in;
+            this.toolStripButtonZoomIn.ImageTransparentColor = System.Drawing.Color.Magenta;
+            this.toolStripButtonZoomIn.Name = "toolStripButtonZoomIn";
+            this.toolStripButtonZoomIn.Size = new System.Drawing.Size(23, 22);
+            this.toolStripButtonZoomIn.Text = "toolStripButton1";
+            this.toolStripButtonZoomIn.Click += new System.EventHandler(this.toolStripButtonZoomIn_Click);
+            // 
+            // toolStripButtonZoomExtent
+            // 
+            this.toolStripButtonZoomExtent.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
+            this.toolStripButtonZoomExtent.Image = global::Gaia.Properties.Resources.extent;
+            this.toolStripButtonZoomExtent.ImageTransparentColor = System.Drawing.Color.Magenta;
+            this.toolStripButtonZoomExtent.Name = "toolStripButtonZoomExtent";
+            this.toolStripButtonZoomExtent.Size = new System.Drawing.Size(23, 22);
+            this.toolStripButtonZoomExtent.Text = "toolStripButton2";
+            this.toolStripButtonZoomExtent.Click += new System.EventHandler(this.toolStripButtonZoomExtent_Click);
+            // 
             // figureArea
             // 
             this.figureArea.Dock = System.Windows.Forms.DockStyle.Fill;
@@ -123,7 +146,14 @@
             this.figureArea.Size = new System.Drawing.Size(641, 432);
             this.figureArea.TabIndex = 1;
             this.figureArea.TabStop = false;
+            this.figureArea.SizeChanged += new System.EventHandler(this.figureArea_SizeChanged);
             this.figureArea.Click += new System.EventHandler(this.figureArea_Click);
+            this.figureArea.Paint += new System.Windows.Forms.PaintEventHandler(this.figureArea_Paint);
+            this.figureArea.MouseDoubleClick += new System.Windows.Forms.MouseEventHandler(this.figureArea_MouseDoubleClick);
+            this.figureArea.MouseDown += new System.Windows.Forms.MouseEventHandler(this.figureArea_MouseDown);
+            this.figureArea.MouseMove += new System.Windows.Forms.MouseEventHandler(this.figureArea_MouseMove);
+            this.figureArea.MouseUp += new System.Windows.Forms.MouseEventHandler(this.figureArea_MouseUp);
+            this.figureArea.Resize += new System.EventHandler(this.figureArea_Resize);
             // 
             // FigureControl
             // 
@@ -152,5 +182,7 @@
         private System.Windows.Forms.ToolStripMenuItem relativeToolStripMenuItem;
         private System.Windows.Forms.ToolStripButton toolStripButtonCancelProgress;
         private System.Windows.Forms.ToolStripComboBox toolStripAspectRatio;
+        private System.Windows.Forms.ToolStripButton toolStripButtonZoomIn;
+        private System.Windows.Forms.ToolStripButton toolStripButtonZoomExtent;
     }
 }

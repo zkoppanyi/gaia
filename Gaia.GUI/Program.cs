@@ -8,6 +8,9 @@ using Gaia;
 using Gaia.Core;
 using Gaia.Exceptions;
 
+
+// icons: iconfinder, https://www.iconfinder.com/iconsets/iconza
+
 namespace Gaia.GUI
 {
     static class Program

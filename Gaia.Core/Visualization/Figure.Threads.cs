@@ -73,7 +73,6 @@ namespace Gaia.Core.Visualization
                 dataStream.Open();
                 dataStream.Begin();
                 int i = 0;
-                double prevNum = Double.NaN;
                 int lastProgressReport = 0;
                 long pos = 0;
                 while (!dataStream.IsEOF())
@@ -97,37 +96,36 @@ namespace Gaia.Core.Visualization
 
                     AddPoint(valueX, valueY);
 
-                    // Preview mode
-                    pos = dataStream.GetPosition() + under_sampling;
+                    // Preview mode                    
                     if (this.isPreviewMode == true)
                     {
+                        pos = dataStream.GetPosition() + under_sampling;
                         if (pos > dataStream.DataNumber) break;
                         dataStream.Seek(pos);
                         i++;
                     }
 
-                    if ((progress % 10 == 0) && (lastProgressReport != progress))
+                    if ((progress % 10 == 0) && (lastProgressReport != progress) && (isFigureUpdated == true)) // real report bitmap update
                     {
                         syncFigureEvent.Reset();
                         Redraw();
                         backgroundWorker.ReportProgress(progress);
                         syncFigureEvent.WaitOne();
+                        isFigureUpdated = false;
                     }
-
-                    else if ((progress % 2 == 0) && (lastProgressReport != progress))
+                    else if ((progress % 5 == 0) && (lastProgressReport != progress)) // just report for the progress bar
                     {
                         syncFigureEvent.Reset();
                         backgroundWorker.ReportProgress(progress, null);
                         syncFigureEvent.WaitOne();
                     }
 
-                    prevNum = valueY;
                     lastProgressReport = progress;
+
 
                 }
 
                 syncFigureEvent.Reset();
-                Redraw();
                 backgroundWorker.ReportProgress(100);
                 syncFigureEvent.WaitOne();
                 dataStream.Close();
@@ -158,6 +156,7 @@ namespace Gaia.Core.Visualization
             {
                 isPreviewMode = true;
                 Clear();
+                calculateLimits();
                 backgroundWorker.RunWorkerAsync();
                 syncFigureEvent.Reset();
             }
@@ -172,8 +171,34 @@ namespace Gaia.Core.Visualization
         public void Update(int width, int height)
         {
             this.Cancel();
+
+            if (width <= 0) width = 1;
+            if (height <= 0) height = 1;
+
             figureBitmap = new Bitmap(width, height);
             createNewBitmap();
+            this.Update();
+        }
+
+        public void ZoomByImageCoordinate(int x1, int y1, int x2, int y2)
+        {
+            //this.Cancel();
+            calculateLimits();
+            FPoint p1 = ImageToWord(x1, y1);
+            FPoint p2 = ImageToWord(x2, y2);
+            xLimMin = p1.X < p2.X ? p1.X : p2.X;
+            xLimMax = p1.X > p2.X ? p1.X : p2.X;
+            yLimMin = p1.Y < p2.Y ? p1.Y : p2.Y;
+            yLimMax = p1.Y > p2.Y ? p1.Y : p2.Y;            
+            isFixedLimits = true;
+            calculateLimits();
+            this.Update();
+        }
+
+        public void ShowExtent()
+        {
+            this.Cancel();
+            isFixedLimits = false;
             this.Update();
         }
 

@@ -133,6 +133,16 @@ namespace Gaia.Properties {
         /// <summary>
         ///   Looks up a localized resource of type System.Drawing.Bitmap.
         /// </summary>
+        internal static System.Drawing.Bitmap extent {
+            get {
+                object obj = ResourceManager.GetObject("extent", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
         internal static System.Drawing.Bitmap folder_button {
             get {
                 object obj = ResourceManager.GetObject("folder_button", resourceCulture);
@@ -246,6 +256,16 @@ namespace Gaia.Properties {
         internal static System.Drawing.Bitmap settings_button {
             get {
                 object obj = ResourceManager.GetObject("settings_button", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
+        internal static System.Drawing.Bitmap zoom_in {
+            get {
+                object obj = ResourceManager.GetObject("zoom_in", resourceCulture);
                 return ((System.Drawing.Bitmap)(obj));
             }
         }

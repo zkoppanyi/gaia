@@ -43,6 +43,9 @@ namespace Gaia.Core.Visualization
         private double yLimMax;
         public double YLimMax { get { return yLimMax; } }
 
+        private bool isFixedLimits = false;
+        private bool isFigureUpdated = false;
+
         private readonly object locker = new object();
 
         private static Bitmap figureBitmap;
@@ -88,45 +91,58 @@ namespace Gaia.Core.Visualization
 
         public void Clear()
         {
-            xLimMin = Double.PositiveInfinity;
-            xLimMax = Double.NegativeInfinity;
-            yLimMin = Double.PositiveInfinity;
-            yLimMax = Double.NegativeInfinity;
+            if (!isFixedLimits)
+            {
+                xLimMin = Double.PositiveInfinity;
+                xLimMax = Double.NegativeInfinity;
+                yLimMin = Double.PositiveInfinity;
+                yLimMax = Double.NegativeInfinity;
+            }
             createNewBitmap();
             points.Clear();
         }
 
-        bool hasToRedraw = false;
+        bool isLimitsChanged = false;
         public void AddPoint(double x, double y)
         {
             if (x > XLimMax)
             {
-                xLimMax = x;
-                hasToRedraw = true;
+                if (isFixedLimits == false) xLimMax = x;
+                isLimitsChanged = true;
             }
 
             if (x < XLimMin)
             {
-                xLimMin = x;
-                hasToRedraw = true;
+                if (isFixedLimits == false) xLimMin = x;
+                isLimitsChanged = true;
             }
 
             if (y > YLimMax)
             {
-                yLimMax = y;
-                hasToRedraw = true;
+                if (isFixedLimits == false) yLimMax = y;
+                isLimitsChanged = true;
             }
 
             if (y < YLimMin)
             {
-                yLimMin = y;
-                hasToRedraw = true;
+                if (isFixedLimits == false) yLimMin = y;
+                isLimitsChanged = true;
             }
 
-            FPoint picP = WorldToImage(x, y);
-            points.Add(new FPoint(x, y));
+            if (isFixedLimits == true)
+            {
+                if (!isLimitsChanged)
+                {
+                    drawPoint(x, y);
+                }
+                isLimitsChanged = false;
+            }
 
-            drawPoint(picP.X, picP.Y);
+            if (isFixedLimits == false)
+            {
+                points.Add(new FPoint(x, y));
+                drawPoint(x, y);
+            }
 
             /*if ((picP.X >= 0) && (picP.X < figureBitmap.Width) && (picP.Y >= 0) && (picP.Y < figureBitmap.Height))
             {
@@ -140,46 +156,62 @@ namespace Gaia.Core.Visualization
 
         }
 
+
+        private void calculateLimits()
+        {
+            this.axisEdgeOuterY = (int)tickLabelFont.Size * 2 + (int)labelFont.Size + (int)tickLabelFont.Size;
+
+            this.axisEdgeOuterX = Math.Max(YLimMax.ToString(tickLabelYFormat).Length * (int)tickLabelFont.Size,
+                           YLimMin.ToString(tickLabelYFormat).Length * (int)tickLabelFont.Size) + (int)labelFont.Size;
+
+            if (AspectRatio != 0)
+            {
+                double dx = (XLimMax - XLimMin) != 0 ? XLimMax - XLimMin : 1;
+                double dy = (YLimMax - YLimMin) != 0 ? YLimMax - YLimMin : 1;
+                double ratFigEffectiveX = (FigureBitmap.Width - 2 * this.axisEdgeOuterX - 2 * this.axisEdgeInnerX);
+                double ratFigEffectiveY = (FigureBitmap.Height - 2 * this.axisEdgeOuterY - 2 * this.axisEdgeInnerY);
+
+                double extraRoomX = ratFigEffectiveX - ratFigEffectiveY / dy * dx * AspectRatio;
+                double extraRoomY = ratFigEffectiveY - ratFigEffectiveX / dx * dy * AspectRatio;
+
+                if (extraRoomX > extraRoomY)
+                {
+                    this.axisEdgeOuterX += (int)(extraRoomX / 2);
+                }
+                else
+                {
+                    this.axisEdgeOuterY += (int)(extraRoomY / 2);
+                }
+            }
+
+            if ((this.axisEdgeOuterX < 0) || (this.axisEdgeOuterX > 1000000))
+            {
+                this.axisEdgeOuterX = 0;
+            }
+
+            if ((this.axisEdgeOuterY < 0) || (this.axisEdgeOuterY > 1000000))
+            {
+                this.axisEdgeOuterY = 0;
+            }
+        }
+
         public void Redraw()
         {
             lock (locker)
             {
-                if (hasToRedraw)
+                if ((isLimitsChanged) && (isFixedLimits == false))
                 {
-
-                    this.axisEdgeOuterY = (int)tickLabelFont.Size * 2 + (int)labelFont.Size + (int)tickLabelFont.Size;
-
-                    this.axisEdgeOuterX = Math.Max(YLimMax.ToString(tickLabelYFormat).Length * (int)tickLabelFont.Size,
-                                   YLimMin.ToString(tickLabelYFormat).Length * (int)tickLabelFont.Size) + (int)labelFont.Size;
-
-                    if (AspectRatio != 0)
-                    {
-                        double dx = (XLimMax - XLimMin) != 0 ? XLimMax - XLimMin : 1;
-                        double dy = (YLimMax - YLimMin) != 0 ? YLimMax - YLimMin : 1;
-                        double ratFigEffectiveX = (FigureBitmap.Width - 2 * this.axisEdgeOuterX - 2 * this.axisEdgeInnerX);
-                        double ratFigEffectiveY = (FigureBitmap.Height - 2 * this.axisEdgeOuterY - 2 * this.axisEdgeInnerY);
-
-                        double extraRoomX = ratFigEffectiveX - ratFigEffectiveY / dy * dx * AspectRatio;
-                        double extraRoomY = ratFigEffectiveY - ratFigEffectiveX / dx * dy * AspectRatio;
-
-                        if (extraRoomX > extraRoomY)
-                        {
-                            this.axisEdgeOuterX += (int)(extraRoomX / 2);
-                        }
-                        else
-                        {
-                            this.axisEdgeOuterY += (int)(extraRoomY / 2);
-                        }
-
-                    }
-
+                    calculateLimits();
                     createNewBitmap();
                     foreach (FPoint pt in points)
                     {
                         drawPoint(pt.X, pt.Y);
                     }
-                    hasToRedraw = false;
+
+                    isLimitsChanged = false;
                 }
+
+                
             }
         }
 
@@ -193,11 +225,12 @@ namespace Gaia.Core.Visualization
                 drawAxis(g);
                 g.Flush();
                 g.Dispose();
+                isFigureUpdated = true;
             }
         }
 
 
-        private FPoint WorldToImage(double x, double y)
+        public FPoint WorldToImage(double x, double y)
         {
             lock (locker)
             {
@@ -213,7 +246,7 @@ namespace Gaia.Core.Visualization
         }
 
 
-        private FPoint ImageToWord(int x, int y)
+        public FPoint ImageToWord(int x, int y)
         {
             lock (locker)
             {
@@ -223,7 +256,7 @@ namespace Gaia.Core.Visualization
                 double ratY = (double)(figureBitmap.Height - axisEdgeOuterY * 2 - axisEdgeInnerY * 2) / dy;
 
                 double wrdX = ((double)(x - axisEdgeOuterX - axisEdgeInnerX) / ratX) + XLimMin;
-                double wrdY = ((double)(-y + figureBitmap.Height + axisEdgeOuterY + axisEdgeInnerY) / ratY) + YLimMin;
+                double wrdY = ((double)-(y - figureBitmap.Height + axisEdgeOuterY + axisEdgeInnerY) / ratY) + YLimMin;
                 return new FPoint(wrdX, wrdY);
             }
         }
@@ -260,6 +293,9 @@ namespace Gaia.Core.Visualization
                 double dX = Math.Floor(ddx / divNX / digitsX) * digitsX;
                 double dY = Math.Floor(ddy / divNY / digitsY) * digitsY;
 
+                if (dX <= 0) dX = XLimMax - XLimMin;
+                if (dY <= 0) dY = YLimMax - YLimMin;
+
                 // Drawing 
                 g.DrawLine(axisPen, origin, pX);
                 g.DrawLine(axisPen, origin, pY);
@@ -294,6 +330,8 @@ namespace Gaia.Core.Visualization
                 }
 
                 g.DrawString(YLabel, labelFont, tickLabelBrush, (int)pY.X - tickLabelWidth, (int)(pY.Y - tickSize - tickLabelFont.Size * 2));
+
+                isFigureUpdated = true;
             }
 
         }
@@ -314,15 +352,21 @@ namespace Gaia.Core.Visualization
             return digits;
 
         }
+
+        /// <summary>
+        /// Draw a data point on the figure. The points are in world coordinates
+        /// </summary>
+        /// <param name="x">X in world corrdinate system</param>
+        /// <param name="y">Y in world voordinate system</param>
         private void drawPoint(double x, double y)
         {
             lock (locker)
             {
-                // just for safety, altough: assert
-                if (figureBitmap == null)
+                // just for safety, otherwise: assert
+                /*if (figureBitmap == null)
                 {
                     createNewBitmap();
-                }
+                }*/
 
                 FPoint picP = WorldToImage(x, y);
 
@@ -337,13 +381,15 @@ namespace Gaia.Core.Visualization
                     Graphics g = Graphics.FromImage(figureBitmap);
                     g.FillEllipse(brush, rect);
                     g.Dispose();
+
+                    isFigureUpdated = true;
                 }
             }
         }
 
         #region FPoint class
 
-        private class FPoint
+        public class FPoint
         {
             public double X { get; set; }
             public double Y { get; set; }

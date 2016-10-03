@@ -8,6 +8,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using Gaia.Core.Visualization;
+using static Gaia.Core.Visualization.Figure;
 
 namespace Gaia.Dialogs
 {
@@ -23,6 +24,10 @@ namespace Gaia.Dialogs
         public FigureUpdatedEventHandler FigureCancelled;
         public FigureUpdatedEventHandler PreviewLoaded;
         public FigureUpdatedEventHandler FigureError;
+
+        private bool ZoomModeOn;
+        Point mouseFirstPoint;
+        Point mouseLastPoint;
 
         public FigureControl()
         {
@@ -46,6 +51,8 @@ namespace Gaia.Dialogs
             toolStripAspectRatio.Items.Add(5.0);
             toolStripAspectRatio.Items.Add(10.0);
             toolStripAspectRatio.Items.Add(100.0);
+
+            ZoomModeOn = false;
         }
 
         public void AddDataSeries(FigureDataSeries dataSeries)
@@ -80,6 +87,20 @@ namespace Gaia.Dialogs
         protected override void OnPaint(PaintEventArgs e)
         {
             base.OnPaint(e);
+
+            if (ZoomModeOn)
+            {
+                if ((mouseFirstPoint.X != mouseLastPoint.X) || (mouseFirstPoint.Y != mouseLastPoint.Y))
+                {
+                    Graphics g = figureArea.CreateGraphics();
+                    Pen p = new Pen(new SolidBrush(Color.Red));
+                    int x = mouseFirstPoint.X < mouseLastPoint.X ? mouseFirstPoint.X : mouseLastPoint.X;
+                    int y = mouseFirstPoint.Y < mouseLastPoint.Y ? mouseFirstPoint.Y : mouseLastPoint.Y;
+                    int width = Math.Abs(mouseFirstPoint.X - mouseLastPoint.X);
+                    int height = Math.Abs(mouseFirstPoint.Y - mouseLastPoint.Y);
+                    g.DrawRectangle(p, x, y, width, height);
+                }
+            }
         }
 
         protected override void OnResize(EventArgs e)
@@ -96,7 +117,8 @@ namespace Gaia.Dialogs
 
         protected void OnFigureDone(object source, FigureUpdatedEventArgs e)
         {
-            this.figureArea.Image = e.Figure.FigureBitmap;
+            figureArea.Image = figureObject.FigureBitmap;
+            this.Refresh();
             progressBar.Value = e.Progress;
             progressBar.Visible = false;
             toolStripButtonCancelProgress.Visible = false;
@@ -105,16 +127,18 @@ namespace Gaia.Dialogs
 
         protected void OnPreviewLoaded(object source, FigureUpdatedEventArgs e)
         {
-            this.figureArea.Image = e.Figure.FigureBitmap;
+            figureArea.Image = figureObject.FigureBitmap;
+            this.Refresh();
             progressBar.Value = e.Progress;
             PreviewLoaded?.Invoke(source, e);
         }
 
         protected void OnFigureUpdated(object source, FigureUpdatedEventArgs e)
         {
+            figureArea.Image = figureObject.FigureBitmap;
+            this.Refresh();
             progressBar.Visible = true;
             toolStripButtonCancelProgress.Visible = true;
-            this.figureArea.Image = e.Figure.FigureBitmap;
             progressBar.Value = e.Progress;
             FigureUpdated?.Invoke(source, e);
 
@@ -122,7 +146,8 @@ namespace Gaia.Dialogs
 
         protected void OnFigureError(object source, FigureUpdatedEventArgs e)
         {
-            this.figureArea.Image = e.Figure.FigureBitmap;
+            figureArea.Image = figureObject.FigureBitmap;
+            this.Refresh();
             progressBar.Value = e.Progress;
             progressBar.Visible = false;
             toolStripButtonCancelProgress.Visible = false;
@@ -132,7 +157,8 @@ namespace Gaia.Dialogs
 
         protected void OnFigureCancelled(object source, FigureUpdatedEventArgs e)
         {
-            this.figureArea.Image = e.Figure.FigureBitmap;
+            figureArea.Image = figureObject.FigureBitmap;
+            this.Refresh();
             progressBar.Value = e.Progress;
             progressBar.Visible = false;
             toolStripButtonCancelProgress.Visible = false;
@@ -141,6 +167,8 @@ namespace Gaia.Dialogs
 
         private void refreshToolStripMenuItem_Click(object sender, EventArgs e)
         {
+            figureArea.Image = figureObject.FigureBitmap;
+            this.Refresh();
             progressBar.Visible = true;
             toolStripButtonCancelProgress.Visible = true;
             figureObject.Update();
@@ -209,6 +237,84 @@ namespace Gaia.Dialogs
         private void figureArea_Click(object sender, EventArgs e)
         {
 
+        }
+
+        private void toolStripButtonZoomIn_Click(object sender, EventArgs e)
+        {
+            ZoomModeOn = true;
+        }
+
+        private void figureArea_MouseDoubleClick(object sender, MouseEventArgs e)
+        {
+        }
+
+        private void figureArea_MouseMove(object sender, MouseEventArgs e)
+        {
+            if (ZoomModeOn)
+            {
+                if (e.Button == MouseButtons.Left)
+                {
+                    FPoint pt = figureObject.ImageToWord(e.X, e.Y);
+                    pt = figureObject.WorldToImage(pt.X, pt.Y);
+                    mouseLastPoint.X = (int)pt.X;
+                    mouseLastPoint.Y = (int)pt.Y;
+                    this.Refresh();
+
+                }
+            }
+        }
+
+        private void figureArea_MouseDown(object sender, MouseEventArgs e)
+        {
+            if (ZoomModeOn)
+            {
+                if (e.Button == MouseButtons.Left)
+                {
+                    FPoint pt = figureObject.ImageToWord(e.X, e.Y);
+                    pt = figureObject.WorldToImage(pt.X, pt.Y);
+                    mouseFirstPoint.X = (int)pt.X;
+                    mouseFirstPoint.Y = (int)pt.Y;
+                    mouseLastPoint.X = (int)pt.X;
+                    mouseLastPoint.Y = (int)pt.Y;
+                    this.Update();
+                }
+            }
+        }
+
+        private void figureArea_MouseUp(object sender, MouseEventArgs e)
+        {
+            if (ZoomModeOn)
+            {
+                if (e.Button == MouseButtons.Left)
+                {
+                    figureObject.ZoomByImageCoordinate(mouseFirstPoint.X, mouseFirstPoint.Y, mouseLastPoint.X, mouseLastPoint.Y);
+                    mouseFirstPoint.X = 0;
+                    mouseFirstPoint.Y = 0;
+                    mouseLastPoint.X = 0;
+                    mouseLastPoint.Y = 0;
+                    this.Refresh();                    
+                }
+            }
+        }
+
+        private void figureArea_Paint(object sender, PaintEventArgs e)
+        {
+
+        }
+
+        private void toolStripButtonZoomExtent_Click(object sender, EventArgs e)
+        {
+            figureObject.ShowExtent();
+        }
+
+        private void figureArea_Resize(object sender, EventArgs e)
+        {
+
+        }
+
+        private void figureArea_SizeChanged(object sender, EventArgs e)
+        {
+           
         }
     }
 }
