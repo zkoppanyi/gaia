@@ -81,12 +81,13 @@ namespace Gaia.GUI.Dialogs
 
         protected override void OnFormClosing(FormClosingEventArgs e)
         {
+            GlobalAccess.RemoveFigure(this);
+
             if (figureControl.IsBusy())
             {
                 closeWindowAfterCancellation = true;
                 figureControl.CancelFigure();
                 e.Cancel = true;
-                GlobalAccess.RemoveFigure(this);
                 //textBoxStatus.AppendText("Waiting for the background thread for closing!" + Environment.NewLine);
                 return;
             }

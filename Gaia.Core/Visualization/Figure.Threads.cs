@@ -94,7 +94,7 @@ namespace Gaia.Core.Visualization
                     double valueX = Convert.ToDouble(valueXobj);
                     double valueY = Convert.ToDouble(valueYobj);
 
-                    AddPoint(valueX, valueY);
+                    addPoint(valueX, valueY);
 
                     // Preview mode                    
                     if (this.isPreviewMode == true)

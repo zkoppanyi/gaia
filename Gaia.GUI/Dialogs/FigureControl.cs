@@ -58,6 +58,7 @@ namespace Gaia.Dialogs
         public void AddDataSeries(FigureDataSeries dataSeries)
         {
             figureObject.AddDataSeries(dataSeries);
+            figureObject.Update();
         }
 
         public void UpdateFigure()

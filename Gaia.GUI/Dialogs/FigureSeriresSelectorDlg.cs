@@ -92,8 +92,11 @@ namespace Gaia.GUI.Dialogs
 
             foreach (FigureDlg fig in GlobalAccess.GetFigures())
             {
-                this.comboBoxFigures.Items.Add(fig);
-                this.comboBoxFigures.DisplayMember = "CaptionName";
+                if (!fig.IsDisposed)
+                {
+                    this.comboBoxFigures.Items.Add(fig);
+                    this.comboBoxFigures.DisplayMember = "CaptionName";
+                }
             }
         }
 

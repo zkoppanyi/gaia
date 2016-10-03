@@ -67,26 +67,29 @@ namespace Gaia.Core.Visualization
 
         public Figure(int width, int height)
         {
-            figureBitmap = new Bitmap(width, height);
-            XLabel = "X [-]";
-            YLabel = "Y [-]";
-            createNewBitmap();
-            this.Clear();
+            lock (locker)
+            {
+                XLabel = "X [-]";
+                YLabel = "Y [-]";
+                figureBitmap = new Bitmap(width, height);
+                createNewBitmap();
+                this.Clear();
 
-            backgroundWorker = new BackgroundWorker();
-            backgroundWorker.DoWork += new DoWorkEventHandler(backgroundWorker_DoWork);
-            backgroundWorker.ProgressChanged += new ProgressChangedEventHandler(backgroundWorker_ProgressChanged);
-            backgroundWorker.WorkerReportsProgress = true;
-            backgroundWorker.WorkerSupportsCancellation = true;
-            backgroundWorker.RunWorkerCompleted += new RunWorkerCompletedEventHandler(backgroundWorker_Completed);
+                backgroundWorker = new BackgroundWorker();
+                backgroundWorker.DoWork += new DoWorkEventHandler(backgroundWorker_DoWork);
+                backgroundWorker.ProgressChanged += new ProgressChangedEventHandler(backgroundWorker_ProgressChanged);
+                backgroundWorker.WorkerReportsProgress = true;
+                backgroundWorker.WorkerSupportsCancellation = true;
+                backgroundWorker.RunWorkerCompleted += new RunWorkerCompletedEventHandler(backgroundWorker_Completed);
 
-            this.isPreviewMode = true;
-            this.dataSeriesList = new List<FigureDataSeries>();
+                this.isPreviewMode = true;
+                this.dataSeriesList = new List<FigureDataSeries>();
+            } 
         }
 
-        public void AddDataSeries(FigureDataSeries dataSerises)
+        public void AddDataSeries(FigureDataSeries dataSeries)
         {
-            this.dataSeriesList.Add(dataSerises);
+            this.dataSeriesList.Add(dataSeries);
         }
 
         public void Clear()
@@ -102,8 +105,13 @@ namespace Gaia.Core.Visualization
             points.Clear();
         }
 
+        /// <summary>
+        /// Draw a data point on the figure. The points are in world coordinates
+        /// </summary>
+        /// <param name="x">X in world corrdinate system</param>
+        /// <param name="y">Y in world voordinate system</param>
         bool isLimitsChanged = false;
-        public void AddPoint(double x, double y)
+        private void addPoint(double x, double y)
         {
             if (x > XLimMax)
             {
@@ -143,17 +151,6 @@ namespace Gaia.Core.Visualization
                 points.Add(new FPoint(x, y));
                 drawPoint(x, y);
             }
-
-            /*if ((picP.X >= 0) && (picP.X < figureBitmap.Width) && (picP.Y >= 0) && (picP.Y < figureBitmap.Height))
-            {
-                Color c = figureBitmap.GetPixel((int)picP.X, (int)picP.Y);
-                if (figureBitmap.GetPixel((int)picP.X, (int)picP.Y).ToArgb() == this.backGroundColor.ToArgb())
-                {
-                  points.Add(new FPoint(x, y));
-                }
-            }*/
-            //}
-
         }
 
 

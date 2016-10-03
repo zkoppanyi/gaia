@@ -75,7 +75,7 @@
             this.toolStripSplitButton1.ImageTransparentColor = System.Drawing.Color.Magenta;
             this.toolStripSplitButton1.Name = "toolStripSplitButton1";
             this.toolStripSplitButton1.Size = new System.Drawing.Size(32, 22);
-            this.toolStripSplitButton1.Text = "toolStripSplitButton1";
+            this.toolStripSplitButton1.Text = "Settings";
             // 
             // refreshToolStripMenuItem
             // 
@@ -104,10 +104,11 @@
             // 
             this.toolStripButtonCancelProgress.Alignment = System.Windows.Forms.ToolStripItemAlignment.Right;
             this.toolStripButtonCancelProgress.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
+            this.toolStripButtonCancelProgress.Image = global::Gaia.Properties.Resources.cancel_button;
             this.toolStripButtonCancelProgress.ImageTransparentColor = System.Drawing.Color.Magenta;
             this.toolStripButtonCancelProgress.Name = "toolStripButtonCancelProgress";
             this.toolStripButtonCancelProgress.Size = new System.Drawing.Size(23, 22);
-            this.toolStripButtonCancelProgress.Text = "toolStripButton1";
+            this.toolStripButtonCancelProgress.Text = "Cancel Loading";
             this.toolStripButtonCancelProgress.Click += new System.EventHandler(this.toolStripButtonCancelProgress_Click);
             // 
             // toolStripAspectRatio
@@ -125,7 +126,7 @@
             this.toolStripButtonZoomIn.ImageTransparentColor = System.Drawing.Color.Magenta;
             this.toolStripButtonZoomIn.Name = "toolStripButtonZoomIn";
             this.toolStripButtonZoomIn.Size = new System.Drawing.Size(23, 22);
-            this.toolStripButtonZoomIn.Text = "toolStripButton1";
+            this.toolStripButtonZoomIn.Text = "Zoom In";
             this.toolStripButtonZoomIn.Click += new System.EventHandler(this.toolStripButtonZoomIn_Click);
             // 
             // toolStripButtonZoomExtent
@@ -135,7 +136,7 @@
             this.toolStripButtonZoomExtent.ImageTransparentColor = System.Drawing.Color.Magenta;
             this.toolStripButtonZoomExtent.Name = "toolStripButtonZoomExtent";
             this.toolStripButtonZoomExtent.Size = new System.Drawing.Size(23, 22);
-            this.toolStripButtonZoomExtent.Text = "toolStripButton2";
+            this.toolStripButtonZoomExtent.Text = "Show Extent";
             this.toolStripButtonZoomExtent.Click += new System.EventHandler(this.toolStripButtonZoomExtent_Click);
             // 
             // figureArea
