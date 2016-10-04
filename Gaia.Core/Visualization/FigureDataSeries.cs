@@ -1,22 +1,24 @@
 ﻿using System;
-
-using Gaia.Core.DataStreams;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
 
 namespace Gaia.Core.Visualization
 {
-    public class FigureDataSeries
+    public abstract class FigureDataSeries
     {
-        public String Name { get; }
-        public DataStream DataStream { get; }
-        public String CaptionX { get; }
-        public String CaptionY { get; }
+        static int dataSeriesNo = 0;
+        public String Name { get; set; }
+        public String CaptionX { get; set; }
+        public String CaptionY { get; set; }
 
-        public FigureDataSeries(String name, DataStream dataStream, String captionX, String captionY)
+        public FigureDataSeries()
         {
-            this.Name = name;
-            this.DataStream = dataStream;
-            this.CaptionX = captionX;
-            this.CaptionY = captionY;
+            dataSeriesNo++;
+            this.Name = "Data Series " + dataSeriesNo;
+            this.CaptionX = "";
+            this.CaptionY = "";
         }
     }
 }

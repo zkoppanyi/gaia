@@ -106,6 +106,7 @@
     <Compile Include="Visualization\Figure.cs" />
     <Compile Include="Visualization\Figure.Threads.cs" />
     <Compile Include="Visualization\FigureDataSeries.cs" />
+    <Compile Include="Visualization\FigureDataSeriesForDataStream.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

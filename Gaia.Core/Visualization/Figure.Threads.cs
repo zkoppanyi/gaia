@@ -67,68 +67,72 @@ namespace Gaia.Core.Visualization
         {
             foreach (FigureDataSeries dataSeries in dataSeriesList)
             {
-                DataStream dataStream = dataSeries.DataStream;
-                int under_sampling = Convert.ToInt32((double)dataStream.DataNumber / 20000.0) + 1;
-
-                dataStream.Open();
-                dataStream.Begin();
-                int i = 0;
-                int lastProgressReport = 0;
-                long pos = 0;
-                while (!dataStream.IsEOF())
+                if (dataSeries is FigureDataSeriesForDataStream)
                 {
-                    if (backgroundWorker.CancellationPending)
+                    FigureDataSeriesForDataStream dataSeriesForDataStream = dataSeries as FigureDataSeriesForDataStream;
+                    DataStream dataStream = dataSeriesForDataStream.DataStream;
+                    int under_sampling = Convert.ToInt32((double)dataStream.DataNumber / 20000.0) + 1;
+
+                    dataStream.Open();
+                    dataStream.Begin();
+                    int i = 0;
+                    int lastProgressReport = 0;
+                    long pos = 0;
+                    while (!dataStream.IsEOF())
                     {
-                        dataStream.Close();
-                        e.Cancel = true;
-                        return;
+                        if (backgroundWorker.CancellationPending)
+                        {
+                            dataStream.Close();
+                            e.Cancel = true;
+                            return;
+                        }
+
+                        DataLine line = dataStream.ReadLine();
+                        int progress = Convert.ToInt32((double)dataStream.GetPosition() / (double)dataStream.DataNumber * 100);
+
+                        object valueXobj = Utilities.GetValueByDisplayNameAttribute(line, dataSeries.CaptionX);
+                        object valueYobj = Utilities.GetValueByDisplayNameAttribute(line, dataSeries.CaptionY);
+
+
+                        double valueX = Convert.ToDouble(valueXobj);
+                        double valueY = Convert.ToDouble(valueYobj);
+
+                        addPoint(valueX, valueY);
+
+                        // Preview mode                    
+                        if (this.isPreviewMode == true)
+                        {
+                            pos = dataStream.GetPosition() + under_sampling;
+                            if (pos > dataStream.DataNumber) break;
+                            dataStream.Seek(pos);
+                            i++;
+                        }
+
+                        if ((progress % 10 == 0) && (lastProgressReport != progress) && (isFigureUpdated == true)) // real report bitmap update
+                        {
+                            syncFigureEvent.Reset();
+                            Redraw();
+                            backgroundWorker.ReportProgress(progress);
+                            syncFigureEvent.WaitOne();
+                            isFigureUpdated = false;
+                        }
+                        else if ((progress % 5 == 0) && (lastProgressReport != progress)) // just report for the progress bar
+                        {
+                            syncFigureEvent.Reset();
+                            backgroundWorker.ReportProgress(progress, null);
+                            syncFigureEvent.WaitOne();
+                        }
+
+                        lastProgressReport = progress;
+
+
                     }
 
-                    DataLine line = dataStream.ReadLine();
-                    int progress = Convert.ToInt32((double)dataStream.GetPosition() / (double)dataStream.DataNumber * 100);
-
-                    object valueXobj = Utilities.GetValueByDisplayNameAttribute(line, dataSeries.CaptionX);
-                    object valueYobj = Utilities.GetValueByDisplayNameAttribute(line, dataSeries.CaptionY);
-
-
-                    double valueX = Convert.ToDouble(valueXobj);
-                    double valueY = Convert.ToDouble(valueYobj);
-
-                    addPoint(valueX, valueY);
-
-                    // Preview mode                    
-                    if (this.isPreviewMode == true)
-                    {
-                        pos = dataStream.GetPosition() + under_sampling;
-                        if (pos > dataStream.DataNumber) break;
-                        dataStream.Seek(pos);
-                        i++;
-                    }
-
-                    if ((progress % 10 == 0) && (lastProgressReport != progress) && (isFigureUpdated == true)) // real report bitmap update
-                    {
-                        syncFigureEvent.Reset();
-                        Redraw();
-                        backgroundWorker.ReportProgress(progress);
-                        syncFigureEvent.WaitOne();
-                        isFigureUpdated = false;
-                    }
-                    else if ((progress % 5 == 0) && (lastProgressReport != progress)) // just report for the progress bar
-                    {
-                        syncFigureEvent.Reset();
-                        backgroundWorker.ReportProgress(progress, null);
-                        syncFigureEvent.WaitOne();
-                    }
-
-                    lastProgressReport = progress;
-
-
+                    syncFigureEvent.Reset();
+                    backgroundWorker.ReportProgress(100);
+                    syncFigureEvent.WaitOne();
+                    dataStream.Close();
                 }
-
-                syncFigureEvent.Reset();
-                backgroundWorker.ReportProgress(100);
-                syncFigureEvent.WaitOne();
-                dataStream.Close();
             }
 
             e.Cancel = false;

@@ -323,7 +323,7 @@ namespace Gaia.GUI.Dialogs
                     update = false;
                 }
 
-                FigureDataSeries dataSeries = new FigureDataSeries(selector.SelectedStreamX.Name, selector.SelectedStreamX, selector.SelectedFieldX, selector.SelectedFieldY);
+                FigureDataSeriesForDataStream dataSeries = new FigureDataSeriesForDataStream(selector.SelectedStreamX.Name, selector.SelectedStreamX, selector.SelectedFieldX, selector.SelectedFieldY);
                 selectedFigure.AddDataSeries(dataSeries);
                 selectedFigure.MdiParent = this.MdiParent;
                 selectedFigure.Show();
