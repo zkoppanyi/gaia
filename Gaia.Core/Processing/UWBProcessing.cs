@@ -1,7 +1,6 @@
 ﻿using Gaia.Core.DataStreams;
 using Gaia.Core;
-using MathNet.Numerics.LinearAlgebra;
-using MathNet.Numerics.RootFinding;
+using Accord.Math;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -30,7 +29,7 @@ namespace Gaia.Core.Processing
 
         //private Vector<double> localTransformation = Vector<double>.Build.Dense(new double[] { 316210.749, 4254160.421, -25 });
         //public Vector<double> x0 = null;
-        Vector<double> x0 = Vector<double>.Build.Dense(new double[] { 59.0, 88.0, -1.7 });
+        double[] x0 = new double[] { 59.0, 88.0, -1.7 };
         private const int bigNum = 100000;
 
         public static UWBProcessingFactory Factory
@@ -121,14 +120,14 @@ namespace Gaia.Core.Processing
 
                 if ((buffer.Count >= BufferSize) && (x0 != null))
                 {
-                    Matrix<double> stations = Matrix<double>.Build.Dense(buffer.Count, 3);
-                    Vector<double> distances = Vector<double>.Build.Dense(buffer.Count);
-                    Vector<double> timestamps = Vector<double>.Build.Dense(buffer.Count);
+                    double[,] stations = Matrix.Create(buffer.Count, 3, 0.0);
+                    double[] distances = Vector.Create(buffer.Count, 0.0);
+                    double[] timestamps = Vector.Create(buffer.Count, 0.0);
 
                     int buffer_item_index = 0;
                     foreach (UWBDataLine line in buffer)
                     {
-                        Vector<double> targetCoor = getStationPoint(line, pointList);
+                        double[] targetCoor = getStationPoint(line, pointList);
                         if (targetCoor != null)
                         {
                             stations.SetRow(buffer_item_index, targetCoor);
@@ -139,18 +138,16 @@ namespace Gaia.Core.Processing
                     }
                     
                     // Optimization function
-                    Func<Vector<double>, Vector<double>> fn = new Func<Vector<double>, Vector<double>>(delegate (Vector<double> pos) {
-                        return ((stations.Column(0) - pos[0]).PointwisePower(2) +
-                        (stations.Column(1) - pos[1]).PointwisePower(2) +
-                        (stations.Column(2) - pos[2]).PointwisePower(2)).PointwisePower(0.5) - distances;
+                    Func<double[], double[]> fn = new Func<double[], double[]>(delegate (double[] pos) {
+                        return (((stations.GetColumn(0).Subtract(pos[0])).Pow(2).Add((stations.GetColumn(1).Subtract(pos[1])).Pow(2)).Add((stations.GetColumn(2).Subtract(pos[2])).Pow(2)))).Sqrt().Subtract(distances);
 
                     });
 
                     LevenberMarquardtOptimzer optimizer = new LevenberMarquardtOptimzer();
                     optimizer.MaximumIterationNumber = MaxIterNum;
-                    Vector<double> x0cand = optimizer.Run(fn, x0);
+                    double[] x0cand = optimizer.Run(fn, x0);
 
-                    double dsol = (x0cand - x0).L2Norm();
+                    double dsol = (x0cand.Subtract(x0)).Euclidean();
                     if (dsol > DeepOptimizationDistance)
                     {
                         WriteMessage("The L2 norm of the initial guess and the solution is " + dsol + " greater than " + DeepOptimizationDistance);
@@ -200,7 +197,7 @@ namespace Gaia.Core.Processing
             return AlgorithmResult.Sucess;
         }
 
-        private Vector<double> getStationPoint(UWBDataLine meas, Dictionary<string, GPoint> pointList)
+        private double[] getStationPoint(UWBDataLine meas, Dictionary<string, GPoint> pointList)
         {
             String targetId = Convert.ToString(meas.TargetPoint);
 
@@ -219,7 +216,7 @@ namespace Gaia.Core.Processing
             }
 
             // get the target point
-            Vector<double> targetVect = pointList[targetId].ConvertToVector();
+            double[] targetVect = pointList[targetId].ConvertToVector();
             //targetVect = targetVect - localTransformation; // translate to the local coordinate system
             return targetVect;
         }

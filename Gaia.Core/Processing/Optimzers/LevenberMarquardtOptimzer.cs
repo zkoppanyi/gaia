@@ -1,4 +1,4 @@
-﻿using MathNet.Numerics.LinearAlgebra;
+﻿using Accord.Math;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -18,27 +18,27 @@ namespace Gaia.Core.Processing.Optimzers
 
         }
 
-        public Vector<double> Run(Func<Vector<double>, Vector<double>> fn, Vector<double> x)
+        public double[] Run(Func<double[], double[]> fn, double[] x)
         {
             // Residual at starting point
-            Vector<double> r = fn(x);
-            double S = r * r;
+            double[] r = fn(x);
+            double S = r.Dot(r);
 
-            int lr = r.Count;
-            int lx = x.Count;
+            int lr = r.Length;
+            int lx = x.Length;
 
             double jepsx = TolX;
 
-            Matrix<double> J = JacobianApproximator(fn, x, jepsx);
+            double[,] J = JacobianApproximator(fn, x, jepsx);
             //Debug.WriteLine("Jacobian: " + J);
 
             int nfJ = 2;
-            Matrix<double> A = J.Transpose() * J;
-            Vector<double> v = J.Transpose() * r;
+            double[,] A = J.Transpose().Dot(J);
+            double[] v = J.Transpose().Dot(r);
 
             // Automatic scaling
-            Matrix<double> D = Matrix<double>.Build.DiagonalOfDiagonalVector(A.Diagonal());
-            int Ddim = Math.Min(D.ColumnCount, D.RowCount);
+            double[,] D = Matrix.Diagonal(A.Diagonal());
+            int Ddim = Math.Min(D.GetLength(0), D.GetLength(1));
             for (int i = 0; i < Ddim; i++)
             {
                 if (D[i, i] == 0) D[i, i] = 1.0;
@@ -51,22 +51,22 @@ namespace Gaia.Core.Processing.Optimzers
             double lc = 0.75;
             int cnt = 0;
 
-            Vector<double> epsx = Vector<double>.Build.Dense(lx, TolX);
-            Vector<double> epsy = Vector<double>.Build.Dense(lr, TolY);
+            double[] epsx = Vector.Create(lx, TolX);
+            double[] epsy = Vector.Create(lr, TolY);
 
-            Vector<double> d = Vector<double>.Build.Dense(lx, TolX);
+            double[] d = Vector.Ones(lx).Multiply(TolX);
             //Debug.WriteLine(d);
 
             while ((cnt < MaximumIterationNumber) && AnyGreaterThanAbsoluteOf(d, epsx) && (AnyGreaterThanAbsoluteOf(r, epsy)))
             {
                 // negative solution increment
-                d = SolveLinearEquationSystem((A + (l * D)), v);
-                Vector<double> xd = x - d;
-                Vector<double> rd = fn(xd);
+                d = SolveLinearEquationSystem(A.Add((l.Multiply(D))), v);
+                double[] xd = x.Subtract(d);
+                double[] rd = fn(xd);
 
                 nfJ = nfJ + 1;
-                double Sd = rd * rd;
-                double dS = d * (2 * v - A * d); // predicted reduction
+                double Sd = rd.Dot(rd);
+                double dS = d.Dot((v.Multiply(2).Subtract(A.Dot(d)))); // predicted reduction
 
                 double R = (S - Sd) / dS;
                 if (R > Rhi)
@@ -76,7 +76,7 @@ namespace Gaia.Core.Processing.Optimzers
                 }
                 else if (R < Rlo)  // find new nu if R too low
                 {
-                    double nu = (Sd - S) / (d * v) + 2;
+                    double nu = (Sd - S) / (d.Dot(v)) + 2;
                     if (nu < 2)
                         nu = 2;
                     else if (nu > 10)
@@ -86,7 +86,11 @@ namespace Gaia.Core.Processing.Optimzers
 
                     if (l == 0)
                     {
-                        lc = 1 / A.Inverse().Diagonal().AbsoluteMaximum();
+                        double[] diag = A.Inverse().Diagonal();
+                        double max_pos = diag.Max();
+                        double max_neg = Math.Abs(diag.Min());
+                        double abs_max = max_pos > max_neg ? max_pos : max_neg;
+                        lc = 1 / abs_max;
                         l = lc;
                         nu = nu / 2;
                     }
@@ -104,8 +108,8 @@ namespace Gaia.Core.Processing.Optimzers
                     J = JacobianApproximator(fn, x, jepsx);
 
                     nfJ = nfJ + 1;
-                    A = J.Transpose() * J;
-                    v = J.Transpose() * r;
+                    A = J.Transpose().Dot(J);
+                    v = J.Transpose().Dot(r);
                 }
             }
 
@@ -113,14 +117,14 @@ namespace Gaia.Core.Processing.Optimzers
 
         }
 
-        private Vector<double> SolveLinearEquationSystem(Matrix<double> A, Vector<double> l)
+        private double[] SolveLinearEquationSystem(double[,] A, double[] l)
         {
             return A.Solve(l);
         }
 
-        private bool AnyGreaterThanAbsoluteOf(Vector<double> v1, Vector<double> v2)
+        private bool AnyGreaterThanAbsoluteOf(double[] v1, double[] v2)
         {
-            for (int ik = 0; ik < v1.Count; ik++)
+            for (int ik = 0; ik < v1.Length; ik++)
             {
                 if (Math.Abs(v1[ik]) >= v2[ik])
                 {
@@ -131,21 +135,21 @@ namespace Gaia.Core.Processing.Optimzers
             return false;
         }
 
-        public Matrix<double> JacobianApproximator(Func<Vector<double>, Vector<double>> fn, Vector<double> x, double jepsx)
+        public double[,] JacobianApproximator(Func<double[], double[]> fn, double[] x, double jepsx)
         {
-            int lx = x.Count;
-            Vector<double> y = fn(x);
-            int ly = y.Count;
+            int lx = x.Length;
+            double[] y = fn(x);
+            int ly = y.Length;
 
-            Matrix<double> J = Matrix<double>.Build.Dense(ly, lx);
+            double[,] J = Matrix.Create<double>(ly, lx, 0);
             for (int k = 0; k < lx; k++)
             {
                 double dx = 0.25 * jepsx;
-                Vector<double> xd = x;
+                double[] xd = x;
                 xd[k] = xd[k] + dx;
-                Vector<double> yd = fn(xd);
+                double[] yd = fn(xd);
 
-                J.SetColumn(k, (yd - y) / dx);
+                J.SetColumn(k, (yd.Subtract(y)).Divide(dx));
             }
 
             return J;

@@ -5,7 +5,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using MathNet.Numerics.LinearAlgebra;
+using Accord.Math;
 using System.Diagnostics;
 
 namespace Gaia.Core.Processing.Optimzers.Tests
@@ -16,64 +16,64 @@ namespace Gaia.Core.Processing.Optimzers.Tests
         double testEpsilon = 1e-4;
 
         [TestMethod()]
-        public void RunTest1()
+        public void LevenberMarquardtOptimzerTestRegression2D()
         {
-            Vector<double> x = Vector<double>.Build.DenseOfArray(new double[] { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10 });
-            Vector<double> y = Vector<double>.Build.DenseOfArray(new double[] { 1.0357, 4.8491, 9.9340, 16.6787, 25.7577, 36.7431, 49.3922, 64.6555, 81.1712, 100.7060 });
+            double[] x = new double[] { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10 };
+            double[] y = new double[] { 1.0357, 4.8491, 9.9340, 16.6787, 25.7577, 36.7431, 49.3922, 64.6555, 81.1712, 100.7060 };
 
-            Func<Vector<double>, Vector<double>> fn = new Func<Vector<double>, Vector<double>>(delegate (Vector<double> value) {
-                return x.PointwisePower(value[0]) - y;
+            Func<double[], double[]> fn = new Func<double[], double[]>(delegate (double[] value) {
+                return x.Pow(value[0]).Subtract(y);
             });
-            Vector<double> initialGuess = Vector<double>.Build.DenseOfArray(new double[] { 1 });
+            double[] initialGuess = new double[] { 1 };
 
             LevenberMarquardtOptimzer optimizer = new LevenberMarquardtOptimzer();
-            Vector<double> solution = optimizer.Run(fn, initialGuess);
-            Vector<double> solutionExpected = Vector<double>.Build.DenseOfArray(new double[] { 2.003570638392036 });
-            Vector<double> dr = solution - solutionExpected;
+            double[] solution = optimizer.Run(fn, initialGuess);
+            double[]  solutionExpected = new double[] { 2.003570638392036 };
+            double[] dr = solution.Subtract(solutionExpected);
             Debug.WriteLine("Solution: " + solution);
             Debug.WriteLine("Expected: " + solution);
             Debug.WriteLine("dr: " + dr);
-            Debug.WriteLine("dr norm: " + dr.L2Norm());
+            Debug.WriteLine("dr norm: " + dr.Euclidean());
 
-            Assert.IsTrue(dr.L2Norm() < testEpsilon);
+            Assert.IsTrue(dr.Euclidean() < testEpsilon);
         }
 
         [TestMethod()]
-        public void RunTest2()
+        public void LevenberMarquardtOptimzerTestRegression3D()
         {
-            Matrix<double> x = Matrix<double>.Build.DenseOfArray(new double[,] {  { 1, 2 },
-                                                                                 { 2, 3 },
-                                                                                 { 3, 4 },
-                                                                                 { 4, 5 },
-                                                                                 { 5, 6 },
-                                                                                 { 6, 7 } });
+            double[,] x = new double[,] { { 1, 2 },
+                                               { 2, 3 },
+                                               { 3, 4 },
+                                               { 4, 5 },
+                                               { 5, 6 },
+                                               { 6, 7 } };
 
-            Vector<double> y = Vector<double>.Build.DenseOfArray(new double[] {    0.091360685587087*100,
-                                                                                   0.318692922076401*100,
-                                                                                   0.735797045873656*100,
-                                                                                   1.415498602018363*100,
-                                                                                   2.411449547982237*100,
-                                                                                   3.798530311177219*100 });
+            double[] y = new double[] {   0.091360685587087*100,
+                                          0.318692922076401*100,
+                                          0.735797045873656*100,
+                                          1.415498602018363*100,
+                                          2.411449547982237*100,
+                                          3.798530311177219*100 };
 
-            Func<Vector<double>, Vector<double>> fn = new Func<Vector<double>, Vector<double>>(delegate (Vector<double> value) {
-                return (x.Column(0).PointwisePower(value[0]) + x.Column(1).PointwisePower(value[1])) - y;
+            Func<double[], double[]> fn = new Func<double[], double[]>(delegate (double[] value) {
+                return (x.GetColumn(0).Pow(value[0]).Add(x.GetColumn(1).Pow(value[1]))).Subtract(y);
             });
-            Vector<double> initialGuess = Vector<double>.Build.DenseOfArray(new double[] { 1, 1 });
+            double[] initialGuess = new double[] { 1, 1 };
 
             LevenberMarquardtOptimzer optimizer = new LevenberMarquardtOptimzer();
             optimizer.MaximumIterationNumber = 5000;
             optimizer.TolX = 1e-7;
             optimizer.TolY = 1e-7;
 
-            Vector<double> solution = optimizer.Run(fn, initialGuess);
-            Vector<double> solutionExpected = Vector<double>.Build.DenseOfArray(new double[] { 2.016903164731437, 2.999558707820020 });
-            Vector<double> dr = solution - solutionExpected;
+            double[] solution = optimizer.Run(fn, initialGuess);
+            double[] solutionExpected = new double[] { 2.016903164731437, 2.999558707820020 };
+            double[] dr = solution.Subtract(solutionExpected);
             Debug.WriteLine("Solution: " + solution);
             Debug.WriteLine("Expected: " + solutionExpected);
             Debug.WriteLine("dr: " + dr);
-            Debug.WriteLine("dr norm: " + dr.L2Norm());
+            Debug.WriteLine("dr norm: " + dr.Euclidean());
 
-            Assert.IsTrue(dr.L2Norm() < testEpsilon);
+            Assert.IsTrue(dr.Euclidean() < testEpsilon);
         }
     }
 }

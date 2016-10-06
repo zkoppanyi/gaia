@@ -1,4 +1,4 @@
-﻿using MathNet.Numerics.LinearAlgebra;
+﻿using Accord.Math;
 using ProjNet.CoordinateSystems;
 using System;
 using System.Collections.Generic;
@@ -172,9 +172,9 @@ namespace Gaia.Core.DataStreams
             this.PointType = GPointType.NA;
         }
 
-        public Vector<double> ConvertToVector()
+        public double[] ConvertToVector()
         {
-            return Vector<double>.Build.Dense(new double[] { this.X, this.Y, this.Z });
+            return new double[] { this.X, this.Y, this.Z };
         }
 
         public override string ToString()

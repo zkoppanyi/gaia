@@ -1,4 +1,4 @@
-﻿using MathNet.Numerics.LinearAlgebra;
+﻿using Accord.Math;
 using ProjNet.CoordinateSystems;
 using System;
 
@@ -124,15 +124,15 @@ namespace Gaia.Core.Processing
             // Initial values
             GeographicCoordinateSystem crs = SourceDataStream.CRS.GetCoordinateSystem() as GeographicCoordinateSystem;
             EarthParameters eparam = EarthParameters.CreateWithXYZ(SourceDataStream.InitialX, SourceDataStream.InitialY, SourceDataStream.InitialZ, crs);
-            Vector<double> posn = Vector<double>.Build.DenseOfArray(new double[] { eparam.lat, eparam.lon, eparam.h });
+            double[] posn = new double[] { eparam.lat, eparam.lon, eparam.h };
 
             double heading = Utilities.ConvertDegToRad(SourceDataStream.InitialHeading);
             double pitch = Utilities.ConvertDegToRad(SourceDataStream.InitialPitch);
             double roll = Utilities.ConvertDegToRad(SourceDataStream.InitialRoll);
-            Vector<double> Vn = Vector<double>.Build.DenseOfArray(new double[] { SourceDataStream.InitialVn, SourceDataStream.InitialVe, SourceDataStream.InitialVd });
-            Vector<double> prh = Vector<double>.Build.DenseOfArray(new double[] { pitch, roll, heading});
-            Matrix<double> Cbn = prh2dcm(prh);
-            Vector<double> qbn = dcm2quat(Cbn);
+            double[] Vn = new double[] { SourceDataStream.InitialVn, SourceDataStream.InitialVe, SourceDataStream.InitialVd };
+            double[] prh = new double[] { pitch, roll, heading};
+            double[,] Cbn = prh2dcm(prh);
+            double[] qbn = dcm2quat(Cbn);
 
             _outputDataStream.Open();
             while (!SourceDataStream.IsEOF())
@@ -163,8 +163,8 @@ namespace Gaia.Core.Processing
                 double wx = data.Wx / 180 * Math.PI; double wy = data.Wy / 180 * Math.PI; double wz = data.Wz / 180 * Math.PI;
                 double dt = currentTimeStamp - prevTimeStamp;
 
-                Vector<double> vel = Vector<double>.Build.DenseOfArray(new double[] { ax * dt, ay * dt, az * dt });
-                Vector<double> angle = Vector<double>.Build.DenseOfArray(new double[] { wx * dt, wy * dt, wz * dt });
+                double[] vel = new double[] { ax * dt, ay * dt, az * dt };
+                double[] angle = new double[] { wx * dt, wy * dt, wz * dt };
 
                 this.update(ref posn, ref Vn, ref qbn, vel, angle, dt, crs);
 
@@ -210,7 +210,7 @@ namespace Gaia.Core.Processing
         /// <param name="angle">Angle update</param>
         /// <param name="dt">Time difference between the current and the last observations</param>
         /// <param name="crs">Coordinate reference frame</param>
-        private void update(ref Vector<double> posn, ref Vector<double> Vn, ref Vector<double> qbn, Vector<double> vel, Vector<double> angle, double dt, GeographicCoordinateSystem crs)
+        private void update(ref double[] posn, ref double[] Vn, ref double[] qbn, double[] vel, double[] angle, double dt, GeographicCoordinateSystem crs)
         {
             double lat = posn[0];
             double lon = posn[1];
@@ -222,38 +222,38 @@ namespace Gaia.Core.Processing
 
             // Earth related errors
             EarthParameters eparam = EarthParameters.CreateWithLLH(lat, lon, h, crs);
-            Vector<double> wen_n = Vector<double>.Build.DenseOfArray(new double[] {
-                            Vn.At(1) / (eparam.Re + eparam.h), -Vn.At(0) / (eparam.Rn + eparam.h), -Vn.At(1) * sL / cL / (eparam.Re + h)});
+            double[] wen_n = new double[] {
+                            Vn[1] / (eparam.Re + eparam.h), -Vn[0] / (eparam.Rn + eparam.h), -Vn[1] * sL / cL / (eparam.Re + h)};
 
-            Vector<double> wie_n = Vector<double>.Build.DenseOfArray(new double[] { EarthParameters.EARTH_ROTATION_RATE * cL, 0, -EarthParameters.EARTH_ROTATION_RATE * sL });
+            double[] wie_n = new double[] { EarthParameters.EARTH_ROTATION_RATE * cL, 0, -EarthParameters.EARTH_ROTATION_RATE * sL };
 
             // Update velocity
-            Vector<double> g_vec = Vector<double>.Build.DenseOfArray(new double[] { 0, 0, eparam.g });
-            Vector<double> vel_inc1 = quatrot(qbn, vel);
-            Vector<double> vel_inc2 = (crossProduct3by3(Vn, (2 * wie_n + wen_n)) + g_vec) * dt;
-            Vector<double> Vn_new = Vn + vel_inc1 + vel_inc2;
-            Vector<double> Vn_mid = (Vn + Vn_new) / 2;
+            double[] g_vec = new double[] { 0, 0, eparam.g };
+            double[] vel_inc1 = quatrot(qbn, vel);
+            double[] vel_inc2 = (crossProduct3by3(Vn, (wie_n.Multiply(2).Add(wen_n))).Add(g_vec)).Multiply(dt);
+            double[] Vn_new = Vn.Add(vel_inc1).Add(vel_inc2);
+            double[] Vn_mid = (Vn.Add(Vn_new)).Divide(2);
 
             // Update attitude in body frame
-            Vector<double> qb = rvec2quat(angle);
-            Vector<double> qbn_new = quatmult(qbn, qb);
+            double[] qb = rvec2quat(angle);
+            double[] qbn_new = quatmult(qbn, qb);
 
             // Update attitude in navigation frame
-            wen_n = Vector<double>.Build.DenseOfArray(new double[] {
+            wen_n = new double[] {
                         Vn_mid[1] / (eparam.Re + h),
                        -Vn_mid[0] / (eparam.Rn + h),
-                       -Vn_mid[1] * sL / cL / (eparam.Re + h)});
+                       -Vn_mid[1] * sL / cL / (eparam.Re + h)};
 
-            Vector<double> qn = rvec2quat(-(wen_n + wie_n) * dt);
+            double[] qn = rvec2quat((wen_n.Add(wie_n)).Multiply(-dt));
             qbn_new = quatmult(qn, qbn_new);
 
             // Update position
-            Matrix<double> D = Matrix<double>.Build.DenseOfArray(new double[,] {
+            double[,] D = new double[,] {
                     { 1/(eparam.Rn+h), 0, 0 },
                     {0, 1/cL/(eparam.Re+h), 0 },
                     {0, 0,-1 }
-                });
-            Vector<double> posn_new = posn + D * Vn * dt;
+                };
+            double[] posn_new = posn.Add(D.Dot(Vn).Multiply(dt));
 
             Vn = Vn_new;
             qbn = qbn_new;
@@ -267,14 +267,14 @@ namespace Gaia.Core.Processing
         /// </summary>
         /// <param name="dcm">Direction cosine matrix</param>
         /// <returns>Vector of Euler angles (pitch, roll, heading)</returns>
-        public static Vector<double> dcm2prh(Matrix<double> dcm)
+        public static double[] dcm2prh(double[,] dcm)
         {
             // pitch is assumed to be[-pi pi]. singular at pi.use ad-hoc methods to remedy this deficiency
             double pitch = Math.Asin(-dcm[2, 0]);  
             double roll = Math.Atan2(dcm[2, 1], dcm[2, 2]);
             double heading = Math.Atan2(dcm[1, 0], dcm[0, 0]);
 
-            return Vector<double>.Build.DenseOfArray(new double[] { pitch, roll, heading });
+            return new double[] { pitch, roll, heading };
         }
 
         /// <summary>
@@ -282,14 +282,14 @@ namespace Gaia.Core.Processing
         /// </summary>
         /// <param name="qba">Quaternion</param>
         /// <returns>Direction cosine matrix</returns>
-        public static Matrix<double> quat2dcm(Vector<double> qba)
+        public static double[,] quat2dcm(double[] qba)
         {
             double a = qba[0];
             double b = qba[1];
             double c = qba[2];
             double d = qba[3];
 
-            Matrix<double> Cba = Matrix<double>.Build.Dense(3,3);
+            double[,] Cba = Matrix.Create<double>(3,3);
             Cba[0, 0] = Math.Pow(a, 2) + Math.Pow(b, 2) - Math.Pow(c, 2) - Math.Pow(d, 2);
             Cba[1, 0] = 2 * (b * c + a * d);
             Cba[2, 0] = 2 * (b * d - a * c);
@@ -310,13 +310,13 @@ namespace Gaia.Core.Processing
         /// </summary>
         /// <param name="rvec">Rotation vector</param>
         /// <returns>Quaternion</returns>
-        public static Vector<double> rvec2quat(Vector<double> rvec)
+        public static double[] rvec2quat(double[] rvec)
         {
             double rot_ang = Math.Sqrt(Math.Pow(rvec[0],2) + Math.Pow(rvec[1], 2) + Math.Pow(rvec[2], 2));
 
             if (rot_ang == 0)
             {
-                return Vector<double>.Build.DenseOfArray(new double[] { 1, 0, 0, 0 });
+                return new double[] { 1, 0, 0, 0 };
             }
             else
             {
@@ -326,16 +326,16 @@ namespace Gaia.Core.Processing
                 double ry = rvec[1] / rot_ang;
                 double rz = rvec[2] / rot_ang;
 
-                return Vector<double>.Build.DenseOfArray(new double[] { cR, rx*sR, ry*sR, rz*sR });
+                return new double[] { cR, rx*sR, ry*sR, rz*sR };
             }
         }
 
-        public static Vector<double> crossProduct3by3(Vector<double> v, Vector<double> u)
+        public static double[] crossProduct3by3(double[] v, double[] u)
         {
-            return Vector<double>.Build.DenseOfArray(new double [] {
+            return new double [] {
                 u[1] * v[2] + u[2] * v[1],
                 u[2] * v[0] + u[0] * v[2],
-                u[0] * v[1] + u[1] * v[0] });
+                u[0] * v[1] + u[1] * v[0] };
         }
 
         /// <summary>
@@ -344,15 +344,15 @@ namespace Gaia.Core.Processing
         /// <param name="qab">Quaternioin from 'a' frame to 'b' frame</param>
         /// <param name="va">Velocity in 'a' frame</param>
         /// <returns>Velocity in 'b' frame </returns>
-        public static Vector<double> quatrot(Vector<double> qab, Vector<double> va)
+        public static double[] quatrot(double[] qab, double[] va)
         {
-            Vector<double> va2 = Vector<double>.Build.DenseOfArray(new double[] { 0, va[0], va[1], va[2] });
-            Vector<double> vr_a = quatmult(qab, va2);
+            double[] va2 = new double[] { 0, va[0], va[1], va[2] };
+            double[] vr_a = quatmult(qab, va2);
 
-            Vector<double> q = Vector<double>.Build.DenseOfVector(qab);
+            double[] q = qab;
             q[1] = -q[1]; q[2] = -q[2]; q[3] = -q[3];
 
-            Vector<double> vb = quatmult(vr_a, q).SubVector(1,3);
+            double[] vb = quatmult(vr_a, q).Get(1,4);
             return vb;
 
         }
@@ -363,13 +363,13 @@ namespace Gaia.Core.Processing
         /// <param name="qab">Quaternion from 'a' frame to 'b' frame</param>
         /// <param name="qca">Quaternion from 'c' frame to 'a' frame</param>
         /// <returns>Quaternion from 'c' frame to 'b' frame</returns>
-        public static Vector<double> quatmult(Vector<double> qab, Vector<double> qca)
+        public static double[] quatmult(double[] qab, double[] qca)
         {
-            double qcb1 = (qab.At(0)) * qca.At(0) + (-qab.At(1)) * qca.At(1) + (-qab.At(2)) * qca.At(2) + (-qab.At(3)) * qca.At(3);
-            double qcb2 = (qab.At(1)) * qca.At(0) + (qab.At(0)) * qca.At(1) + (-qab.At(3)) * qca.At(2) + (qab.At(2)) * qca.At(3);
-            double qcb3 = (qab.At(2)) * qca.At(0) + (qab.At(3)) * qca.At(1) + (qab.At(0)) * qca.At(2) + (-qab.At(1)) * qca.At(3);
-            double qcb4 = (qab.At(3)) * qca.At(0) + (-qab.At(2)) * qca.At(1) + (qab.At(1)) * qca.At(2) + (qab.At(0)) * qca.At(3);
-            return Vector<double>.Build.DenseOfArray(new double[] { qcb1, qcb2, qcb3, qcb4 });
+            double qcb1 = qab[0] * qca[0] + -qab[1] * qca[1] + -qab[2] * qca[2] + -qab[3] * qca[3];
+            double qcb2 = qab[1] * qca[0] + qab[0] * qca[1] + -qab[3] * qca[2] + qab[2] * qca[3];
+            double qcb3 = qab[2] * qca[0] + qab[3] * qca[1] + qab[0] * qca[2] + -qab[1] * qca[3];
+            double qcb4 = qab[3] * qca[0] + -qab[2] * qca[1] + qab[1] * qca[2] + qab[0]* qca[3];
+            return new double[] { qcb1, qcb2, qcb3, qcb4 };
         }
 
         /// <summary>
@@ -379,7 +379,7 @@ namespace Gaia.Core.Processing
         /// <param name="roll">Roll</param>
         /// <param name="heading">Heading</param>
         /// <returns>Direction cosine matrix</returns>
-        public static Matrix<double> prh2dcm(Vector<double> prh)
+        public static double[,] prh2dcm(double[] prh)
         {
             double pitch = prh[0];
             double roll = prh[1];
@@ -405,7 +405,7 @@ namespace Gaia.Core.Processing
             double r32 = sr * cp;
             double r33 = cr * cp;
 
-            return Matrix<double>.Build.DenseOfArray(new double[,] { { r11, r12, r13 }, { r21, r22, r23 } , { r31, r32, r33 } });
+            return new double[,] { { r11, r12, r13 }, { r21, r22, r23 } , { r31, r32, r33 } };
 
         }
 
@@ -414,7 +414,7 @@ namespace Gaia.Core.Processing
         /// </summary>
         /// <param name="dcm">Direction cosine matrix</param>
         /// <returns>Quaternion</returns>
-        public static Vector<double> dcm2quat(Matrix<double> dcm)
+        public static double[] dcm2quat(double[,] dcm)
         {
             double tr = dcm[0, 0] + dcm[1, 1] + dcm[2, 2];
             double Pa = 1 + tr;
@@ -466,7 +466,7 @@ namespace Gaia.Core.Processing
             double quat3 = (0.25 * (rot.At(2, 0) - rot.At(0, 2))) / (0.5 * Math.Sqrt(1 + rot.At(0, 0) + rot.At(1, 1) + rot.At(2, 2)));
             double quat4 = (0.25 * (rot.At(0, 1) - rot.At(1, 0))) / (0.5 * Math.Sqrt(1 + rot.At(0, 0) + rot.At(1, 1) + rot.At(2, 2)));*/
 
-            return Vector<double>.Build.DenseOfArray(new double[] { quat1, quat2, quat3, quat4 });
+            return new double[] { quat1, quat2, quat3, quat4 };
         }
         #endregion
 
@@ -482,11 +482,11 @@ namespace Gaia.Core.Processing
             double pitch = 0.016057418906273;
             double roll = -0.009318206085104;
 
-            Matrix<double> rot = prh2dcm(Vector<double>.Build.DenseOfArray(new double[] { pitch, roll, azimuth}) );
-            Matrix<double> perf = Matrix<double>.Build.DenseOfArray(new double[,] { { 0.998156572698104, -0.058683314972773, 0.015483052779751 }, 
-                { 0.058528948713351, 0.998233171397190, 0.010241957079499 }, { -0.016056728872475, -0.009316869974122, 0.999827673847749 } });
+            double[,] rot = prh2dcm(new double[] { pitch, roll, azimuth} );
+            double[,] perf = new double[,] { { 0.998156572698104, -0.058683314972773, 0.015483052779751 }, 
+                { 0.058528948713351, 0.998233171397190, 0.010241957079499 }, { -0.016056728872475, -0.009316869974122, 0.999827673847749 } };
 
-            double diff = rot.Subtract(perf).L2Norm();
+            double diff = rot.Subtract(perf).Norm2();
 
             if (diff > 1e-14) return false;
 
@@ -503,14 +503,14 @@ namespace Gaia.Core.Processing
             double pitch = 0.016057418906273;
             double roll = -0.009318206085104;
 
-            Vector<double> prh = Vector<double>.Build.DenseOfArray(new double[] { pitch, roll, azimuth });
-            Matrix<double> dcm = prh2dcm(prh);
-            Vector<double> quat = dcm2quat(dcm);
+            double[] prh = new double[] { pitch, roll, azimuth };
+            double[,] dcm = prh2dcm(prh);
+            double[] quat = dcm2quat(dcm);
 
-            Vector<double> perf = Vector<double>.Build.DenseOfArray(new double[] { 0.999527065409317,
-                0.004892020369056, -0.007888676240926, -0.029316930912252 });
+            double[] perf = new double[] { 0.999527065409317,
+                0.004892020369056, -0.007888676240926, -0.029316930912252 };
 
-            double diff = quat.Subtract(perf).L2Norm();
+            double diff = quat.Subtract(perf).Euclidean();
 
             if (diff > 1e-14) return false;
 

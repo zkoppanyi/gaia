@@ -1,4 +1,4 @@
-﻿using MathNet.Numerics;
+﻿using Accord.Math;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -7,6 +7,8 @@ using System.Threading.Tasks;
 
 using Gaia.Exceptions;
 using Gaia.Core.Processing;
+using Accord.Statistics.Models.Regression.Linear;
+using Accord.Math.Optimization.Losses;
 
 namespace Gaia.Core.DataStreams
 {
@@ -136,13 +138,16 @@ namespace Gaia.Core.DataStreams
                 }
 
                 // Estimate parameters
-                Tuple<double, double> p = Fit.Line(ydata, xdata);
-                double a = p.Item1; // intercept
-                double b = p.Item2; // slope
-                double r2 = GoodnessOfFit.RSquared(xdata.Select(x => a + b * x), ydata);
+                
+                OrdinaryLeastSquares ols = new OrdinaryLeastSquares();
+                SimpleLinearRegression linearRegression = ols.Learn(ydata, xdata);
+                double a = linearRegression.Slope; // intercept
+                double b = linearRegression.Intercept; // slope
+                double[] prediction = linearRegression.Transform(xdata);
+                double error = new SquareLoss(ydata).Loss(prediction);
                 this.WriteMessage("Calculated Model: ");
                 this.WriteMessage(b + "x + " + a);
-                this.WriteMessage("Godness of fit (R-Squared): " + r2);
+                this.WriteMessage("Error: " + error); // add what is this error
 
                 dataStream.Open();
                 dataStream.Begin();
