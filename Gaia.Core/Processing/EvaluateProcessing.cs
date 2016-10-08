@@ -34,27 +34,27 @@ namespace Gaia.Core.Processing
             public String Name { get { return "Evaulate an expression in data streams"; } }
             public String Description { get { return "Evaulate an expression on data lines in stream."; } }
 
-            public EvaluateProcessing Create(Project project, IMessanger messanger, DataStream sourceDataStream, String expression)
+            public EvaluateProcessing Create(Project project, DataStream sourceDataStream, String expression)
             {
-                EvaluateProcessing algorithm = new EvaluateProcessing(project, messanger, Name, Description);
+                EvaluateProcessing algorithm = new EvaluateProcessing(project, Name, Description);
                 algorithm.SourceDataStream = sourceDataStream;
                 algorithm.Expression = expression;
                 return algorithm;
             }
         }
 
-        private EvaluateProcessing(Project project, IMessanger messanger, String name, String description) : base(project, messanger, name, description)
+        private EvaluateProcessing(Project project, String name, String description) : base(project, name, description)
         {
 
         }
-      
+
         /// <summary>
         /// Calculate an expression on datastreams.
         /// If the linenum is different than -1, the intermediate calculations are reported through the messanger object.
         /// If the linenum is -1, the intermediate calculations are NOT reported.
         /// </summary>
         /// <returns></returns>
-        public override AlgorithmResult Run()
+        protected override AlgorithmResult run()
         {
             if (SourceDataStream == null)
             {
@@ -125,7 +125,7 @@ namespace Gaia.Core.Processing
                 if (IsCanceled())
                 {
                     SourceDataStream.Close();
-                    WriteMessage("Processing canceled!", null, null, ConsoleMessageType.Warning);
+                    WriteMessage("Processing canceled!", null, null, AlgorithmMessageType.Warning);
                     return AlgorithmResult.Partial;
                 }
 
@@ -160,7 +160,7 @@ namespace Gaia.Core.Processing
                 }
                 catch
                 {
-                    WriteMessage("Cannot evaluate " + num + ". line.", null, null, ConsoleMessageType.Error);
+                    WriteMessage("Cannot evaluate " + num + ". line.", null, null, AlgorithmMessageType.Error);
                     return AlgorithmResult.Failure;
                 }
 

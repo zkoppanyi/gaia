@@ -38,17 +38,11 @@
             this.cmbCRS = new System.Windows.Forms.ComboBox();
             this.tabControl = new System.Windows.Forms.TabControl();
             this.tabPage2 = new System.Windows.Forms.TabPage();
-            this.groupBox2 = new System.Windows.Forms.GroupBox();
-            this.chkClockErrorModel = new System.Windows.Forms.CheckBox();
-            this.label3 = new System.Windows.Forms.Label();
-            this.cmbClockErrorModel = new System.Windows.Forms.ComboBox();
             this.btnImport = new System.Windows.Forms.Button();
             this.btnCancel = new System.Windows.Forms.Button();
             this.tabPage1.SuspendLayout();
             this.groupBox1.SuspendLayout();
             this.tabControl.SuspendLayout();
-            this.tabPage2.SuspendLayout();
-            this.groupBox2.SuspendLayout();
             this.SuspendLayout();
             // 
             // tabPage1
@@ -57,7 +51,7 @@
             this.tabPage1.Location = new System.Drawing.Point(4, 22);
             this.tabPage1.Name = "tabPage1";
             this.tabPage1.Padding = new System.Windows.Forms.Padding(3);
-            this.tabPage1.Size = new System.Drawing.Size(435, 275);
+            this.tabPage1.Size = new System.Drawing.Size(431, 263);
             this.tabPage1.TabIndex = 0;
             this.tabPage1.Text = "Transform coordinates";
             this.tabPage1.UseVisualStyleBackColor = true;
@@ -70,27 +64,32 @@
             this.groupBox1.Controls.Add(this.cmbTRS);
             this.groupBox1.Controls.Add(this.label9);
             this.groupBox1.Controls.Add(this.cmbCRS);
-            this.groupBox1.Location = new System.Drawing.Point(3, 6);
+            this.groupBox1.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.groupBox1.Location = new System.Drawing.Point(3, 3);
             this.groupBox1.Name = "groupBox1";
-            this.groupBox1.Size = new System.Drawing.Size(415, 263);
+            this.groupBox1.Size = new System.Drawing.Size(425, 257);
             this.groupBox1.TabIndex = 7;
             this.groupBox1.TabStop = false;
             this.groupBox1.Text = "Reference Frames";
             // 
             // txtCRS
             // 
+            this.txtCRS.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
             this.txtCRS.Location = new System.Drawing.Point(5, 76);
             this.txtCRS.Multiline = true;
             this.txtCRS.Name = "txtCRS";
             this.txtCRS.ReadOnly = true;
             this.txtCRS.ScrollBars = System.Windows.Forms.ScrollBars.Both;
-            this.txtCRS.Size = new System.Drawing.Size(392, 89);
+            this.txtCRS.Size = new System.Drawing.Size(400, 77);
             this.txtCRS.TabIndex = 12;
             // 
             // lblTRSDescription
             // 
+            this.lblTRSDescription.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
             this.lblTRSDescription.AutoSize = true;
-            this.lblTRSDescription.Location = new System.Drawing.Point(6, 227);
+            this.lblTRSDescription.Location = new System.Drawing.Point(6, 215);
             this.lblTRSDescription.Name = "lblTRSDescription";
             this.lblTRSDescription.Size = new System.Drawing.Size(16, 13);
             this.lblTRSDescription.TabIndex = 11;
@@ -98,8 +97,9 @@
             // 
             // label10
             // 
+            this.label10.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
             this.label10.AutoSize = true;
-            this.label10.Location = new System.Drawing.Point(6, 181);
+            this.label10.Location = new System.Drawing.Point(6, 169);
             this.label10.Name = "label10";
             this.label10.Size = new System.Drawing.Size(115, 13);
             this.label10.TabIndex = 10;
@@ -107,10 +107,12 @@
             // 
             // cmbTRS
             // 
+            this.cmbTRS.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
             this.cmbTRS.FormattingEnabled = true;
-            this.cmbTRS.Location = new System.Drawing.Point(6, 203);
+            this.cmbTRS.Location = new System.Drawing.Point(6, 191);
             this.cmbTRS.Name = "cmbTRS";
-            this.cmbTRS.Size = new System.Drawing.Size(391, 21);
+            this.cmbTRS.Size = new System.Drawing.Size(399, 21);
             this.cmbTRS.TabIndex = 9;
             this.cmbTRS.SelectedIndexChanged += new System.EventHandler(this.cmbTRS_SelectedIndexChanged);
             // 
@@ -125,81 +127,44 @@
             // 
             // cmbCRS
             // 
+            this.cmbCRS.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
             this.cmbCRS.FormattingEnabled = true;
             this.cmbCRS.Location = new System.Drawing.Point(6, 49);
             this.cmbCRS.Name = "cmbCRS";
-            this.cmbCRS.Size = new System.Drawing.Size(391, 21);
+            this.cmbCRS.Size = new System.Drawing.Size(399, 21);
             this.cmbCRS.TabIndex = 7;
             this.cmbCRS.SelectedIndexChanged += new System.EventHandler(this.cmbCRS_SelectedIndexChanged);
             // 
             // tabControl
             // 
+            this.tabControl.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
             this.tabControl.Controls.Add(this.tabPage1);
             this.tabControl.Controls.Add(this.tabPage2);
-            this.tabControl.Dock = System.Windows.Forms.DockStyle.Top;
             this.tabControl.Location = new System.Drawing.Point(0, 0);
             this.tabControl.Name = "tabControl";
             this.tabControl.SelectedIndex = 0;
-            this.tabControl.Size = new System.Drawing.Size(443, 301);
+            this.tabControl.Size = new System.Drawing.Size(439, 289);
             this.tabControl.TabIndex = 3;
             // 
             // tabPage2
             // 
-            this.tabPage2.Controls.Add(this.groupBox2);
             this.tabPage2.Location = new System.Drawing.Point(4, 22);
             this.tabPage2.Name = "tabPage2";
             this.tabPage2.Padding = new System.Windows.Forms.Padding(3);
-            this.tabPage2.Size = new System.Drawing.Size(435, 275);
+            this.tabPage2.Size = new System.Drawing.Size(431, 263);
             this.tabPage2.TabIndex = 1;
             this.tabPage2.Text = "Clock Error Model";
             this.tabPage2.UseVisualStyleBackColor = true;
             // 
-            // groupBox2
-            // 
-            this.groupBox2.Controls.Add(this.chkClockErrorModel);
-            this.groupBox2.Controls.Add(this.label3);
-            this.groupBox2.Controls.Add(this.cmbClockErrorModel);
-            this.groupBox2.Location = new System.Drawing.Point(3, 6);
-            this.groupBox2.Name = "groupBox2";
-            this.groupBox2.Size = new System.Drawing.Size(426, 119);
-            this.groupBox2.TabIndex = 8;
-            this.groupBox2.TabStop = false;
-            this.groupBox2.Text = "Reference Frames";
-            // 
-            // chkClockErrorModel
-            // 
-            this.chkClockErrorModel.AutoSize = true;
-            this.chkClockErrorModel.Location = new System.Drawing.Point(9, 26);
-            this.chkClockErrorModel.Name = "chkClockErrorModel";
-            this.chkClockErrorModel.Size = new System.Drawing.Size(132, 17);
-            this.chkClockErrorModel.TabIndex = 9;
-            this.chkClockErrorModel.Text = "Use Clock Error Model";
-            this.chkClockErrorModel.UseVisualStyleBackColor = true;
-            this.chkClockErrorModel.CheckedChanged += new System.EventHandler(this.checkBox1_CheckedChanged);
-            // 
-            // label3
-            // 
-            this.label3.AutoSize = true;
-            this.label3.Location = new System.Drawing.Point(6, 52);
-            this.label3.Name = "label3";
-            this.label3.Size = new System.Drawing.Size(136, 13);
-            this.label3.TabIndex = 8;
-            this.label3.Text = "Selected Clock Error Model";
-            // 
-            // cmbClockErrorModel
-            // 
-            this.cmbClockErrorModel.Enabled = false;
-            this.cmbClockErrorModel.FormattingEnabled = true;
-            this.cmbClockErrorModel.Location = new System.Drawing.Point(9, 77);
-            this.cmbClockErrorModel.Name = "cmbClockErrorModel";
-            this.cmbClockErrorModel.Size = new System.Drawing.Size(403, 21);
-            this.cmbClockErrorModel.TabIndex = 7;
-            // 
             // btnImport
             // 
+            this.btnImport.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
             this.btnImport.Image = global::Gaia.Properties.Resources.import_database_button;
             this.btnImport.ImageAlign = System.Drawing.ContentAlignment.MiddleLeft;
-            this.btnImport.Location = new System.Drawing.Point(337, 319);
+            this.btnImport.Location = new System.Drawing.Point(333, 296);
             this.btnImport.Name = "btnImport";
             this.btnImport.Size = new System.Drawing.Size(102, 43);
             this.btnImport.TabIndex = 5;
@@ -210,8 +175,9 @@
             // 
             // btnCancel
             // 
+            this.btnCancel.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
             this.btnCancel.Image = global::Gaia.Properties.Resources.cancel_button;
-            this.btnCancel.Location = new System.Drawing.Point(239, 319);
+            this.btnCancel.Location = new System.Drawing.Point(235, 296);
             this.btnCancel.Name = "btnCancel";
             this.btnCancel.Size = new System.Drawing.Size(92, 43);
             this.btnCancel.TabIndex = 6;
@@ -224,7 +190,7 @@
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(443, 374);
+            this.ClientSize = new System.Drawing.Size(439, 351);
             this.Controls.Add(this.tabControl);
             this.Controls.Add(this.btnImport);
             this.Controls.Add(this.btnCancel);
@@ -235,9 +201,6 @@
             this.groupBox1.ResumeLayout(false);
             this.groupBox1.PerformLayout();
             this.tabControl.ResumeLayout(false);
-            this.tabPage2.ResumeLayout(false);
-            this.groupBox2.ResumeLayout(false);
-            this.groupBox2.PerformLayout();
             this.ResumeLayout(false);
 
         }
@@ -255,9 +218,5 @@
         private System.Windows.Forms.Label label10;
         private System.Windows.Forms.ComboBox cmbTRS;
         private System.Windows.Forms.TabPage tabPage2;
-        private System.Windows.Forms.GroupBox groupBox2;
-        private System.Windows.Forms.Label label3;
-        private System.Windows.Forms.ComboBox cmbClockErrorModel;
-        private System.Windows.Forms.CheckBox chkClockErrorModel;
     }
 }

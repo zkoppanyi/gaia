@@ -25,21 +25,21 @@ namespace Gaia.Core.Processing
             public String Name { get { return "Timestamp order check"; } }
             public String Description { get { return "Check whether the timestamps in the data stream is ordered, and change the order flag."; } }
 
-            public TimeStampOrderCheckProcessing Create(Project project, IMessanger messanger, List<DataStream> streams)
+            public TimeStampOrderCheckProcessing Create(Project project, List<DataStream> streams)
             {
-                TimeStampOrderCheckProcessing algorithm = new TimeStampOrderCheckProcessing(project, messanger, Name, Description);
+                TimeStampOrderCheckProcessing algorithm = new TimeStampOrderCheckProcessing(project, Name, Description);
                 algorithm.SourceStreams = streams;
                 return algorithm;
             }
         }
         
-        private TimeStampOrderCheckProcessing(Project project, IMessanger messanger, String name, String description) : base(project, messanger, name, description)
+        private TimeStampOrderCheckProcessing(Project project, String name, String description) : base(project, name, description)
         {
             SourceStreams = new List<DataStream>();
         }
-       
 
-        public override AlgorithmResult Run()
+
+        protected override AlgorithmResult run()
         {
             if (SourceStreams == null)
             {

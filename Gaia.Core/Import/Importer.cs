@@ -13,26 +13,22 @@ namespace Gaia.Core.Import
 {
     [Serializable]
     public abstract class Importer : Algorithm
-    {        
-        protected Importer(Project project, IMessanger messanger, String name, String description) : base(project, messanger, name, description)
+    {
+
+        protected Importer(Project project, String name, String description) : base(project, name, description)
         {
 
         }
 
         public interface ImporterFactory : AlgorithmFactory
         {
-            Importer Create(string filePath, DataStream dataStream, Project project, IMessanger messanger = null);
+            Importer Create(string filePath, DataStream dataStream, Project project);
             DataStreamType GetDataStreamType();
         }
 
         public virtual String SupportedFileFormats()
         {
             return "All files (*.*)|*.*";
-        }
-
-        public void SetMessanger(IMessanger messanger)
-        {
-            this.messanger = messanger;
         }
 
         public void SetProject(Project project)

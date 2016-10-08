@@ -30,14 +30,14 @@ namespace Gaia.Core.Processing
             public String Name { get { return "Statistic calculation (beta)"; } }
             public String Description { get { return "Statistic calculation (beta)"; } }
 
-            public Statistics Create(Project project, IMessanger messanger)
+            public Statistics Create(Project project)
             {
-                Statistics algorithm = new Statistics(project, messanger, Name, Description);
+                Statistics algorithm = new Statistics(project, Name, Description);
                 return algorithm;
             }
         }
 
-        private Statistics(Project project, IMessanger messanger, String name, String description) : base(project, messanger, name, description)
+        private Statistics(Project project, String name, String description) : base(project, name, description)
         {
             Numbers = new SortedSet<double>();
             Histogram = new SortedList<double, double>();
@@ -77,7 +77,7 @@ namespace Gaia.Core.Processing
             return AlgorithmResult.Sucess;
         }
 
-        public override AlgorithmResult Run()
+        protected override AlgorithmResult run()
         {
             double max = Math.Ceiling(Numbers.Max());
             double min = Math.Floor(Numbers.Min());

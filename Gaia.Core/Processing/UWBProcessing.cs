@@ -45,16 +45,16 @@ namespace Gaia.Core.Processing
             public String Name { get { return "UWB Trajectory Calculation"; } }
             public String Description { get { return "Calculate UWB trajectory from data stream."; } }
 
-            public UWBProcessing Create(Project project, IMessanger messanger, UWBDataStream sourceDataStream, CoordinateDataStream outputDataStream)
+            public UWBProcessing Create(Project project, UWBDataStream sourceDataStream, CoordinateDataStream outputDataStream)
             {
-                UWBProcessing algorithm = new UWBProcessing(project, messanger, Name, Description);
+                UWBProcessing algorithm = new UWBProcessing(project, Name, Description);
                 algorithm.SourceDataStream = sourceDataStream;
                 algorithm.OutputDataStream = outputDataStream;
                 return algorithm;
             }
         }
 
-        private UWBProcessing(Project project, IMessanger messanger, String name, String description) : base(project, messanger, name, description)
+        private UWBProcessing(Project project, String name, String description) : base(project, name, description)
         {
             BufferSize = 6;
             MaxIterNum = 200;
@@ -62,9 +62,9 @@ namespace Gaia.Core.Processing
             TimeIntervalToClearBuffer = 5;
             FiltringByResidual = 1;
        }
-               
 
-        public override AlgorithmResult Run()
+
+        protected override AlgorithmResult run()
         {
             if (SourceDataStream == null)
             {
@@ -81,6 +81,8 @@ namespace Gaia.Core.Processing
 
             OutputDataStream.Open();
             OutputDataStream.Begin();
+            SourceDataStream.SettingsCopyTo(OutputDataStream);
+            OutputDataStream.CRS = SourceDataStream.CRS;
 
             List<UWBDataLine> buffer = new List<UWBDataLine>();
             Dictionary<string, GPoint> pointList = new Dictionary<string, GPoint>();

@@ -105,6 +105,16 @@ namespace Gaia.Core.DataStreams
             }
         }
 
+        /// <summary>
+        /// Shallow copy of the data stream. Just the settings will copy without data and any reference to the data.
+        /// </summary>
+        /// <param name="copyDataStream">The data stream that will set up with the same settings as the current data stream.</param>
+        public virtual void SettingsCopyTo(DataStream copyDataStream)
+        {
+            copyDataStream.Name = this.Name;
+            copyDataStream.Description = this.Description;
+        }
+
         protected void WriteProgress(double percent)
         {
             if (messanger != null)

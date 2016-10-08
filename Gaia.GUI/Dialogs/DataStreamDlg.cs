@@ -94,7 +94,8 @@ namespace Gaia.GUI.Dialogs
             if (dataStreamGridView.SelectedRows.Count == 1)
             {
                 PropertiesDlg dlg = new PropertiesDlg((GaiaObject)dataStreamGridView.SelectedRows[0].DataBoundItem);
-                dlg.ShowDialog();
+                dlg.MdiParent = this.MdiParent;
+                dlg.Show();
                 UpdateGridView();
             }
         }
@@ -136,44 +137,38 @@ namespace Gaia.GUI.Dialogs
 
         private void calculateTrajectoryToolStripMenuItem_Click(object sender, EventArgs e)
         {
+            
             DataStream dataStream = (DataStream)(dataStreamGridView.SelectedRows[0].DataBoundItem);
-
+            
             if (dataStream is UWBDataStream)
             {
-                ProgressBarDlg dlgProgress = new ProgressBarDlg();
-                dlgProgress.Worker.DoWork += new DoWorkEventHandler(delegate (object sender1, DoWorkEventArgs e1)
-                {
-                    CoordinateDataStream output = GlobalAccess.Project.DataStreamManager.CreateDataStream(DataStreamType.CoordinateDataStream) as CoordinateDataStream;
-                    UWBProcessing proc = UWBProcessing.Factory.Create(GlobalAccess.Project, dlgProgress.Worker, dataStream as UWBDataStream, output);
-                    output.Name = dataStream.Name + " Trajectory";
-                    output.Description = "Trajectory calculated from " + dataStream.Name + " UWB data stream.";
-                    AlgorithmResult result = proc.Run();
-                    if ((result == AlgorithmResult.Failure) ||
-                        (result == AlgorithmResult.InputMissing))
+                CoordinateDataStream output = GlobalAccess.Project.DataStreamManager.CreateDataStream(DataStreamType.CoordinateDataStream) as CoordinateDataStream;
+                Algorithm algorithm = UWBProcessing.Factory.Create(GlobalAccess.Project, dataStream as UWBDataStream, output);
+                algorithm.CompletedReport += delegate(object sender1, AlgorithmResult result) {
+                    if (result != AlgorithmResult.Sucess)
                     {
                         GlobalAccess.Project.DataStreamManager.RemoveDataStream(output);
                     }
-                });
-                dlgProgress.ShowDialog();
+                };
+
+                AlgorithmRunDlg runDlg = new AlgorithmRunDlg(algorithm);
+                runDlg.CleanUpDataStream.Add(output);
+                runDlg.ShowDialog();
             }
 
             if (dataStream is IMUDataStream)
             {
-                ProgressBarDlg dlgProgress = new ProgressBarDlg();
-                dlgProgress.Worker.DoWork += new DoWorkEventHandler(delegate (object sender1, DoWorkEventArgs e1)
-                {
-                    CoordinateAttitudeDataStream output = GlobalAccess.Project.DataStreamManager.CreateDataStream(DataStreamType.CoordinateAttitudeDataStream) as CoordinateAttitudeDataStream;
-                    IMUProcessing proc = IMUProcessing.Factory.Create(GlobalAccess.Project, dlgProgress.Worker, dataStream as IMUDataStream, output);
-                    output.Name = dataStream.Name + " Trajectory";
-                    output.Description = "Trajectory calculated from " + dataStream.Name + " IMU data stream.";
-                    AlgorithmResult result = proc.Run();
-                    if ((result == AlgorithmResult.Failure) ||
-                        (result == AlgorithmResult.InputMissing))
+                CoordinateAttitudeDataStream output = GlobalAccess.Project.DataStreamManager.CreateDataStream(DataStreamType.CoordinateAttitudeDataStream) as CoordinateAttitudeDataStream;
+                Algorithm algorithm = IMUProcessing.Factory.Create(GlobalAccess.Project, dataStream as IMUDataStream, output);
+                algorithm.CompletedReport += delegate (object sender1, AlgorithmResult result) {
+                    if (result != AlgorithmResult.Sucess)
                     {
                         GlobalAccess.Project.DataStreamManager.RemoveDataStream(output);
                     }
-                });
-                dlgProgress.ShowDialog();
+                };
+                AlgorithmRunDlg runDlg = new AlgorithmRunDlg(algorithm);
+                runDlg.CleanUpDataStream.Add(output);
+                runDlg.ShowDialog();
             }
         }
 
@@ -223,12 +218,8 @@ namespace Gaia.GUI.Dialogs
                     if ((coorStream != null) && (imuStream != null))
                     {
                         // Open Progressbar dialog
-                        ProgressBarDlg dlgProgress = new ProgressBarDlg();
-                        dlgProgress.Worker.DoWork += new DoWorkEventHandler(delegate (object sender1, DoWorkEventArgs e1)
-                        {
-                            IMUInitialization proc = IMUInitialization.Factory.Create(GlobalAccess.Project, dlgProgress.Worker, imuStream, coorStream);
-                            proc.Run();
-                        });
+                        IMUInitialization proc = IMUInitialization.Factory.Create(GlobalAccess.Project, imuStream, coorStream);
+                        ProgressBarDlg dlgProgress = new ProgressBarDlg(proc);
                         dlgProgress.ShowDialog();
                     }
                 }

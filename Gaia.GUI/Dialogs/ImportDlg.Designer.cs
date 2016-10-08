@@ -73,18 +73,16 @@
             this.tabControl.Location = new System.Drawing.Point(0, 0);
             this.tabControl.Name = "tabControl";
             this.tabControl.SelectedIndex = 0;
-            this.tabControl.Size = new System.Drawing.Size(386, 299);
+            this.tabControl.Size = new System.Drawing.Size(396, 294);
             this.tabControl.TabIndex = 2;
             // 
             // tabPage1
             // 
-            this.tabPage1.Controls.Add(this.btnCancel);
-            this.tabPage1.Controls.Add(this.btnImport);
             this.tabPage1.Controls.Add(this.groupBox2);
             this.tabPage1.Location = new System.Drawing.Point(4, 22);
             this.tabPage1.Name = "tabPage1";
             this.tabPage1.Padding = new System.Windows.Forms.Padding(3);
-            this.tabPage1.Size = new System.Drawing.Size(378, 273);
+            this.tabPage1.Size = new System.Drawing.Size(386, 296);
             this.tabPage1.TabIndex = 0;
             this.tabPage1.Text = "Import";
             this.tabPage1.UseVisualStyleBackColor = true;
@@ -92,10 +90,13 @@
             // 
             // btnCancel
             // 
+            this.btnCancel.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
+            this.btnCancel.DialogResult = System.Windows.Forms.DialogResult.Cancel;
             this.btnCancel.Image = global::Gaia.Properties.Resources.cancel_button;
-            this.btnCancel.Location = new System.Drawing.Point(172, 222);
+            this.btnCancel.Location = new System.Drawing.Point(163, 226);
+            this.btnCancel.Margin = new System.Windows.Forms.Padding(10);
             this.btnCancel.Name = "btnCancel";
-            this.btnCancel.Size = new System.Drawing.Size(92, 43);
+            this.btnCancel.Size = new System.Drawing.Size(102, 46);
             this.btnCancel.TabIndex = 6;
             this.btnCancel.Text = "Cancel";
             this.btnCancel.TextImageRelation = System.Windows.Forms.TextImageRelation.ImageBeforeText;
@@ -104,11 +105,13 @@
             // 
             // btnImport
             // 
+            this.btnImport.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
             this.btnImport.Image = global::Gaia.Properties.Resources.import_database_button;
             this.btnImport.ImageAlign = System.Drawing.ContentAlignment.MiddleLeft;
-            this.btnImport.Location = new System.Drawing.Point(270, 222);
+            this.btnImport.Location = new System.Drawing.Point(270, 226);
+            this.btnImport.Margin = new System.Windows.Forms.Padding(10);
             this.btnImport.Name = "btnImport";
-            this.btnImport.Size = new System.Drawing.Size(93, 43);
+            this.btnImport.Size = new System.Drawing.Size(103, 46);
             this.btnImport.TabIndex = 5;
             this.btnImport.Text = "Import";
             this.btnImport.TextImageRelation = System.Windows.Forms.TextImageRelation.ImageBeforeText;
@@ -117,15 +120,18 @@
             // 
             // groupBox2
             // 
+            this.groupBox2.Controls.Add(this.btnImport);
+            this.groupBox2.Controls.Add(this.btnCancel);
             this.groupBox2.Controls.Add(this.txtDesc);
             this.groupBox2.Controls.Add(this.cmbImport);
             this.groupBox2.Controls.Add(this.label8);
             this.groupBox2.Controls.Add(this.button1);
             this.groupBox2.Controls.Add(this.txtFileLocation);
             this.groupBox2.Controls.Add(this.label7);
-            this.groupBox2.Location = new System.Drawing.Point(3, 6);
+            this.groupBox2.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.groupBox2.Location = new System.Drawing.Point(3, 3);
             this.groupBox2.Name = "groupBox2";
-            this.groupBox2.Size = new System.Drawing.Size(360, 210);
+            this.groupBox2.Size = new System.Drawing.Size(380, 290);
             this.groupBox2.TabIndex = 4;
             this.groupBox2.TabStop = false;
             this.groupBox2.Text = "Import Settings";
@@ -133,21 +139,27 @@
             // 
             // txtDesc
             // 
+            this.txtDesc.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
             this.txtDesc.Location = new System.Drawing.Point(9, 73);
             this.txtDesc.Multiline = true;
             this.txtDesc.Name = "txtDesc";
             this.txtDesc.ReadOnly = true;
             this.txtDesc.ScrollBars = System.Windows.Forms.ScrollBars.Both;
-            this.txtDesc.Size = new System.Drawing.Size(322, 92);
+            this.txtDesc.Size = new System.Drawing.Size(363, 93);
             this.txtDesc.TabIndex = 13;
             // 
             // cmbImport
             // 
+            this.cmbImport.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
             this.cmbImport.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
             this.cmbImport.FormattingEnabled = true;
             this.cmbImport.Location = new System.Drawing.Point(9, 36);
             this.cmbImport.Name = "cmbImport";
-            this.cmbImport.Size = new System.Drawing.Size(322, 21);
+            this.cmbImport.Size = new System.Drawing.Size(359, 21);
             this.cmbImport.TabIndex = 11;
             this.cmbImport.SelectedIndexChanged += new System.EventHandler(this.cmbImport_SelectedIndexChanged);
             // 
@@ -162,8 +174,9 @@
             // 
             // button1
             // 
+            this.button1.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
             this.button1.Image = global::Gaia.Properties.Resources.folder_button;
-            this.button1.Location = new System.Drawing.Point(292, 172);
+            this.button1.Location = new System.Drawing.Point(330, 181);
             this.button1.Name = "button1";
             this.button1.Size = new System.Drawing.Size(42, 32);
             this.button1.TabIndex = 9;
@@ -173,16 +186,20 @@
             // 
             // txtFileLocation
             // 
-            this.txtFileLocation.Location = new System.Drawing.Point(6, 184);
+            this.txtFileLocation.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.txtFileLocation.Location = new System.Drawing.Point(6, 185);
             this.txtFileLocation.Name = "txtFileLocation";
-            this.txtFileLocation.Size = new System.Drawing.Size(280, 20);
+            this.txtFileLocation.Size = new System.Drawing.Size(314, 20);
             this.txtFileLocation.TabIndex = 8;
             this.txtFileLocation.TextChanged += new System.EventHandler(this.txtFileLocation_TextChanged);
             // 
             // label7
             // 
+            this.label7.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
             this.label7.AutoSize = true;
-            this.label7.Location = new System.Drawing.Point(7, 168);
+            this.label7.Location = new System.Drawing.Point(6, 169);
             this.label7.Name = "label7";
             this.label7.Size = new System.Drawing.Size(67, 13);
             this.label7.TabIndex = 7;
@@ -194,7 +211,7 @@
             this.tabPageReferenceFrame.Location = new System.Drawing.Point(4, 22);
             this.tabPageReferenceFrame.Name = "tabPageReferenceFrame";
             this.tabPageReferenceFrame.Padding = new System.Windows.Forms.Padding(3);
-            this.tabPageReferenceFrame.Size = new System.Drawing.Size(378, 273);
+            this.tabPageReferenceFrame.Size = new System.Drawing.Size(388, 268);
             this.tabPageReferenceFrame.TabIndex = 1;
             this.tabPageReferenceFrame.Text = "Reference System";
             this.tabPageReferenceFrame.UseVisualStyleBackColor = true;
@@ -202,13 +219,15 @@
             // 
             // groupBox3
             // 
+            this.groupBox3.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
             this.groupBox3.Controls.Add(this.label10);
             this.groupBox3.Controls.Add(this.cmbTRS);
             this.groupBox3.Controls.Add(this.label9);
             this.groupBox3.Controls.Add(this.cmbCRS);
             this.groupBox3.Location = new System.Drawing.Point(8, 6);
             this.groupBox3.Name = "groupBox3";
-            this.groupBox3.Size = new System.Drawing.Size(366, 144);
+            this.groupBox3.Size = new System.Drawing.Size(374, 144);
             this.groupBox3.TabIndex = 0;
             this.groupBox3.TabStop = false;
             this.groupBox3.Text = "Reference Frames";
@@ -224,11 +243,13 @@
             // 
             // cmbTRS
             // 
+            this.cmbTRS.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
             this.cmbTRS.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
             this.cmbTRS.FormattingEnabled = true;
             this.cmbTRS.Location = new System.Drawing.Point(6, 102);
             this.cmbTRS.Name = "cmbTRS";
-            this.cmbTRS.Size = new System.Drawing.Size(302, 21);
+            this.cmbTRS.Size = new System.Drawing.Size(356, 21);
             this.cmbTRS.TabIndex = 2;
             // 
             // label9
@@ -242,11 +263,13 @@
             // 
             // cmbCRS
             // 
+            this.cmbCRS.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
             this.cmbCRS.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
             this.cmbCRS.FormattingEnabled = true;
             this.cmbCRS.Location = new System.Drawing.Point(6, 45);
             this.cmbCRS.Name = "cmbCRS";
-            this.cmbCRS.Size = new System.Drawing.Size(302, 21);
+            this.cmbCRS.Size = new System.Drawing.Size(356, 21);
             this.cmbCRS.TabIndex = 0;
             // 
             // tabPageSettings
@@ -255,7 +278,7 @@
             this.tabPageSettings.Location = new System.Drawing.Point(4, 22);
             this.tabPageSettings.Name = "tabPageSettings";
             this.tabPageSettings.Padding = new System.Windows.Forms.Padding(3);
-            this.tabPageSettings.Size = new System.Drawing.Size(378, 273);
+            this.tabPageSettings.Size = new System.Drawing.Size(388, 268);
             this.tabPageSettings.TabIndex = 2;
             this.tabPageSettings.Text = "Settings";
             this.tabPageSettings.UseVisualStyleBackColor = true;
@@ -265,7 +288,7 @@
             this.propertyGridImporter.Dock = System.Windows.Forms.DockStyle.Fill;
             this.propertyGridImporter.Location = new System.Drawing.Point(3, 3);
             this.propertyGridImporter.Name = "propertyGridImporter";
-            this.propertyGridImporter.Size = new System.Drawing.Size(372, 267);
+            this.propertyGridImporter.Size = new System.Drawing.Size(382, 262);
             this.propertyGridImporter.TabIndex = 0;
             // 
             // label1
@@ -337,12 +360,13 @@
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(386, 299);
+            this.CancelButton = this.btnCancel;
+            this.ClientSize = new System.Drawing.Size(396, 294);
             this.Controls.Add(this.tabControl);
-            this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedDialog;
             this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
             this.Name = "ImportDlg";
-            this.Text = "Import UWB Data...";
+            this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
+            this.Text = "Import Data...";
             this.Load += new System.EventHandler(this.ImportUWBDlg_Load);
             this.tabControl.ResumeLayout(false);
             this.tabPage1.ResumeLayout(false);

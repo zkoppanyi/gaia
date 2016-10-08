@@ -11,7 +11,8 @@ namespace Gaia.Core.Processing
 {
     public class IMUInitialization : Algorithm
     {
-        private IMUDataStream SourceDataStream;
+        private IMUDataStream sourceDataStream;
+        public IMUDataStream SourceDataStream { get { return sourceDataStream; } }
 
         private CoordinateDataStream _coordinateDataStream;
         public CoordinateDataStream CoordinateDataStream { get { return _coordinateDataStream; } }
@@ -51,10 +52,10 @@ namespace Gaia.Core.Processing
                 DetectFirstMovemnetThreshold = 0.01;
             }
 
-            public IMUInitialization Create(Project project, IMessanger messanger, IMUDataStream sourceDataStream, CoordinateDataStream coordinateDataStream)
+            public IMUInitialization Create(Project project, IMUDataStream sourceDataStream, CoordinateDataStream coordinateDataStream)
             {
-                IMUInitialization algorithm = new IMUInitialization(project, messanger, this.Name, this.Description);
-                algorithm.SourceDataStream = sourceDataStream;
+                IMUInitialization algorithm = new IMUInitialization(project, this.Name, this.Description);
+                algorithm.sourceDataStream = sourceDataStream;
                 algorithm._coordinateDataStream = coordinateDataStream;
                 algorithm._timeMatchingDifference = TimeMatchingDifference;
                 algorithm._initilaizationTime = InitilaizationTime;
@@ -64,18 +65,18 @@ namespace Gaia.Core.Processing
             }
         }
 
-        private IMUInitialization(Project project, IMessanger messanger, String name, String description) : base(project, messanger, name, description)
+        private IMUInitialization(Project project, String name, String description) : base(project, name, description)
         {
         }
-       
+
 
         /// <summary>
         /// Calculate initilaization parameters for IMU using coordinate stream
         /// </summary>
         /// <returns>Result object</returns>
-        public override AlgorithmResult Run()
+        protected override AlgorithmResult run()
         {
-            if (SourceDataStream == null)
+            if (sourceDataStream == null)
             {
                 new GaiaAssertException("IMU data stream is null!");
             }
@@ -85,7 +86,7 @@ namespace Gaia.Core.Processing
                 new GaiaAssertException("Coordinate data stream is null!");
             }
 
-            if (!SourceDataStream.IsTimeStampOrdered)
+            if (!sourceDataStream.IsTimeStampOrdered)
             {
                 WriteMessage("The timestamps in the " + _coordinateDataStream.Name + " dataset is not ordered by timestamp!");
                 return AlgorithmResult.Failure;
@@ -103,20 +104,20 @@ namespace Gaia.Core.Processing
                 return AlgorithmResult.Failure;
             }
 
-            if (_coordinateDataStream.CRS.WKT != SourceDataStream.CRS.WKT)
+            if (_coordinateDataStream.CRS.WKT != sourceDataStream.CRS.WKT)
             {
                 WriteMessage("The two data stream has to be in the same CRS!");
                 return AlgorithmResult.Failure;
             }
 
-            SourceDataStream.Open();
+            sourceDataStream.Open();
             _coordinateDataStream.Open();
 
-            SourceDataStream.Begin();
+            sourceDataStream.Begin();
             _coordinateDataStream.Begin();
 
             // Start the first timestamps in both dataset
-            IMUDataLine imuLine = SourceDataStream.ReadLine() as IMUDataLine;
+            IMUDataLine imuLine = sourceDataStream.ReadLine() as IMUDataLine;
             CoordinateDataLine coorLine = _coordinateDataStream.ReadLine() as CoordinateDataLine;
             if (imuLine.TimeStamp > coorLine.TimeStamp)
             {
@@ -129,7 +130,7 @@ namespace Gaia.Core.Processing
             {
                 while ((imuLine.TimeStamp <= coorLine.TimeStamp) && !_coordinateDataStream.IsEOF())
                 {
-                    imuLine = SourceDataStream.ReadLine() as IMUDataLine;
+                    imuLine = sourceDataStream.ReadLine() as IMUDataLine;
                 }
             }
 
@@ -146,7 +147,7 @@ namespace Gaia.Core.Processing
             double initEnd = imuLine.TimeStamp + _initilaizationTime;
             while ((imuLine.TimeStamp <= initEnd) && !_coordinateDataStream.IsEOF())
             {
-                imuLine = SourceDataStream.ReadLine() as IMUDataLine;
+                imuLine = sourceDataStream.ReadLine() as IMUDataLine;
                 mean_ax += imuLine.Ax;
                 mean_ay += imuLine.Ay;
                 mean_az += imuLine.Az;
@@ -199,7 +200,7 @@ namespace Gaia.Core.Processing
             WriteMessage("Timestamp: " + currPoint.Timestamp);
             WriteProgress(50);
 
-            SourceDataStream.Close();
+            sourceDataStream.Close();
             _coordinateDataStream.Close();
 
             GeographicCoordinateSystem crs = _coordinateDataStream.CRS.GetCoordinateSystem() as GeographicCoordinateSystem;
@@ -210,26 +211,26 @@ namespace Gaia.Core.Processing
             double lambda = (1 - e2) * (Math.Tan(nextPoint.LatRad) / Math.Tan(currPoint.LatRad)) + e2 * Math.Sqrt(((1 + ((1 - e2) * Math.Pow((Math.Tan(nextPoint.LatRad)), 2)))) / ((1 + ((1 - e2) * Math.Pow((Math.Tan(currPoint.LatRad)), 2)))));
             double azimuth = Math.Atan2(Math.Sin(nextPoint.LonRad - currPoint.LonRad), (lambda - Math.Cos(nextPoint.LonRad - currPoint.LonRad)) * Math.Sin(currPoint.LatRad));
 
-            SourceDataStream.StartTime = currPoint.Timestamp;
-            SourceDataStream.InitialHeading = Utilities.ConvertRadToDeg(azimuth);
-            SourceDataStream.InitialPitch = Utilities.ConvertRadToDeg(pitch);
-            SourceDataStream.InitialRoll = Utilities.ConvertRadToDeg(roll);
+            sourceDataStream.StartTime = currPoint.Timestamp;
+            sourceDataStream.InitialHeading = Utilities.ConvertRadToDeg(azimuth);
+            sourceDataStream.InitialPitch = Utilities.ConvertRadToDeg(pitch);
+            sourceDataStream.InitialRoll = Utilities.ConvertRadToDeg(roll);
 
             // TODO: leverarm offset
-            SourceDataStream.InitialX = currPoint.X;
-            SourceDataStream.InitialY = currPoint.Y;
-            SourceDataStream.InitialZ = currPoint.Z;
+            sourceDataStream.InitialX = currPoint.X;
+            sourceDataStream.InitialY = currPoint.Y;
+            sourceDataStream.InitialZ = currPoint.Z;
 
             WriteMessage("");
             WriteMessage("Solution ");
             WriteMessage("--------------");
-            WriteMessage("Start time        [s]: " + SourceDataStream.StartTime);
-            WriteMessage("Initial heading [deg]: " + SourceDataStream.InitialHeading);
-            WriteMessage("Initial pitch   [deg]: " + SourceDataStream.InitialPitch);
-            WriteMessage("Initial roll    [deg]: " + SourceDataStream.InitialRoll);
-            WriteMessage("Initial X ECEF    [m]: " + SourceDataStream.InitialX);
-            WriteMessage("Initial Y ECEF    [m]: " + SourceDataStream.InitialY);
-            WriteMessage("Initial Z ECEF    [m]: " + SourceDataStream.InitialZ);
+            WriteMessage("Start time        [s]: " + sourceDataStream.StartTime);
+            WriteMessage("Initial heading [deg]: " + sourceDataStream.InitialHeading);
+            WriteMessage("Initial pitch   [deg]: " + sourceDataStream.InitialPitch);
+            WriteMessage("Initial roll    [deg]: " + sourceDataStream.InitialRoll);
+            WriteMessage("Initial X ECEF    [m]: " + sourceDataStream.InitialX);
+            WriteMessage("Initial Y ECEF    [m]: " + sourceDataStream.InitialY);
+            WriteMessage("Initial Z ECEF    [m]: " + sourceDataStream.InitialZ);
             WriteMessage("Initial Lat     [deg]: " + currPoint.Lat);
             WriteMessage("Initial Lon     [deg]: " + currPoint.Lon);
             WriteMessage("Initial Lat     [dms]: " + currPoint.LatDMS);

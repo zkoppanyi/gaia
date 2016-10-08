@@ -18,8 +18,16 @@ namespace Gaia.Core.Processing
     /// </summary>
     public class CoordinateTransformerForDataStreams : Algorithm
     {
-        public CoordinateDataStream SourceDataStream;
-        public CRS CRS;
+        private CoordinateDataStream sourceDataStream;
+        public CoordinateDataStream SourceDataStream { get { return sourceDataStream; } }
+
+        private CoordinateDataStream outputDataStream;
+        public CoordinateDataStream OutputDataStream { get { return outputDataStream; } }
+
+        private CRS _CRS;
+        [System.ComponentModel.DisplayName("Target Coordinate Reference Frame")]
+        public CRS TargetCRS { get { return _CRS; } }
+        
 
         public static CoordinateTransformerForDataStreamsFactory Factory
         {
@@ -34,78 +42,94 @@ namespace Gaia.Core.Processing
             public String Name { get { return "Coordinate Transformer"; } }
             public String Description { get { return "Transformer the coordinates of a coordinate data stream."; } }
 
+            [System.ComponentModel.DisplayName("Target Coordinate Reference Frame")]
+            public CRS TargetCRS { get; set; }
+
             public CoordinateTransformerForDataStreamsFactory() { }
 
-            public CoordinateTransformerForDataStreams Create(Project project, IMessanger messanger, CoordinateDataStream sourceDataStream, CRS crs)
+            public CoordinateTransformerForDataStreams Create(Project project, CoordinateDataStream sourceDataStream, CoordinateDataStream outputDataStream,  CRS crs)
             {                
-                CoordinateTransformerForDataStreams algorithm = new CoordinateTransformerForDataStreams(project, messanger, Name, Description);
-                algorithm.SourceDataStream = sourceDataStream;
-                algorithm.CRS = crs;
+                CoordinateTransformerForDataStreams algorithm = new CoordinateTransformerForDataStreams(project, Name, Description);
+                algorithm.sourceDataStream = sourceDataStream;
+                algorithm.outputDataStream = outputDataStream;
+                algorithm._CRS = crs;
                 return algorithm;
             }
         }
 
-        private CoordinateTransformerForDataStreams(Project project, IMessanger messanger, String name, String description) : base(project, messanger, name, description)
+        private CoordinateTransformerForDataStreams(Project project, String name, String description) : base(project, name, description)
         {
 
         }
-        
-        
+
+
         /// <summary>
         /// Transform a Coordinate DataStream to another coordinate system.
         /// The algorithm overwrites DataStream coordinates
         /// </summary>
         /// <returns></returns>
-        public override AlgorithmResult Run()
+        protected override AlgorithmResult run()
         {
-            if (SourceDataStream.CRS == null)
+            if ((sourceDataStream == null) || (outputDataStream == null))
+            {
+                WriteMessage("Source or output data stream is not specified!");
+                return AlgorithmResult.InputMissing;
+            }
+
+
+            if (sourceDataStream.CRS == null)
             {
                 WriteMessage("The CRS for the DataStream has not been specified!");
                 return AlgorithmResult.InputMissing;
             }
 
-            if (!SourceDataStream.IsOpen())
+            if (!sourceDataStream.IsOpen())
             {
-                SourceDataStream.Open();
+                sourceDataStream.Open();
             }
-            SourceDataStream.Begin();
+            sourceDataStream.Begin();
 
-            ICoordinateSystem fromCRS = SourceDataStream.CRS.GetCoordinateSystem();
-            ICoordinateSystem toCRS = CRS.GetCoordinateSystem();
+            outputDataStream.Open();
+            outputDataStream.CRS = _CRS;
+            sourceDataStream.SettingsCopyTo(outputDataStream);
+            outputDataStream.Name = sourceDataStream.Name + " Transformed";
+            outputDataStream.Description = sourceDataStream.Description + Environment.NewLine + " Original stream was transformed to " + _CRS.Name;
+
+            ICoordinateSystem fromCRS = sourceDataStream.CRS.GetCoordinateSystem();
+            ICoordinateSystem toCRS = _CRS.GetCoordinateSystem();
 
             WriteMessage("Perform coordinate transformation!");
             WriteMessage("Source CRS: " + fromCRS.Name);
             WriteMessage("Target CRS: " + toCRS.Name);
 
             long numLine = 0;
-            while (!SourceDataStream.IsEOF())
+            while (!sourceDataStream.IsEOF())
             {
                 if (IsCanceled())
                 {
-                    SourceDataStream.Close();
+                    sourceDataStream.Close();
                     WriteMessage("Processing canceled");
                     return AlgorithmResult.Failure;
                 }
 
-                long pos = SourceDataStream.GetPosition();
-                GPoint pt = SourceDataStream.ReadDataLineAsGPoint();
-                SourceDataStream.Seek(pos);
-                CoordinateDataLine line = SourceDataStream.ReadLine() as CoordinateDataLine;
-                SourceDataStream.Seek(pos);
+                long pos = sourceDataStream.GetPosition();
+                GPoint pt = sourceDataStream.ReadDataLineAsGPoint();
+                sourceDataStream.Seek(pos);
+                CoordinateDataLine line = sourceDataStream.ReadLine() as CoordinateDataLine;
 
                 Utilities.transformPoint(fromCRS, toCRS, pt);
                 line.X = pt.X;
                 line.Y = pt.Y;
                 line.Z = pt.Z;
 
-                SourceDataStream.ReplaceDataLine(line, pos);
+                outputDataStream.AddDataLine(line);
 
                 numLine++;
-                WriteProgress((double)numLine / (double)SourceDataStream.DataNumber * 100.0);
+                WriteProgress((double)numLine / (double)sourceDataStream.DataNumber * 100.0);
             }
 
-            SourceDataStream.CRS = CRS;
-            SourceDataStream.Close();
+            sourceDataStream.Close();
+            outputDataStream.Close();
 
             return AlgorithmResult.Sucess;
         }

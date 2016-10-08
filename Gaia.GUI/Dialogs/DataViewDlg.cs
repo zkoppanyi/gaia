@@ -222,8 +222,8 @@ namespace Gaia.GUI.Dialogs
                     dlgProgress.Worker.DoWork += new DoWorkEventHandler(delegate (object sender1, DoWorkEventArgs e1) {
                         try
                         {
-                            dlgProgress.Worker.Write("Exporting...");
-                            dlgProgress.Worker.Write("File: " + exportDataWindowDialog.FileName);
+                            dlgProgress.Worker.WriteMessage("Exporting...");
+                            dlgProgress.Worker.WriteMessage("File: " + exportDataWindowDialog.FileName);
 
                             // Write header
                             int colscount = dataGridView.Columns.Count;
@@ -256,7 +256,7 @@ namespace Gaia.GUI.Dialogs
 
                                     if (i != dataGridView.Columns.Count - 1) sw.Write(",");
                                 }
-                                dlgProgress.Worker.Progress((double)dataStream.GetPosition() / (double)dataStream.DataNumber * 100);
+                                dlgProgress.Worker.WriteProgress((double)dataStream.GetPosition() / (double)dataStream.DataNumber * 100);
                                 sw.Write(Environment.NewLine);
                             }
 
@@ -265,7 +265,7 @@ namespace Gaia.GUI.Dialogs
                         }
                         catch (Exception ex)
                         {
-                            dlgProgress.Worker.Write("Cannot export datastream. The problem: " + ex, "Cannot export", null, Core.ConsoleMessageType.Error);
+                            dlgProgress.Worker.WriteMessage("Cannot export datastream. The problem: " + ex, "Cannot export", null, Core.AlgorithmMessageType.Error);
                         }
 
                     });

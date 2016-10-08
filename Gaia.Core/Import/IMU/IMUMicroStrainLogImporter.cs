@@ -48,10 +48,10 @@ namespace Gaia.Core.Import
                 ParseAllYouCan = true;
             }
 
-            public new Importer Create(string filePath, DataStream dataStream, Project project, IMessanger messanger = null)
+            public new Importer Create(string filePath, DataStream dataStream, Project project)
             {
 
-                IMUMicroStrainLogImporter importer = new IMUMicroStrainLogImporter(project, messanger, Name, Description, filePath, dataStream,
+                IMUMicroStrainLogImporter importer = new IMUMicroStrainLogImporter(project, Name, Description, filePath, dataStream,
                         ColumnTimeStamp, ColumnAx, ColumnAy, ColumnAz, ColumnWx, ColumnWy, ColumnWz,
                         ColumnRatioAx, ColumnRatioAy, ColumnRatioAz, ColumnRatioWx, ColumnRatioWy, ColumnRatioWz, HeaderRowNo, ParseAllYouCan);
 
@@ -59,10 +59,10 @@ namespace Gaia.Core.Import
             }
         }
 
-        private IMUMicroStrainLogImporter(Project project, IMessanger messanger, String name, String description, String filePath, DataStream dataStream,
+        private IMUMicroStrainLogImporter(Project project, String name, String description, String filePath, DataStream dataStream,
             int columnTimeStamp, int columnAx, int columnAy, int columnAz, int columnWx, int columnWy, int columnWz,
             double columnRatioAx, double columnRatioAy, double columnRatioAz,
-            double columnRatioWx, double columnRatioWy, double columnRatioWz, int headerRowNo, bool parseAllYouCan) : base(project, messanger, name, description, filePath, dataStream,
+            double columnRatioWx, double columnRatioWy, double columnRatioWz, int headerRowNo, bool parseAllYouCan) : base(project, name, description, filePath, dataStream,
                         columnTimeStamp, columnAx, columnAy, columnAz, columnWx, columnWy, columnWz,
                         columnRatioAx, columnRatioAy, columnRatioAz, columnRatioWx, columnRatioWy, columnRatioWz, headerRowNo, parseAllYouCan)
         {
@@ -75,10 +75,10 @@ namespace Gaia.Core.Import
         }
 
 
-        public override AlgorithmResult Run()
+        protected override AlgorithmResult run()
         {
             base.dataStream.TRS = project.GetTimeFrameByName("GPST");
-            return base.Run();
+            return base.run();
         }
 
     }

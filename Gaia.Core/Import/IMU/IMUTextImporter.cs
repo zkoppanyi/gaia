@@ -184,10 +184,10 @@ namespace Gaia.Core.Import
                 HeaderRowNo = 0;
             }
 
-            public Importer Create(string filePath, DataStream dataStream, Project project, IMessanger messanger = null)
+            public Importer Create(string filePath, DataStream dataStream, Project project)
             {
               
-                IMUTextImporter importer = new IMUTextImporter(project, messanger, Name, Description, filePath, dataStream, 
+                IMUTextImporter importer = new IMUTextImporter(project, Name, Description, filePath, dataStream, 
                     ColumnTimeStamp, ColumnAx, ColumnAy, ColumnAz, ColumnWx, ColumnWy, ColumnWz,
                     ColumnRatioAx, ColumnRatioAy, ColumnRatioAz, ColumnRatioWx, ColumnRatioWy, ColumnRatioWz, HeaderRowNo, ParseAllYouCan);
 
@@ -195,10 +195,10 @@ namespace Gaia.Core.Import
             }
         }
 
-        protected IMUTextImporter(Project project, IMessanger messanger, String name, String description, String filePath, DataStream dataStream,
+        protected IMUTextImporter(Project project, String name, String description, String filePath, DataStream dataStream,
             int columnTimeStamp, int columnAx, int columnAy, int columnAz, int columnWx, int columnWy, int columnWz,
             double columnRatioAx, double columnRatioAy, double columnRatioAz,
-            double columnRatioWx, double columnRatioWy, double columnRatioWz, int headerRowNo, bool parseAllYouCan) : base(project, messanger, name, description)
+            double columnRatioWx, double columnRatioWy, double columnRatioWz, int headerRowNo, bool parseAllYouCan) : base(project, name, description)
         {
             this.separator = ',';
             this.columnTimeStamp = columnTimeStamp;
@@ -230,7 +230,7 @@ namespace Gaia.Core.Import
         }
 
 
-        public override AlgorithmResult Run()
+        protected override AlgorithmResult run()
         {
             if (project == null)
             {
@@ -249,21 +249,18 @@ namespace Gaia.Core.Import
                     numLine++;
                 }
 
+                WriteMessage("Importing...");
                 dataStream.Open();
 
+                StringBuilder message = new StringBuilder(""); 
                 while (!reader.EndOfStream)
                 {
                     if (IsCanceled())
                     {
                         dataStream.Close();
                         reader.Close();
-                        WriteMessage("Importing canceled!", null, null, ConsoleMessageType.Warning);
+                        WriteMessage("Importing canceled!", null, null, AlgorithmMessageType.Warning);
                         return AlgorithmResult.Partial;
-                    }
-
-                    if (messanger != null)
-                    {
-                       WriteProgress((int)((double)reader.BaseStream.Position / ((double)reader.BaseStream.Length) * 100));
                     }
 
                     String line = reader.ReadLine();
@@ -286,17 +283,18 @@ namespace Gaia.Core.Import
                     }
                     catch
                     {
-                        WriteMessage("Cannot parse at line " + numLine + ".", null, null, ConsoleMessageType.Error);
-
+                        WriteMessage("Cannot parse at line " + numLine + "." + Environment.NewLine);
                         if (!parseAllYouCan) break;
                     }
+
+                    WriteProgress((int)((double)reader.BaseStream.Position / ((double)reader.BaseStream.Length) * 100));
                 }
 
                 dataStream.Close();
 
                 if (dataStream.DataNumber == 0)
                 {
-                    WriteMessage("No data has been parsed!", null, null, ConsoleMessageType.Error);
+                    WriteMessage("No data has been parsed!", null, null, AlgorithmMessageType.Error);
                     return AlgorithmResult.Failure;
                 }
 
@@ -307,7 +305,7 @@ namespace Gaia.Core.Import
             }
             catch (Exception ex)
             {
-                WriteMessage("Importer error: " + ex.Message, null, null, ConsoleMessageType.Error);
+                WriteMessage("Importer error: " + ex.Message, null, null, AlgorithmMessageType.Error);
                 return AlgorithmResult.Failure;
             }
         }

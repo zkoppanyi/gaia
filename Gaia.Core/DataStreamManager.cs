@@ -20,6 +20,15 @@ namespace Gaia.Core
         {
             Project project;
 
+            [field: NonSerialized]
+            public event AlgorithmMessageEventHandler ImportMessage;
+
+            [field: NonSerialized]
+            public event AlgorithmProgressEventHandler ImportProgress;
+
+            [field: NonSerialized]
+            public event AlgorithmCompletedEventHandler ImportCompleted;
+
             public DataStreamManagerClass(Project project)
             {
                 this.project = project;
@@ -28,22 +37,64 @@ namespace Gaia.Core
             private bool dataStreamCreateToken;
             internal bool DataStreamCreateToken { get { return dataStreamCreateToken; } }
 
-            public DataStream ImportDataStream(String resourceLocation, Importer.ImporterFactory importerFactory, IMessanger messanger = null)
+            DataStream importDataStream = null;
+            public DataStream ImportDataStream(String resourceLocation, Importer.ImporterFactory importerFactory, AlgorithmWorker worker=null)
             {
-                DataStream stream = this.CreateDataStream(importerFactory.GetDataStreamType());
-                if ((stream == null) && (importerFactory.Name != "Point Importer"))
+                importDataStream = this.CreateDataStream(importerFactory.GetDataStreamType());
+                if ((importDataStream  == null) && (importerFactory.Name != "Point Importer"))
                 {
                     throw new GaiaAssertException("Importer is not found!");
                 }
 
-                Importer importer = importerFactory.Create(resourceLocation, stream, project, messanger);
-                if (importer.Run() == AlgorithmResult.Failure)
+                Importer importer = importerFactory.Create(resourceLocation, importDataStream, project);
+                if (worker != null) worker.SubscirbeAlgorithm(importer);
+                importer.MessageReport += Importer_MessageReport;
+                importer.ProgressReport += Importer_ProgressReport;
+                importer.CompletedReport += Importer_CompletedReport;
+                importer.Run();
+                this.clearEvents();
+                return importDataStream;
+            }
+
+            private void clearEvents()
+            {
+                foreach (Delegate d in this.ImportMessage.GetInvocationList())
                 {
-                    this.RemoveDataStream(stream);
-                    return null;
+                    ImportMessage -= (AlgorithmMessageEventHandler)d;
                 }
 
-                return stream;
+                foreach (Delegate d in this.ImportProgress.GetInvocationList())
+                {
+                    ImportProgress -= (AlgorithmProgressEventHandler)d;
+                }
+
+                foreach (Delegate d in this.ImportCompleted.GetInvocationList())
+                {
+                    ImportCompleted -= (AlgorithmCompletedEventHandler)d;
+                }
+            }
+
+            private void Importer_CompletedReport(object sender, AlgorithmResult e)
+            {
+                if (e != AlgorithmResult.Sucess)
+                {
+                    if (importDataStream != null)
+                    {
+                        this.RemoveDataStream(importDataStream);
+                    }
+                }
+
+                ImportCompleted?.Invoke(sender, e);
+            }
+
+            private void Importer_ProgressReport(object sender, AlgorithmProgressEventArgs e)
+            {
+                ImportProgress?.Invoke(sender, e);
+            }
+
+            private void Importer_MessageReport(object sender, AlgorithmMessageEventArgs e)
+            {
+                ImportMessage?.Invoke(sender, e);
             }
 
             public DataStream CreateDataStream(DataStreamType dataStreamType)

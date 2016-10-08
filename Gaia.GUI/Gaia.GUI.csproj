@@ -105,6 +105,12 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Dialogs\AlgorithmRunDlg.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Dialogs\AlgorithmRunDlg.Designer.cs">
+      <DependentUpon>AlgorithmRunDlg.cs</DependentUpon>
+    </Compile>
     <Compile Include="ConsoleMessanger.cs" />
     <Compile Include="DataAcquisition\Fingerprinting.cs" />
     <Compile Include="Dialogs\CalculateValueDlg.cs">
@@ -194,6 +200,9 @@
     </Compile>
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <EmbeddedResource Include="Dialogs\AlgorithmRunDlg.resx">
+      <DependentUpon>AlgorithmRunDlg.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="Dialogs\CalculateValueDlg.resx">
       <DependentUpon>CalculateValueDlg.cs</DependentUpon>
     </EmbeddedResource>
@@ -333,6 +342,7 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="License-LGPL.txt" />
+    <None Include="Resources\calculte_icon.ico" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Import Project="..\packages\Accord.3.3.0\build\Accord.targets" Condition="Exists('..\packages\Accord.3.3.0\build\Accord.targets')" />

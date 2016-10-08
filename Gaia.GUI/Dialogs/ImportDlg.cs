@@ -101,6 +101,24 @@ namespace Gaia.GUI.Dialogs
             {
                 try
                 {
+                    GlobalAccess.Project.DataStreamManager.ImportMessage += delegate (object sender2, AlgorithmMessageEventArgs e2)
+                    {
+                        dlgProgress.Worker.WriteMessage(e2.Message, e2.Status, e2.MessageGroupStr, e2.MessageType);
+                    };
+
+                    GlobalAccess.Project.DataStreamManager.ImportProgress += delegate (object sender2, AlgorithmProgressEventArgs e2)
+                    {
+                        dlgProgress.Worker.WriteProgress(e2.Progress);
+                    };
+
+                    GlobalAccess.Project.DataStreamManager.ImportCompleted += delegate (object sender2, AlgorithmResult e2)
+                    {
+                        if(e2 != AlgorithmResult.Sucess)
+                        {
+                            error = true;
+                        }
+                    };
+
                     stream = GlobalAccess.Project.DataStreamManager.ImportDataStream(path, importerFactory, dlgProgress.Worker);
 
                     if (stream != null)
@@ -110,32 +128,39 @@ namespace Gaia.GUI.Dialogs
                             stream.Name = Path.GetFileNameWithoutExtension(path);
                             stream.Description = "Imported from " + path;
                         }
-
-                        if (importerFactory is GPSLogImporter.GPSLogImporterFactory)
-                        {
-                            GlobalAccess.Project.ClockErrorModels.Add(stream as IClockErrorModel);
-                        }
                     }
 
                 }
                 catch (Exception ex)
                 {
                     error = true;
-                    dlgProgress.Worker.Write("Cannot import the file. The problem: " + ex, "Cannot import", null, Core.ConsoleMessageType.Error);
+                    dlgProgress.Worker.WriteMessage("Cannot import the file. The problem: " + ex, "Cannot import", null, Core.AlgorithmMessageType.Error);
                 }
             });
+
+            dlgProgress.Worker.RunWorkerCompleted += delegate (object sender2, RunWorkerCompletedEventArgs e2) {
+
+                GlobalAccess.RefreshMainForm();
+
+                if ((e2.Cancelled == false) && (e2.Error == null) && (error == false))
+                {
+                    
+                    GlobalAccess.WriteConsole("File is imported: " + path, "File is imported!");
+
+                    // Show the DataStream Properties dialog
+                    if ((!(importerFactory is PointsImporter.PointsImporterFactory)) && (error == false) && (stream != null))
+                    {
+                        PropertiesDlg dlg = new PropertiesDlg(stream);
+                        dlg.Location = this.Location;
+                        dlg.ShowDialog();
+                    }
+                }
+                else
+                {
+                    GlobalAccess.WriteConsole("File cannot be imported!");
+                }
+            };
             dlgProgress.ShowDialog();
-
-            GlobalAccess.RefreshMainForm();
-            GlobalAccess.WriteConsole("File is imported: " + path, "File is imported!");
-
-            // Show the DataStream Properties dialog
-            if ((!(importerFactory is PointsImporter.PointsImporterFactory)) && (error == false) && (stream != null))
-            {
-                PropertiesDlg dlg = new PropertiesDlg(stream);
-                dlg.Location = this.Location;
-                dlg.ShowDialog();
-            }
 
             this.Close();
 

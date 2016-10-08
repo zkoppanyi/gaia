@@ -39,22 +39,22 @@ namespace Gaia.GUI.DataAcquisition
             public String Name { get { return "Collect WiFi fingerprinting data."; } }
             public String Description { get { return "Collect WiFi fingerprinting data."; } }
 
-            public Fingerprinting Create(Project project, IMessanger messanger, WifiFingerptiningDataStream outputDataStream)
+            public Fingerprinting Create(Project project, WifiFingerptiningDataStream outputDataStream)
             {
-                Fingerprinting algorithm = new Fingerprinting(project, messanger, Name, Description);
+                Fingerprinting algorithm = new Fingerprinting(project, Name, Description);
                 algorithm.OutputDataStream = outputDataStream;
                 return algorithm;
             }
         }
 
-        private Fingerprinting(Project project, IMessanger messanger, String name, String description) : base(project, messanger, name, description)
+        private Fingerprinting(Project project, String name, String description) : base(project, name, description)
         {
             this.SampleNumber = 10;
             this.WaitingTime = 0.5;
             this.IsContinous = false;
         }
 
-        public override AlgorithmResult Run()
+        protected override AlgorithmResult run()
         {
 
             try

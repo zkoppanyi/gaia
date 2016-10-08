@@ -12,22 +12,34 @@ namespace Gaia.Core
         public String Message { get; set; }
         public String Status { get; set; }
         public String MessageGroupStr { get; set; }
-        public ConsoleMessageType  Type { get; set; }
+        public AlgorithmMessageType  Type { get; set; }
     }
     
-    public sealed class WorkerMessanger : BackgroundWorker, IMessanger
+    public sealed class AlgorithmWorker : BackgroundWorker
     {
-        public bool IsCanceled()
+
+       /// <summary>
+        /// Add Algorithm object's event to this worker
+        /// </summary>
+        /// <param name="algorithm">Algorithm object</param>
+        public void SubscirbeAlgorithm(Algorithm algorithm)
         {
-            return this.CancellationPending;
+            algorithm.SetWorker(this);
+            algorithm.MessageReport += Algorithm_MessageReport;
+            algorithm.ProgressReport += Algorithm_ProgressReport;
         }
 
-        public void Progress(double percentage)
+        private void Algorithm_ProgressReport(object sender, AlgorithmProgressEventArgs e)
         {
-            this.ReportProgress((int)percentage);
+            this.WriteProgress(e.Progress);
         }
 
-        public void Write(string message, string status = null, string messageGroupStr = null, ConsoleMessageType type = ConsoleMessageType.Message)
+        private void Algorithm_MessageReport(object sender, AlgorithmMessageEventArgs e)
+        {
+            this.WriteMessage(e.Message, e.Status, e.MessageGroupStr, e.MessageType);
+        }
+
+        public void WriteMessage(string message, string status = null, string messageGroupStr = null, AlgorithmMessageType type = AlgorithmMessageType.Message)
         {
             ReportArgs args = new ReportArgs();
             args.Message = message;
@@ -37,9 +49,12 @@ namespace Gaia.Core
 
             this.ReportProgress(-1, args);
         }
-        
-       
 
-        
+        public void WriteProgress(double percentage)
+        {
+            this.ReportProgress((int)percentage);
+        }
+
+
     }
 }

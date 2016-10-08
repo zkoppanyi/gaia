@@ -28,8 +28,12 @@
         /// </summary>
         private void InitializeComponent()
         {
+            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(FigureSeriesSelectorDlg));
             this.tabControlFieldSelector = new System.Windows.Forms.TabControl();
             this.tabPageFieldSelector = new System.Windows.Forms.TabPage();
+            this.groupBox3 = new System.Windows.Forms.GroupBox();
+            this.label6 = new System.Windows.Forms.Label();
+            this.comboBoxFigures = new System.Windows.Forms.ComboBox();
             this.groupBox2 = new System.Windows.Forms.GroupBox();
             this.comboBoxYSeriesField = new System.Windows.Forms.ComboBox();
             this.comboBoxYSeriesDataStream = new System.Windows.Forms.ComboBox();
@@ -43,21 +47,20 @@
             this.tabPage2 = new System.Windows.Forms.TabPage();
             this.btnCancel = new System.Windows.Forms.Button();
             this.btnAdd = new System.Windows.Forms.Button();
-            this.groupBox3 = new System.Windows.Forms.GroupBox();
-            this.label6 = new System.Windows.Forms.Label();
-            this.comboBoxFigures = new System.Windows.Forms.ComboBox();
             this.tabControlFieldSelector.SuspendLayout();
             this.tabPageFieldSelector.SuspendLayout();
+            this.groupBox3.SuspendLayout();
             this.groupBox2.SuspendLayout();
             this.groupBox1.SuspendLayout();
-            this.groupBox3.SuspendLayout();
             this.SuspendLayout();
             // 
             // tabControlFieldSelector
             // 
+            this.tabControlFieldSelector.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
             this.tabControlFieldSelector.Controls.Add(this.tabPageFieldSelector);
             this.tabControlFieldSelector.Controls.Add(this.tabPage2);
-            this.tabControlFieldSelector.Dock = System.Windows.Forms.DockStyle.Top;
             this.tabControlFieldSelector.Location = new System.Drawing.Point(0, 0);
             this.tabControlFieldSelector.Name = "tabControlFieldSelector";
             this.tabControlFieldSelector.SelectedIndex = 0;
@@ -76,6 +79,39 @@
             this.tabPageFieldSelector.TabIndex = 0;
             this.tabPageFieldSelector.Text = "Field Selector";
             this.tabPageFieldSelector.UseVisualStyleBackColor = true;
+            // 
+            // groupBox3
+            // 
+            this.groupBox3.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.groupBox3.Controls.Add(this.label6);
+            this.groupBox3.Controls.Add(this.comboBoxFigures);
+            this.groupBox3.Location = new System.Drawing.Point(8, 6);
+            this.groupBox3.Name = "groupBox3";
+            this.groupBox3.Size = new System.Drawing.Size(382, 59);
+            this.groupBox3.TabIndex = 2;
+            this.groupBox3.TabStop = false;
+            this.groupBox3.Text = "Figure";
+            // 
+            // label6
+            // 
+            this.label6.AutoSize = true;
+            this.label6.Location = new System.Drawing.Point(6, 22);
+            this.label6.Name = "label6";
+            this.label6.Size = new System.Drawing.Size(36, 13);
+            this.label6.TabIndex = 1;
+            this.label6.Text = "Figure";
+            // 
+            // comboBoxFigures
+            // 
+            this.comboBoxFigures.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.comboBoxFigures.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+            this.comboBoxFigures.FormattingEnabled = true;
+            this.comboBoxFigures.Location = new System.Drawing.Point(84, 19);
+            this.comboBoxFigures.Name = "comboBoxFigures";
+            this.comboBoxFigures.Size = new System.Drawing.Size(282, 21);
+            this.comboBoxFigures.TabIndex = 0;
             // 
             // groupBox2
             // 
@@ -198,13 +234,14 @@
             this.tabPage2.Location = new System.Drawing.Point(4, 22);
             this.tabPage2.Name = "tabPage2";
             this.tabPage2.Padding = new System.Windows.Forms.Padding(3);
-            this.tabPage2.Size = new System.Drawing.Size(396, 214);
+            this.tabPage2.Size = new System.Drawing.Size(396, 262);
             this.tabPage2.TabIndex = 1;
             this.tabPage2.Text = "Query";
             this.tabPage2.UseVisualStyleBackColor = true;
             // 
             // btnCancel
             // 
+            this.btnCancel.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
             this.btnCancel.DialogResult = System.Windows.Forms.DialogResult.Cancel;
             this.btnCancel.Image = global::Gaia.Properties.Resources.cancel_button;
             this.btnCancel.Location = new System.Drawing.Point(209, 290);
@@ -218,6 +255,7 @@
             // 
             // btnAdd
             // 
+            this.btnAdd.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
             this.btnAdd.Enabled = false;
             this.btnAdd.Image = global::Gaia.Properties.Resources.import_button;
             this.btnAdd.ImageAlign = System.Drawing.ContentAlignment.MiddleLeft;
@@ -230,39 +268,6 @@
             this.btnAdd.UseVisualStyleBackColor = true;
             this.btnAdd.Click += new System.EventHandler(this.btnAdd_Click);
             // 
-            // groupBox3
-            // 
-            this.groupBox3.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
-            this.groupBox3.Controls.Add(this.label6);
-            this.groupBox3.Controls.Add(this.comboBoxFigures);
-            this.groupBox3.Location = new System.Drawing.Point(8, 6);
-            this.groupBox3.Name = "groupBox3";
-            this.groupBox3.Size = new System.Drawing.Size(382, 59);
-            this.groupBox3.TabIndex = 2;
-            this.groupBox3.TabStop = false;
-            this.groupBox3.Text = "Figure";
-            // 
-            // label6
-            // 
-            this.label6.AutoSize = true;
-            this.label6.Location = new System.Drawing.Point(6, 22);
-            this.label6.Name = "label6";
-            this.label6.Size = new System.Drawing.Size(36, 13);
-            this.label6.TabIndex = 1;
-            this.label6.Text = "Figure";
-            // 
-            // comboBoxFigures
-            // 
-            this.comboBoxFigures.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
-            this.comboBoxFigures.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
-            this.comboBoxFigures.FormattingEnabled = true;
-            this.comboBoxFigures.Location = new System.Drawing.Point(84, 19);
-            this.comboBoxFigures.Name = "comboBoxFigures";
-            this.comboBoxFigures.Size = new System.Drawing.Size(282, 21);
-            this.comboBoxFigures.TabIndex = 0;
-            // 
             // FigureSeriesSelectorDlg
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -273,17 +278,18 @@
             this.Controls.Add(this.btnAdd);
             this.Controls.Add(this.tabControlFieldSelector);
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedSingle;
+            this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
             this.Name = "FigureSeriesSelectorDlg";
             this.Text = "Add Series to Figure...";
             this.Load += new System.EventHandler(this.FigureSeriresSelectorDlg_Load);
             this.tabControlFieldSelector.ResumeLayout(false);
             this.tabPageFieldSelector.ResumeLayout(false);
+            this.groupBox3.ResumeLayout(false);
+            this.groupBox3.PerformLayout();
             this.groupBox2.ResumeLayout(false);
             this.groupBox2.PerformLayout();
             this.groupBox1.ResumeLayout(false);
             this.groupBox1.PerformLayout();
-            this.groupBox3.ResumeLayout(false);
-            this.groupBox3.PerformLayout();
             this.ResumeLayout(false);
 
         }

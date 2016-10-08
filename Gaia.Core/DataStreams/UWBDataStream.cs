@@ -37,6 +37,17 @@ namespace Gaia.Core.DataStreams
             return new UWBDataLine();
         }
 
+        public override void SettingsCopyTo(DataStream copyDataStream)
+        {
+            base.SettingsCopyTo(copyDataStream);
+
+            if (copyDataStream is UWBDataStream)
+            {
+                UWBDataStream uwbCopyDataStream = copyDataStream as UWBDataStream;
+                uwbCopyDataStream.StationPointID = this.StationPointID;
+            }
+        }
+
         public override void AddDataLine(DataLine dataLine)
         {
             base.AddDataLine(dataLine);

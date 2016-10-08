@@ -41,6 +41,7 @@ namespace Gaia.Core.DataStreams
             return new GPSLogDataLine();
         }
         
+        [Obsolete]
         public void CorrectTimestamp(DataStream dataStream)
         {
             double f = 2.628413233862434e+06; //Hz

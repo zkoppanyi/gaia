@@ -63,7 +63,7 @@ namespace Gaia.GUI.Dialogs
         {
             String expr = txtExpression.Text;
             txtTestResult.Text = "";
-            EvaluateProcessing proc = EvaluateProcessing.Factory.Create(GlobalAccess.Project, this, this.dataStream, expr);
+            EvaluateProcessing proc = EvaluateProcessing.Factory.Create(GlobalAccess.Project, this.dataStream, expr);
             proc.ProcessingLineNum = 10;
             proc.Run();
         }
@@ -90,12 +90,8 @@ namespace Gaia.GUI.Dialogs
 
         private void btnApply_Click(object sender, EventArgs e)
         {
-            ProgressBarDlg dlgProgress = new ProgressBarDlg();
-            EvaluateProcessing proc = EvaluateProcessing.Factory.Create(GlobalAccess.Project, dlgProgress.Worker, this.dataStream, txtExpression.Text);
-            dlgProgress.Worker.DoWork += new DoWorkEventHandler(delegate (object sender1, DoWorkEventArgs e1)
-            {
-                proc.Run();
-            });
+            EvaluateProcessing algo = EvaluateProcessing.Factory.Create(GlobalAccess.Project, this.dataStream, txtExpression.Text);
+            ProgressBarDlg dlgProgress = new ProgressBarDlg(algo);
             dlgProgress.ShowDialog();
         }
 

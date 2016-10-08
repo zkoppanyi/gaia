@@ -64,9 +64,9 @@ namespace Gaia.Core.Import
                 return DataStreamType.UWBDataStream;
             }
 
-            Importer ImporterFactory.Create(string filePath, DataStream dataStream, Project project, IMessanger messanger)
+            Importer ImporterFactory.Create(string filePath, DataStream dataStream, Project project)
             {
-                UWBStandardImporter importer = new UWBStandardImporter(project, messanger, Name, Description, filePath, dataStream);
+                UWBStandardImporter importer = new UWBStandardImporter(project, Name, Description, filePath, dataStream);
                 return importer;
             }
         }
@@ -76,7 +76,7 @@ namespace Gaia.Core.Import
             return "TXT files (*.txt)|*.txt|CSV files (*.csv)|*.csv|All files (*.*)|*.*";
         }
 
-        protected UWBStandardImporter(Project project, IMessanger messanger, String name, String description, String filePath, DataStream dataStream) : base(project, messanger, name, description)
+        protected UWBStandardImporter(Project project, String name, String description, String filePath, DataStream dataStream) : base(project, name, description)
         {
             ColumnTimeStampNum = 27;
             ColumnTargetNum = 7;
@@ -89,7 +89,7 @@ namespace Gaia.Core.Import
         }
 
 
-        public override AlgorithmResult Run()
+        protected override AlgorithmResult run()
         {
             if (project == null)
             {
@@ -102,8 +102,8 @@ namespace Gaia.Core.Import
 
                 var sourceStream = new FileStream(filePath, FileMode.Open, FileAccess.Read);
 
-                messanger.Write("Import stream is opened: " + filePath);
-                messanger.Write("Importing...");
+                WriteMessage("Import stream is opened: " + filePath);
+                WriteMessage("Importing...");
 
                 using (StreamReader reader = new StreamReader(sourceStream, Encoding.UTF8))
                 {
@@ -114,7 +114,7 @@ namespace Gaia.Core.Import
                         {
                             dataStream.Close();
                             reader.Close();
-                            WriteMessage("Importing canceled!", null, null, ConsoleMessageType.Warning);
+                            WriteMessage("Importing canceled!", null, null, AlgorithmMessageType.Warning);
                             return AlgorithmResult.Partial;
                         }
 
@@ -133,10 +133,7 @@ namespace Gaia.Core.Import
 
                         lineNum++;
 
-                        if (messanger != null)
-                        {
-                            messanger.Progress((int)((double)reader.BaseStream.Position / ((double)reader.BaseStream.Length) * 100));
-                        }
+                        WriteProgress((int)((double)reader.BaseStream.Position / ((double)reader.BaseStream.Length) * 100));
                     }
                 }
                 dataStream.Close();
@@ -154,7 +151,7 @@ namespace Gaia.Core.Import
             }
             catch (Exception ex)
             {
-                WriteMessage("Importer error: " + ex.Message, null, null, ConsoleMessageType.Error);
+                WriteMessage("Importer error: " + ex.Message, null, null, AlgorithmMessageType.Error);
                 return AlgorithmResult.Failure;
             }
 

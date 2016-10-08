@@ -84,14 +84,14 @@ namespace Gaia.Core.Import
                 return DataStreamType.CoordinateDataStream;
             }
 
-            public Importer Create(string filePath, DataStream dataStream, Project project, IMessanger messanger=null)
+            public Importer Create(string filePath, DataStream dataStream, Project project)
             {
-                CoordinatesImporter importer = new CoordinatesImporter(project, messanger, Name, Description, filePath, dataStream);
+                CoordinatesImporter importer = new CoordinatesImporter(project, Name, Description, filePath, dataStream);
                 return importer;
             }
         }
 
-        private CoordinatesImporter(Project project, IMessanger messanger, String name, String description, String filePath, DataStream dataStream) : base(project, messanger, name, description)
+        private CoordinatesImporter(Project project, String name, String description, String filePath, DataStream dataStream) : base(project, name, description)
         {
             this.HeaderRowNo = 0;
             this.ColumnTimeStamp = 0;
@@ -103,9 +103,9 @@ namespace Gaia.Core.Import
             this.filePath = filePath;
             this.dataStream = dataStream;
         }
-      
 
-        public override AlgorithmResult Run()
+
+        protected override AlgorithmResult run()
         {
             if (project == null)
             {
@@ -114,12 +114,12 @@ namespace Gaia.Core.Import
 
             try
             {                
-                dataStream.Open(this.messanger);
+                dataStream.Open();
 
                 var sourceStream = new FileStream(filePath, FileMode.Open, FileAccess.Read);
 
-                messanger.Write("Import stream is opened: " + filePath);
-                messanger.Write("Importing...");
+                WriteMessage("Import stream is opened: " + filePath);
+                WriteMessage("Importing...");
 
                 int numLine = 0;
                 using (StreamReader reader = new StreamReader(sourceStream, Encoding.UTF8))
@@ -155,10 +155,7 @@ namespace Gaia.Core.Import
 
                         numLine++;
 
-                        if (messanger != null)
-                        {
-                            messanger.Progress((int)((double)reader.BaseStream.Position / ((double)reader.BaseStream.Length) * 100));
-                        }
+                        WriteProgress((int)((double)reader.BaseStream.Position / ((double)reader.BaseStream.Length) * 100));
                     }
                 }
                 dataStream.Close();
@@ -176,7 +173,7 @@ namespace Gaia.Core.Import
             }
             catch (Exception ex)
             {
-                WriteMessage("Importer error: " + ex.Message, null, null, ConsoleMessageType.Error);
+                WriteMessage("Importer error: " + ex.Message, null, null, AlgorithmMessageType.Error);
                 return AlgorithmResult.Failure;
             }
         }

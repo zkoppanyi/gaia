@@ -34,27 +34,27 @@ namespace Gaia.Core.Processing
             public String Name { get { return "Coordinate Transformer"; } }
             public String Description { get { return "Transformer the coordinates of point list."; } }
 
-            public CoordinateTransformerForPoints Create(Project project, IMessanger messanger, IEnumerable<GPoint> points, CRS crs)
+            public CoordinateTransformerForPoints Create(Project project, IEnumerable<GPoint> points, CRS crs)
             {
-                CoordinateTransformerForPoints algorithm = new CoordinateTransformerForPoints(project, messanger, Name, Description);
+                CoordinateTransformerForPoints algorithm = new CoordinateTransformerForPoints(project, Name, Description);
                 algorithm.Points = points;
                 algorithm.CRS = crs;
                 return algorithm;
             }
         }
 
-        private CoordinateTransformerForPoints(Project project, IMessanger messanger, String name, String description) : base(project, messanger, name, description)
+        private CoordinateTransformerForPoints(Project project, String name, String description) : base(project, name, description)
         {
             Points = new List<GPoint>();
         }
-        
+
 
         /// <summary>
         /// Transform a GPoint set to another coordinate system.
         /// The algorithm overwrites the actual GPoint coordinates
         /// </summary>
         /// <returns></returns>
-        public override AlgorithmResult Run()
+        protected override AlgorithmResult run()
         {
             if ((Points == null) || (Points.Count<GPoint>() == 0))
             {

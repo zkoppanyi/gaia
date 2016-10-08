@@ -43,14 +43,14 @@ namespace Gaia.Core.Import
             }
 
 
-            public Importer Create(string filePath, DataStream dataStream, Project project, IMessanger messanger = null)
+            public Importer Create(string filePath, DataStream dataStream, Project project)
             {
-                GPSLogImporter importer = new GPSLogImporter(project, messanger, Name, Description, filePath, dataStream);
+                GPSLogImporter importer = new GPSLogImporter(project, Name, Description, filePath, dataStream);
                 return importer;
             }
         }
 
-        private GPSLogImporter(Project project, IMessanger messanger, String name, String description, String filePath, DataStream dataStream) : base(project, messanger, name, description)
+        private GPSLogImporter(Project project, String name, String description, String filePath, DataStream dataStream) : base(project, name, description)
         {
             HPCStepError = (long)1e11;
             this.Name = name;
@@ -65,7 +65,7 @@ namespace Gaia.Core.Import
             return "TXT files (*.txt)|*.txt|All files (*.*)|*.*";
         }
 
-        public override AlgorithmResult Run()
+        protected override AlgorithmResult run()
         {
             if (project == null)
             {
@@ -74,12 +74,12 @@ namespace Gaia.Core.Import
 
             try
             {
-                dataStream.Open(this.messanger);
+                dataStream.Open();
 
                 var sourceStream = new FileStream(filePath, FileMode.Open, FileAccess.Read);
 
-                messanger.Write("External GPSLog stream is opened: " + filePath);
-                messanger.Write("Importing...");
+                WriteMessage("External GPSLog stream is opened: " + filePath);
+                WriteMessage("Importing...");
 
                 long prevHpc = 0;
                 using (BinaryReader reader = new BinaryReader(sourceStream, Encoding.ASCII))
@@ -91,7 +91,7 @@ namespace Gaia.Core.Import
                         {
                             dataStream.Close();
                             reader.Close();
-                            WriteMessage("Importing canceled!", null, null, ConsoleMessageType.Warning);
+                            WriteMessage("Importing canceled!", null, null, AlgorithmMessageType.Warning);
                             return AlgorithmResult.Partial;
                         }
 
@@ -111,14 +111,14 @@ namespace Gaia.Core.Import
                             }
                             catch
                             {
-                                messanger.Write("Cannot read HPC in line" + lineNum);
+                                WriteMessage("Cannot read HPC in line" + lineNum);
                                 break;
                             }
                         }
 
                         if ((prevHpc != 0) && (Math.Abs(prevHpc - hpc) > HPCStepError))
                         {
-                            messanger.Write("HPC is likely to be wrong: " + hpc + " Skip!");
+                            WriteMessage("HPC is likely to be wrong: " + hpc + " Skip!");
                             prevHpc = hpc;
                             reader.ReadChar();
                             continue;
@@ -139,15 +139,12 @@ namespace Gaia.Core.Import
                         }
                         catch
                         {
-                            messanger.Write("Cannot parse NMEA message in line" + lineNum + " NMEA: " + nmea.ToString());
+                            WriteMessage("Cannot parse NMEA message in line" + lineNum + " NMEA: " + nmea.ToString());
                         }
 
                         lineNum++;
 
-                        if (messanger != null)
-                        {
-                            messanger.Progress((int)((double)reader.BaseStream.Position / ((double)reader.BaseStream.Length) * 100));
-                        }
+                        WriteProgress((int)((double)reader.BaseStream.Position / ((double)reader.BaseStream.Length) * 100));
 
                         if (reader.BaseStream.Position == reader.BaseStream.Length) break;
                         reader.ReadChar();
@@ -168,7 +165,7 @@ namespace Gaia.Core.Import
             }
             catch (Exception ex)
             {
-                WriteMessage("Importer error: " + ex.Message, null, null, ConsoleMessageType.Error);
+                WriteMessage("Importer error: " + ex.Message, null, null, AlgorithmMessageType.Error);
                 return AlgorithmResult.Failure;
             }
         }

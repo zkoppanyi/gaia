@@ -1,36 +1,46 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.ComponentModel;
-using System.Data;
-using System.Drawing;
-using System.Linq;
-using System.Text;
-using System.Threading;
-using System.Threading.Tasks;
 using System.Windows.Forms;
 
 using Gaia.Core;
+using static Gaia.Core.Import.Importer;
 
 namespace Gaia.GUI.Dialogs
 {
     public partial class ProgressBarDlg : Form
     {
-        public WorkerMessanger Worker;
+        private AlgorithmWorker worker;
+        public AlgorithmWorker Worker { get { return worker; } }
+        private Algorithm algorithm;
 
         public ProgressBarDlg()
         {
             InitializeComponent();
-            Worker = new WorkerMessanger();
+            worker = new AlgorithmWorker();
+        }
+
+        public ProgressBarDlg(Algorithm algorithm) : this()
+        {            
+            this.algorithm = algorithm;
+            algorithm.SetWorker(worker);
         }
 
         private void ProgressBarDlg_Load(object sender, EventArgs e)
         {
-            Worker.WorkerReportsProgress = true;
-            Worker.WorkerSupportsCancellation = true;
-            Worker.ProgressChanged += new ProgressChangedEventHandler(bw_ProgressChanged);
-            Worker.RunWorkerCompleted += new RunWorkerCompletedEventHandler(bw_RunWorkerCompleted);
+            worker.WorkerReportsProgress = true;
+            worker.WorkerSupportsCancellation = true;
+            worker.ProgressChanged += new ProgressChangedEventHandler(bw_ProgressChanged);
+            worker.RunWorkerCompleted += new RunWorkerCompletedEventHandler(bw_RunWorkerCompleted);
 
-            Worker.RunWorkerAsync();
+            if (algorithm != null)
+            {
+                this.worker.SubscirbeAlgorithm(algorithm);
+                this.worker.DoWork += new DoWorkEventHandler(delegate (object sender1, DoWorkEventArgs e1)
+                {
+                    AlgorithmResult result = algorithm.Run();
+                });
+            }
+            worker.RunWorkerAsync();
         }        
 
 
@@ -75,17 +85,22 @@ namespace Gaia.GUI.Dialogs
 
         private void button1_Click(object sender, EventArgs e)
         {
-            if (Worker.WorkerSupportsCancellation == true)
-            {
-                Worker.CancelAsync();
-            }
-
-            this.Close();
+           
         }
 
         private void txtMessage_TextChanged(object sender, EventArgs e)
         {
 
+        }
+
+        private void ProgressBarDlg_FormClosing(object sender, FormClosingEventArgs e)
+        {
+            if (worker.WorkerSupportsCancellation == true)
+            {
+                worker.CancelAsync();
+            }
+
+            this.Close();
         }
     }
 }

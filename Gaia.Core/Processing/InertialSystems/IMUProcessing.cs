@@ -39,9 +39,9 @@ namespace Gaia.Core.Processing
                 TimeMatchingDifference = 1;
             }
 
-            public IMUProcessing Create(Project project, IMessanger messanger, IMUDataStream sourceDataStream, CoordinateAttitudeDataStream outputDataStream)
+            public IMUProcessing Create(Project project, IMUDataStream sourceDataStream, CoordinateAttitudeDataStream outputDataStream)
             {
-                IMUProcessing algorithm = new IMUProcessing(project, messanger, Name, Description);
+                IMUProcessing algorithm = new IMUProcessing(project, Name, Description);
                 algorithm.SourceDataStream = sourceDataStream;
                 algorithm._outputDataStream = outputDataStream;
                 algorithm._timeMatchingDifference = TimeMatchingDifference;
@@ -49,15 +49,15 @@ namespace Gaia.Core.Processing
             }
         }
 
-        private IMUProcessing(Project project, IMessanger messanger, String name, String description) : base(project, messanger, name, description)
+        private IMUProcessing(Project project, String name, String description) : base(project,name, description)
         {
         }
-       
+
         /// <summary>
         /// Calculate positions, velocities and attitudes. 
         /// </summary>
         /// <returns>Result object</returns>
-        public override AlgorithmResult Run()
+        protected override AlgorithmResult run()
         {
             if (SourceDataStream == null)
             {

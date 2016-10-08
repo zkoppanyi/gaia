@@ -42,9 +42,6 @@ namespace Gaia.GUI.Dialogs
             cmbTRS.DataSource = GlobalAccess.Project.TimeFrames;
             cmbTRS.DisplayMember = "Name";
             cmbTRS.SelectedItem = dataStream.TRS;
-
-            cmbClockErrorModel.DataSource = GlobalAccess.Project.ClockErrorModels;
-            cmbClockErrorModel.DisplayMember = "Name";
         }
 
         private void btnCancel_Click(object sender, EventArgs e)
@@ -64,7 +61,10 @@ namespace Gaia.GUI.Dialogs
         private void cmbTRS_SelectedIndexChanged(object sender, EventArgs e)
         {
             TRS trs = (TRS)cmbTRS.SelectedItem;
-            lblTRSDescription.Text = "Description: " + trs.Description;
+            if (trs != null)
+            {
+                lblTRSDescription.Text = "Description: " + trs.Description;
+            }
         }
 
         private void btnImport_Click(object sender, EventArgs e)
@@ -79,21 +79,21 @@ namespace Gaia.GUI.Dialogs
 
                     try
                     {
-                        ProgressBarDlg dlgProgress = new ProgressBarDlg();
-                        dlgProgress.Worker.DoWork += new DoWorkEventHandler(delegate (object sender1, DoWorkEventArgs e1)
+                        if (points != null)
                         {
-                            if (points != null)
-                            {
-                                CoordinateTransformerForPoints transformer = CoordinateTransformerForPoints.Factory.Create(GlobalAccess.Project, dlgProgress.Worker, points, toCRS);
-                                transformer.Run();
-                            }
-                            else if (dataStream != null)
-                            {
-                                CoordinateTransformerForDataStreams transformer = CoordinateTransformerForDataStreams.Factory.Create(GlobalAccess.Project, dlgProgress.Worker, dataStream, toCRS);
-                                transformer.Run();
-                            }
-                        });
-                        dlgProgress.ShowDialog();
+                            CoordinateTransformerForPoints transformer = CoordinateTransformerForPoints.Factory.Create(GlobalAccess.Project, points, toCRS);
+                            ProgressBarDlg dlgProgress = new ProgressBarDlg(transformer);
+                            dlgProgress.ShowDialog();
+                        }
+                        else if (dataStream != null)
+                        {
+
+                            CoordinateDataStream output = GlobalAccess.Project.DataStreamManager.CreateDataStream(DataStreamType.CoordinateDataStream) as CoordinateDataStream;
+                            CoordinateTransformerForDataStreams transformer = CoordinateTransformerForDataStreams.Factory.Create(GlobalAccess.Project, dataStream, output, toCRS);
+                            ProgressBarDlg dlgProgress = new ProgressBarDlg(transformer);
+                            dlgProgress.ShowDialog();
+                        }
+                        
 
                         GlobalAccess.WriteConsole("Points are transformed!");
                         this.Close();
@@ -112,55 +112,12 @@ namespace Gaia.GUI.Dialogs
             {
                 new NotImplementedException();
             }
-
-            if(chkClockErrorModel.Checked)
-            {
-                IClockErrorModel model = cmbClockErrorModel.SelectedItem as IClockErrorModel;
-                correctTimingWithClockErrorModel();
-            }
         }
 
-
-        private void correctTimingWithClockErrorModel()
-        {
-                GPSLogDataStream gpsLog = null;
-                foreach (DataStream ds in GlobalAccess.Project.DataStreams)
-                {
-                    if (ds is GPSLogDataStream)
-                    {
-                        gpsLog = ds as GPSLogDataStream;
-                        break;
-                    }
-                }
-
-                if (gpsLog == null) return;
-                gpsLog.Model = GPSLogClockErrorModel.Interpolation;
-                //gpsLog.Model = GPSLogClockErrorModel.Linear;
-                GlobalAccess.WriteConsole("Runnning time correction is based on: " + gpsLog.Name);
-
-                // Open Progressbar dialog
-                ProgressBarDlg dlgProgress = new ProgressBarDlg();
-                gpsLog.Open(dlgProgress.Worker);
-                dlgProgress.Worker.DoWork += new DoWorkEventHandler(delegate (object sender1, DoWorkEventArgs e1) {
-                    gpsLog.CorrectTimestamp(dataStream);
-                });
-                dlgProgress.ShowDialog();
-                gpsLog.Close();
-
-
-                GlobalAccess.WriteConsole("Time correction is done!", "Time correction is done!");
-        }
 
         private void checkBox1_CheckedChanged(object sender, EventArgs e)
         {
-            if (chkClockErrorModel.Checked)
-            {
-                cmbClockErrorModel.Enabled = true;
-            }
-            else
-            {
-                cmbClockErrorModel.Enabled = false;
-            }
+
         }
     }
 }

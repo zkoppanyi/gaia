@@ -91,6 +91,26 @@ namespace Gaia.Core.DataStreams
 
         }
 
+        public override void SettingsCopyTo(DataStream copyDataStream)
+        {
+            base.SettingsCopyTo(copyDataStream);
+
+            if (copyDataStream is IMUDataStream)
+            {
+                IMUDataStream imuCopyDataStream = copyDataStream as IMUDataStream;
+                imuCopyDataStream.InitialHeading = this.InitialHeading;
+                imuCopyDataStream.InitialPitch = this.InitialPitch;
+                imuCopyDataStream.InitialRoll = this.InitialRoll;
+                imuCopyDataStream.InitialVn = this.InitialVn;
+                imuCopyDataStream.InitialVd = this.InitialVd;
+                imuCopyDataStream.InitialVe  = this.InitialVe;
+                imuCopyDataStream.InitialX = this.InitialX;
+                imuCopyDataStream.InitialY = this.InitialY;
+                imuCopyDataStream.InitialZ = this.InitialZ;
+
+            }
+        }
+
         internal static DataStream Create(Project project, string fileId)
         {
             DataStream stream = new IMUDataStream(project, fileId);

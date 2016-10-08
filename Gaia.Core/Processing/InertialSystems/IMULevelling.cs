@@ -31,9 +31,9 @@ namespace Gaia.Core.Processing.InertialSystems
                 InitilaizationTime = 60;
             }
 
-            public IMULevelling Create(Project project, IMessanger messanger, IMUDataStream sourceDataStream)
+            public IMULevelling Create(Project project, IMUDataStream sourceDataStream)
             {
-                IMULevelling algorithm = new IMULevelling(project, messanger, this.Name, this.Description);
+                IMULevelling algorithm = new IMULevelling(project, this.Name, this.Description);
                 algorithm.sourceDataStream = sourceDataStream;
                 algorithm._initilaizationTime = InitilaizationTime;
 
@@ -41,7 +41,7 @@ namespace Gaia.Core.Processing.InertialSystems
             }
         }
 
-        private IMULevelling(Project project, IMessanger messanger, String name, String description) : base(project, messanger, name, description)
+        private IMULevelling(Project project, String name, String description) : base(project, name, description)
         {
         }
 
@@ -50,7 +50,7 @@ namespace Gaia.Core.Processing.InertialSystems
         /// Calculate levelling (roll, pitch) parameters for IMU using acceleration data
         /// </summary>
         /// <returns>Result object</returns>
-        public override AlgorithmResult Run()
+        protected override AlgorithmResult run()
         {
             if (sourceDataStream == null)
             {

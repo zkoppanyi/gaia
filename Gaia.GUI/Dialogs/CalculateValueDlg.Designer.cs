@@ -31,6 +31,7 @@
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(CalculateValueDlg));
             this.splitContainer1 = new System.Windows.Forms.SplitContainer();
             this.groupBox1 = new System.Windows.Forms.GroupBox();
+            this.button9 = new System.Windows.Forms.Button();
             this.button8 = new System.Windows.Forms.Button();
             this.button7 = new System.Windows.Forms.Button();
             this.button6 = new System.Windows.Forms.Button();
@@ -48,7 +49,6 @@
             this.txtTestResult = new System.Windows.Forms.TextBox();
             this.btnTest = new System.Windows.Forms.Button();
             this.textBox1 = new System.Windows.Forms.TextBox();
-            this.button9 = new System.Windows.Forms.Button();
             ((System.ComponentModel.ISupportInitialize)(this.splitContainer1)).BeginInit();
             this.splitContainer1.Panel1.SuspendLayout();
             this.splitContainer1.Panel2.SuspendLayout();
@@ -75,8 +75,8 @@
             // 
             this.splitContainer1.Panel2.Controls.Add(this.groupBox2);
             this.splitContainer1.Panel2.Controls.Add(this.textBox1);
-            this.splitContainer1.Size = new System.Drawing.Size(545, 355);
-            this.splitContainer1.SplitterDistance = 210;
+            this.splitContainer1.Size = new System.Drawing.Size(601, 442);
+            this.splitContainer1.SplitterDistance = 212;
             this.splitContainer1.TabIndex = 0;
             // 
             // groupBox1
@@ -94,15 +94,29 @@
             this.groupBox1.Dock = System.Windows.Forms.DockStyle.Fill;
             this.groupBox1.Location = new System.Drawing.Point(0, 0);
             this.groupBox1.Name = "groupBox1";
-            this.groupBox1.Size = new System.Drawing.Size(210, 355);
+            this.groupBox1.Size = new System.Drawing.Size(212, 442);
             this.groupBox1.TabIndex = 0;
             this.groupBox1.TabStop = false;
             this.groupBox1.Text = "Variables";
             // 
+            // button9
+            // 
+            this.button9.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
+            this.button9.ImageAlign = System.Drawing.ContentAlignment.MiddleLeft;
+            this.button9.Location = new System.Drawing.Point(160, 402);
+            this.button9.Name = "button9";
+            this.button9.Size = new System.Drawing.Size(32, 28);
+            this.button9.TabIndex = 13;
+            this.button9.Text = "C";
+            this.button9.TextImageRelation = System.Windows.Forms.TextImageRelation.ImageBeforeText;
+            this.button9.UseVisualStyleBackColor = true;
+            this.button9.Click += new System.EventHandler(this.button9_Click);
+            // 
             // button8
             // 
+            this.button8.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
             this.button8.ImageAlign = System.Drawing.ContentAlignment.MiddleLeft;
-            this.button8.Location = new System.Drawing.Point(3, 324);
+            this.button8.Location = new System.Drawing.Point(8, 402);
             this.button8.Name = "button8";
             this.button8.Size = new System.Drawing.Size(32, 28);
             this.button8.TabIndex = 12;
@@ -113,8 +127,9 @@
             // 
             // button7
             // 
+            this.button7.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
             this.button7.ImageAlign = System.Drawing.ContentAlignment.MiddleLeft;
-            this.button7.Location = new System.Drawing.Point(155, 290);
+            this.button7.Location = new System.Drawing.Point(160, 368);
             this.button7.Name = "button7";
             this.button7.Size = new System.Drawing.Size(32, 28);
             this.button7.TabIndex = 11;
@@ -125,8 +140,9 @@
             // 
             // button6
             // 
+            this.button6.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
             this.button6.ImageAlign = System.Drawing.ContentAlignment.MiddleLeft;
-            this.button6.Location = new System.Drawing.Point(79, 324);
+            this.button6.Location = new System.Drawing.Point(84, 402);
             this.button6.Name = "button6";
             this.button6.Size = new System.Drawing.Size(32, 28);
             this.button6.TabIndex = 10;
@@ -137,8 +153,9 @@
             // 
             // button5
             // 
+            this.button5.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
             this.button5.ImageAlign = System.Drawing.ContentAlignment.MiddleLeft;
-            this.button5.Location = new System.Drawing.Point(117, 290);
+            this.button5.Location = new System.Drawing.Point(122, 368);
             this.button5.Name = "button5";
             this.button5.Size = new System.Drawing.Size(32, 28);
             this.button5.TabIndex = 9;
@@ -149,8 +166,9 @@
             // 
             // button4
             // 
+            this.button4.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
             this.button4.ImageAlign = System.Drawing.ContentAlignment.MiddleLeft;
-            this.button4.Location = new System.Drawing.Point(41, 324);
+            this.button4.Location = new System.Drawing.Point(46, 402);
             this.button4.Name = "button4";
             this.button4.Size = new System.Drawing.Size(32, 28);
             this.button4.TabIndex = 8;
@@ -161,8 +179,9 @@
             // 
             // button3
             // 
+            this.button3.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
             this.button3.ImageAlign = System.Drawing.ContentAlignment.MiddleLeft;
-            this.button3.Location = new System.Drawing.Point(79, 290);
+            this.button3.Location = new System.Drawing.Point(84, 368);
             this.button3.Name = "button3";
             this.button3.Size = new System.Drawing.Size(32, 28);
             this.button3.TabIndex = 7;
@@ -173,8 +192,9 @@
             // 
             // button2
             // 
+            this.button2.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
             this.button2.ImageAlign = System.Drawing.ContentAlignment.MiddleLeft;
-            this.button2.Location = new System.Drawing.Point(41, 290);
+            this.button2.Location = new System.Drawing.Point(46, 368);
             this.button2.Name = "button2";
             this.button2.Size = new System.Drawing.Size(32, 28);
             this.button2.TabIndex = 6;
@@ -185,8 +205,9 @@
             // 
             // button1
             // 
+            this.button1.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
             this.button1.ImageAlign = System.Drawing.ContentAlignment.MiddleLeft;
-            this.button1.Location = new System.Drawing.Point(3, 290);
+            this.button1.Location = new System.Drawing.Point(8, 368);
             this.button1.Name = "button1";
             this.button1.Size = new System.Drawing.Size(32, 28);
             this.button1.TabIndex = 5;
@@ -197,13 +218,15 @@
             // 
             // listBoxProperties
             // 
-            this.listBoxProperties.Dock = System.Windows.Forms.DockStyle.Top;
+            this.listBoxProperties.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
             this.listBoxProperties.Font = new System.Drawing.Font("Courier New", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.listBoxProperties.FormattingEnabled = true;
             this.listBoxProperties.ItemHeight = 15;
             this.listBoxProperties.Location = new System.Drawing.Point(3, 16);
             this.listBoxProperties.Name = "listBoxProperties";
-            this.listBoxProperties.Size = new System.Drawing.Size(204, 259);
+            this.listBoxProperties.Size = new System.Drawing.Size(209, 334);
             this.listBoxProperties.TabIndex = 0;
             this.listBoxProperties.SelectedIndexChanged += new System.EventHandler(this.listBoxProperties_SelectedIndexChanged);
             this.listBoxProperties.DoubleClick += new System.EventHandler(this.listBoxProperties_DoubleClick);
@@ -214,7 +237,7 @@
             this.groupBox2.Dock = System.Windows.Forms.DockStyle.Fill;
             this.groupBox2.Location = new System.Drawing.Point(0, 0);
             this.groupBox2.Name = "groupBox2";
-            this.groupBox2.Size = new System.Drawing.Size(331, 355);
+            this.groupBox2.Size = new System.Drawing.Size(385, 442);
             this.groupBox2.TabIndex = 1;
             this.groupBox2.TabStop = false;
             this.groupBox2.Text = "Expression";
@@ -237,24 +260,28 @@
             this.splitContainer2.Panel2.Controls.Add(this.txtTestResult);
             this.splitContainer2.Panel2.Controls.Add(this.btnTest);
             this.splitContainer2.Panel2.Paint += new System.Windows.Forms.PaintEventHandler(this.splitContainer2_Panel2_Paint);
-            this.splitContainer2.Size = new System.Drawing.Size(325, 336);
-            this.splitContainer2.SplitterDistance = 178;
+            this.splitContainer2.Size = new System.Drawing.Size(379, 423);
+            this.splitContainer2.SplitterDistance = 204;
             this.splitContainer2.TabIndex = 0;
             // 
             // txtExpression
             // 
-            this.txtExpression.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.txtExpression.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
             this.txtExpression.Font = new System.Drawing.Font("Courier New", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.txtExpression.Location = new System.Drawing.Point(0, 0);
             this.txtExpression.Multiline = true;
             this.txtExpression.Name = "txtExpression";
-            this.txtExpression.Size = new System.Drawing.Size(325, 178);
+            this.txtExpression.Size = new System.Drawing.Size(376, 220);
             this.txtExpression.TabIndex = 1;
             // 
             // btnCancel
             // 
+            this.btnCancel.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
+            this.btnCancel.DialogResult = System.Windows.Forms.DialogResult.Cancel;
             this.btnCancel.Image = global::Gaia.Properties.Resources.cancel_button;
-            this.btnCancel.Location = new System.Drawing.Point(109, 99);
+            this.btnCancel.Location = new System.Drawing.Point(161, 164);
             this.btnCancel.Name = "btnCancel";
             this.btnCancel.Size = new System.Drawing.Size(109, 48);
             this.btnCancel.TabIndex = 4;
@@ -265,9 +292,10 @@
             // 
             // btnApply
             // 
+            this.btnApply.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
             this.btnApply.Image = global::Gaia.Properties.Resources.save_pencil_button;
             this.btnApply.ImageAlign = System.Drawing.ContentAlignment.MiddleLeft;
-            this.btnApply.Location = new System.Drawing.Point(220, 99);
+            this.btnApply.Location = new System.Drawing.Point(276, 164);
             this.btnApply.Name = "btnApply";
             this.btnApply.Size = new System.Drawing.Size(100, 48);
             this.btnApply.TabIndex = 3;
@@ -278,19 +306,22 @@
             // 
             // txtTestResult
             // 
-            this.txtTestResult.Dock = System.Windows.Forms.DockStyle.Top;
+            this.txtTestResult.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
             this.txtTestResult.Font = new System.Drawing.Font("Courier New", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.txtTestResult.Location = new System.Drawing.Point(0, 0);
             this.txtTestResult.Multiline = true;
             this.txtTestResult.Name = "txtTestResult";
             this.txtTestResult.ScrollBars = System.Windows.Forms.ScrollBars.Both;
-            this.txtTestResult.Size = new System.Drawing.Size(325, 93);
+            this.txtTestResult.Size = new System.Drawing.Size(376, 158);
             this.txtTestResult.TabIndex = 2;
             // 
             // btnTest
             // 
+            this.btnTest.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
             this.btnTest.Image = global::Gaia.Properties.Resources.info_button;
-            this.btnTest.Location = new System.Drawing.Point(3, 99);
+            this.btnTest.Location = new System.Drawing.Point(55, 164);
             this.btnTest.Name = "btnTest";
             this.btnTest.Size = new System.Drawing.Size(100, 48);
             this.btnTest.TabIndex = 0;
@@ -307,25 +338,13 @@
             this.textBox1.Size = new System.Drawing.Size(100, 20);
             this.textBox1.TabIndex = 0;
             // 
-            // button9
-            // 
-            this.button9.ImageAlign = System.Drawing.ContentAlignment.MiddleLeft;
-            this.button9.Location = new System.Drawing.Point(155, 324);
-            this.button9.Name = "button9";
-            this.button9.Size = new System.Drawing.Size(32, 28);
-            this.button9.TabIndex = 13;
-            this.button9.Text = "C";
-            this.button9.TextImageRelation = System.Windows.Forms.TextImageRelation.ImageBeforeText;
-            this.button9.UseVisualStyleBackColor = true;
-            this.button9.Click += new System.EventHandler(this.button9_Click);
-            // 
             // CalculateValueDlg
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(545, 355);
+            this.CancelButton = this.btnCancel;
+            this.ClientSize = new System.Drawing.Size(601, 442);
             this.Controls.Add(this.splitContainer1);
-            this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedDialog;
             this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
             this.Name = "CalculateValueDlg";
             this.Text = "Calculate";

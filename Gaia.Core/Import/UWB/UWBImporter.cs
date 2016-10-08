@@ -11,7 +11,7 @@ namespace Gaia.Core.Import
     [Serializable]
     public abstract class UWBImporter : Importer
     {
-        protected UWBImporter(Project project, IMessanger messanger, String name, String description) : base(project, messanger, name, description)
+        protected UWBImporter(Project project, String name, String description) : base(project, name, description)
         {
 
         }

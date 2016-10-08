@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 
 namespace Gaia.Core
 {
+    [Obsolete]
     public enum ConsoleMessageType
     {
         Message,
@@ -13,6 +14,7 @@ namespace Gaia.Core
         Error
     }
 
+    [Obsolete]
     public interface IMessanger
     {
         void Write(String message, String status = null, String messageGroupStr = null, ConsoleMessageType type = ConsoleMessageType.Message);
