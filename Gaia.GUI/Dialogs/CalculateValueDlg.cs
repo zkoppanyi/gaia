@@ -15,7 +15,7 @@ using Gaia.Core;
 
 namespace Gaia.GUI.Dialogs
 {
-    public partial class CalculateValueDlg : Form, IMessanger
+    public partial class CalculateValueDlg : Form
     {
         DataStream dataStream = null;
 
@@ -73,7 +73,7 @@ namespace Gaia.GUI.Dialogs
             this.Close();
         }
 
-        public void Write(string message, string status = null, string messageGroupStr = null, ConsoleMessageType type = ConsoleMessageType.Message)
+        public void Write(string message, string status = null, string messageGroupStr = null)
         {
             txtTestResult.Text += message + Environment.NewLine;
         }

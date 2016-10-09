@@ -167,9 +167,9 @@ namespace Gaia.GUI
         }
 
         
-        public void WriteConsole(String str, String status = null, ConsoleMessageType type=ConsoleMessageType.Message)
+        public void WriteConsole(String str, String status = null)
         {
-            console.WriteConsole(str, type);
+            console.WriteConsole(str);
             if (status != null)
             {
                 statusMain.Text = status;

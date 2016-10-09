@@ -13,11 +13,11 @@ namespace Gaia.GUI
 {
     static class GlobalAccess
     {
-        public static IMessanger Console;
+        public static ConsoleMessanger Console;
         public static List<Importer.ImporterFactory> ImporterFactories;
 
         private static MainForm mainFormInst;
-        public static void Init(MainForm mainForm, IMessanger console)
+        public static void Init(MainForm mainForm, ConsoleMessanger console)
         {
             mainFormInst = mainForm;
             Console = console;
@@ -52,9 +52,9 @@ namespace Gaia.GUI
             mainFormInst.RemoveFigureDialog(dlg);
         }
 
-        public static void WriteConsole(String text, String status = null, ConsoleMessageType type = ConsoleMessageType.Message)
+        public static void WriteConsole(String text, String status = null)
         {
-            Console.Write(text, status, null, type);
+            Console.Write(text, status, null);
         }
 
 

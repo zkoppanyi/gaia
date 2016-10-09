@@ -94,7 +94,6 @@
   <ItemGroup>
     <Compile Include="Core\GaiaObject.cs" />
     <Compile Include="Core\GaiaSpatialObject.cs" />
-    <Compile Include="Core\IMessanger.cs" />
     <Compile Include="Core\SRIDDatabase.cs" />
     <Compile Include="Core\WorkerMessanger.cs" />
     <Compile Include="DataStreamManager.cs" />

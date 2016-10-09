@@ -49,8 +49,6 @@ namespace Gaia.Core.DataStreams
 
             if (this.Model == GPSLogClockErrorModel.Interpolation)
             {
-                this.WriteMessage("Model: Interpolation");
-                this.WriteMessage("f: " + f + " Hz");
 
                 if (!this.isTimestampOrdered)
                 {
@@ -112,7 +110,6 @@ namespace Gaia.Core.DataStreams
                         lineStream.TimeStamp = (t2 - t1) / (h2 - h1) * (ts - h1) + t1;
                     }
 
-                    this.WriteProgress((double)fileStream.Position/ (double)fileStream.Length*100.0);
                     dataStream.ReplaceDataLine(lineStream, posStream);
                 }
 
@@ -122,9 +119,6 @@ namespace Gaia.Core.DataStreams
             }
             else if (this.Model == GPSLogClockErrorModel.Linear)
             {
-                this.WriteMessage("Model: Linear");
-                this.WriteMessage("f: " + f + " Hz");
-
                 // Collect GPSLog points into a double[]
                 long lineNum = 0;
                 double[] xdata = new double[this.DataNumber];
@@ -134,7 +128,6 @@ namespace Gaia.Core.DataStreams
                     GPSLogDataLine data = (GPSLogDataLine)this.ReadLine();
                     xdata[lineNum] = data.GPSTime;
                     ydata[lineNum] = (double)data.HPCTime / f;
-                    this.WriteProgress((double)lineNum / (double)this.DataNumber * 100/2);
                     lineNum++;
                 }
 
@@ -146,9 +139,6 @@ namespace Gaia.Core.DataStreams
                 double b = linearRegression.Intercept; // slope
                 double[] prediction = linearRegression.Transform(xdata);
                 double error = new SquareLoss(ydata).Loss(prediction);
-                this.WriteMessage("Calculated Model: ");
-                this.WriteMessage(b + "x + " + a);
-                this.WriteMessage("Error: " + error); // add what is this error
 
                 dataStream.Open();
                 dataStream.Begin();
@@ -161,7 +151,6 @@ namespace Gaia.Core.DataStreams
                     DataLine line = dataStream.ReadLine();
                     line.TimeStamp = line.TimeStamp * b + a;
                     dataStream.ReplaceDataLine(line, pos);
-                    this.WriteProgress(50 + (double)lineNum / (double)dataStream.DataNumber * 100/2);
                     lineNum++;
                 }
 

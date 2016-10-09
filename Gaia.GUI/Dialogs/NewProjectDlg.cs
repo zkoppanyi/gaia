@@ -42,7 +42,7 @@ namespace Gaia.GUI.Dialogs
             {
                 String msg = "The specified location does not exist:  " + path;
                 MessageBox.Show(this, msg, this.Text, MessageBoxButtons.OK, MessageBoxIcon.Error);
-                GlobalAccess.WriteConsole(msg, "Project could not be created!", ConsoleMessageType.Error);
+                GlobalAccess.WriteConsole(msg, "Project could not be created!");
                 return;
             }
 
@@ -55,7 +55,7 @@ namespace Gaia.GUI.Dialogs
                 {
                     String msg = "Project folder cannot be created, because it already exists: " + projectLocationFolder;
                     MessageBox.Show(this, msg, this.Text, MessageBoxButtons.OK, MessageBoxIcon.Error);
-                    GlobalAccess.WriteConsole(msg, "Project could not be created!", ConsoleMessageType.Error);
+                    GlobalAccess.WriteConsole(msg, "Project could not be created!");
 
                     return;
                 }
@@ -79,7 +79,7 @@ namespace Gaia.GUI.Dialogs
             this.DialogResult = DialogResult.OK;
             this.Close();
 
-            GlobalAccess.WriteConsole("Project has been created sucessfully!" + Environment.NewLine + "File location: " + GlobalAccess.Project.Location, "Project has been created!", ConsoleMessageType.Message);
+            GlobalAccess.WriteConsole("Project has been created sucessfully!" + Environment.NewLine + "File location: " + GlobalAccess.Project.Location, "Project has been created!");
 
         }
 

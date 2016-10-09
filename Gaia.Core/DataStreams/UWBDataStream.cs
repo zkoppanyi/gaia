@@ -53,10 +53,7 @@ namespace Gaia.Core.DataStreams
             base.AddDataLine(dataLine);
             UWBDataLine uwbDataLine = dataLine as UWBDataLine;
 
-            if (project.PointManager.AddPoint(uwbDataLine.TargetPoint.ToString()))
-            {
-                WriteMessage("New point has been created: " + uwbDataLine.TargetPoint);
-            }
+            project.PointManager.AddPoint(uwbDataLine.TargetPoint.ToString());
 
         }
 

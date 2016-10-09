@@ -76,9 +76,6 @@ namespace Gaia.Core.DataStreams
         [DisplayName("Ordered timestamp ")]
         public bool IsTimeStampOrdered { get { return isTimestampOrdered; } }
 
-        [NonSerialized]
-        protected IMessanger messanger;
-
         protected abstract String extension { get; }
 
         protected DataStream(Project project, String fileId) : base(project)
@@ -94,15 +91,6 @@ namespace Gaia.Core.DataStreams
             this.isTimestampOrdered = true;
             this.fileStream = null;
             this.fileId = fileId;
-            this.messanger = null;
-        }
-
-        protected void WriteMessage(String message)
-        {
-            if (messanger != null)
-            {
-                messanger.Write(message);
-            }
         }
 
         /// <summary>
@@ -113,14 +101,6 @@ namespace Gaia.Core.DataStreams
         {
             copyDataStream.Name = this.Name;
             copyDataStream.Description = this.Description;
-        }
-
-        protected void WriteProgress(double percent)
-        {
-            if (messanger != null)
-            {
-                messanger.Progress(percent);
-            }
         }
 
         private void checkIsDropped()
@@ -137,7 +117,7 @@ namespace Gaia.Core.DataStreams
             return project.GetDataStreamFolder() + "\\" + fileId + "." + this.extension;
         }
 
-        public void Open(IMessanger messanger = null)
+        public void Open()
         {
             checkIsDropped();
             if (fileStream != null)
@@ -148,7 +128,6 @@ namespace Gaia.Core.DataStreams
             fileStream = File.Open(this.getStreamFile(), FileMode.OpenOrCreate, FileAccess.ReadWrite);
             writer = new BinaryWriter(fileStream);
             reader = new BinaryReader(fileStream);
-            this.messanger = messanger;
         }
 
         public void Close()
@@ -160,7 +139,6 @@ namespace Gaia.Core.DataStreams
                 fileStream = null;
             }
 
-            this.messanger = null;
         }
 
         public bool IsOpen()
@@ -254,8 +232,6 @@ namespace Gaia.Core.DataStreams
                 if (dataLine.TimeStamp < lastTimeStamp)
                 {
                     isTimestampOrdered = false;
-                    this.WriteMessage("TimeStamp is not increasing! Ts: " + dataLine.TimeStamp + " Idx: " + dataLine.Index);
-                    //throw new GaiaException("The timestamps are not increasing in the dataset!");
                 }
             }
 

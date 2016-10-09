@@ -19,7 +19,7 @@ namespace Gaia.GUI.Dialogs
             InitializeComponent();
         }
 
-        public void WriteConsole(String text, ConsoleMessageType type)
+        public void WriteConsole(String text)
         {
             textConsole.Text += text + Environment.NewLine;
         }

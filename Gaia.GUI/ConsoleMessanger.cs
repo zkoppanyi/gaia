@@ -10,7 +10,7 @@ namespace Gaia.GUI
 {
 
     [Serializable]
-    public sealed class ConsoleMessanger : IMessanger
+    public sealed class ConsoleMessanger
     {
         MainForm mainForm;
         public ConsoleMessanger(MainForm mainForm)
@@ -29,7 +29,7 @@ namespace Gaia.GUI
         }
 
 
-        public void Write(string message, string status = null, string messageGroupStr = null, ConsoleMessageType type = ConsoleMessageType.Message)
+        public void Write(string message, string status = null, string messageGroupStr = null)
         {
             mainForm.WriteConsole(message, status);
         }
