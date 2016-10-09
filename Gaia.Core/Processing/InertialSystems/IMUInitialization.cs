@@ -14,59 +14,44 @@ namespace Gaia.Core.Processing
         private IMUDataStream sourceDataStream;
         public IMUDataStream SourceDataStream { get { return sourceDataStream; } }
 
-        private CoordinateDataStream _coordinateDataStream;
-        public CoordinateDataStream CoordinateDataStream { get { return _coordinateDataStream; } }
+        private CoordinateDataStream coordinateDataStream;
+        public CoordinateDataStream CoordinateDataStream { get { return coordinateDataStream; } }
         
-        private double _timeMatchingDifference;
         [System.ComponentModel.DisplayName("Minimum time matching difference [s]")]
-        public double TimeMatchingDifference { get { return _timeMatchingDifference; } }
-        
-        private double _initilaizationTime;
-        [System.ComponentModel.DisplayName("Time for calculating initialization [s]")]
-        public double InitilaizationTime { get { return _initilaizationTime; } }
+        public double TimeMatchingDifference { get; set; }
 
-        private double _detectFirstMovemnetThreshold;
+        [System.ComponentModel.DisplayName("Time for calculating initialization [s]")]
+        public double InitilaizationTime { get; set; }
+
         [System.ComponentModel.DisplayName("Threshold to detect first movement [m]")]
-        public double DetectFirstMovemnetThreshold { get { return _detectFirstMovemnetThreshold; } }
+        public double DetectFirstMovemnetThreshold { get; set; }
 
         public static IMUInitializationFactory Factory { get { return new IMUInitializationFactory(); } }
 
         public class IMUInitializationFactory : AlgorithmFactory
         {
-            public String Name { get { return "Evaulate an expression in data streams"; } }
-            public String Description { get { return "Evaulate an expression on data lines in stream."; } }
-
-            [System.ComponentModel.DisplayName("Minimum time matching difference [s]")]
-            public double TimeMatchingDifference { get; set; }
-
-            [System.ComponentModel.DisplayName("Time for calculating initialization [s]")]
-            public double InitilaizationTime { get; set; }
-
-            [System.ComponentModel.DisplayName("Threshold to detect first movement [m]")]
-            public double DetectFirstMovemnetThreshold { get; set; }
+            public String Name { get { return "IMU initialization"; } }
+            public String Description { get { return "Calculate IMU initail value from coordinate stream"; } }
 
             public IMUInitializationFactory()
             {
-                TimeMatchingDifference = 1;
-                InitilaizationTime = 120;
-                DetectFirstMovemnetThreshold = 0.01;
+                
             }
 
             public IMUInitialization Create(Project project, IMUDataStream sourceDataStream, CoordinateDataStream coordinateDataStream)
             {
                 IMUInitialization algorithm = new IMUInitialization(project, this.Name, this.Description);
                 algorithm.sourceDataStream = sourceDataStream;
-                algorithm._coordinateDataStream = coordinateDataStream;
-                algorithm._timeMatchingDifference = TimeMatchingDifference;
-                algorithm._initilaizationTime = InitilaizationTime;
-                algorithm._detectFirstMovemnetThreshold = DetectFirstMovemnetThreshold;
-
+                algorithm.coordinateDataStream = coordinateDataStream;
                 return algorithm;
             }
         }
 
         private IMUInitialization(Project project, String name, String description) : base(project, name, description)
         {
+            TimeMatchingDifference = 1;
+            InitilaizationTime = 120;
+            DetectFirstMovemnetThreshold = 0.01;
         }
 
 
@@ -81,62 +66,62 @@ namespace Gaia.Core.Processing
                 new GaiaAssertException("IMU data stream is null!");
             }
 
-            if (_coordinateDataStream == null)
+            if (coordinateDataStream == null)
             {
                 new GaiaAssertException("Coordinate data stream is null!");
             }
 
             if (!sourceDataStream.IsTimeStampOrdered)
             {
-                WriteMessage("The timestamps in the " + _coordinateDataStream.Name + " dataset is not ordered by timestamp!");
+                WriteMessage("The timestamps in the " + coordinateDataStream.Name + " dataset is not ordered by timestamp!");
                 return AlgorithmResult.Failure;
             }
 
-            if (!_coordinateDataStream.IsTimeStampOrdered)
+            if (!coordinateDataStream.IsTimeStampOrdered)
             {
-                WriteMessage("The timestamps in the " + _coordinateDataStream.Name + " dataset is not ordered by timestamp!");
+                WriteMessage("The timestamps in the " + coordinateDataStream.Name + " dataset is not ordered by timestamp!");
                 return AlgorithmResult.Failure;
             }
 
-            if (!(_coordinateDataStream.CRS.GetCoordinateSystem() is GeographicCoordinateSystem))
+            if (!(coordinateDataStream.CRS.GetCoordinateSystem() is GeographicCoordinateSystem))
             {
-                WriteMessage("The " + _coordinateDataStream.Name + " data stream's coordinate system is not 3D! Choose a geographic coordinate system");
+                WriteMessage("The " + coordinateDataStream.Name + " data stream's coordinate system is not 3D! Choose a geographic coordinate system");
                 return AlgorithmResult.Failure;
             }
 
-            if (_coordinateDataStream.CRS.WKT != sourceDataStream.CRS.WKT)
+            if (coordinateDataStream.CRS.WKT != sourceDataStream.CRS.WKT)
             {
                 WriteMessage("The two data stream has to be in the same CRS!");
                 return AlgorithmResult.Failure;
             }
 
             sourceDataStream.Open();
-            _coordinateDataStream.Open();
+            coordinateDataStream.Open();
 
             sourceDataStream.Begin();
-            _coordinateDataStream.Begin();
+            coordinateDataStream.Begin();
 
             // Start the first timestamps in both dataset
             IMUDataLine imuLine = sourceDataStream.ReadLine() as IMUDataLine;
-            CoordinateDataLine coorLine = _coordinateDataStream.ReadLine() as CoordinateDataLine;
+            CoordinateDataLine coorLine = coordinateDataStream.ReadLine() as CoordinateDataLine;
             if (imuLine.TimeStamp > coorLine.TimeStamp)
             {
-                while ((coorLine.TimeStamp <= imuLine.TimeStamp) && !_coordinateDataStream.IsEOF())
+                while ((coorLine.TimeStamp <= imuLine.TimeStamp) && !coordinateDataStream.IsEOF())
                 {
-                    coorLine = _coordinateDataStream.ReadLine() as CoordinateDataLine;
+                    coorLine = coordinateDataStream.ReadLine() as CoordinateDataLine;
                 }
             }
             else if (imuLine.TimeStamp < coorLine.TimeStamp)
             {
-                while ((imuLine.TimeStamp <= coorLine.TimeStamp) && !_coordinateDataStream.IsEOF())
+                while ((imuLine.TimeStamp <= coorLine.TimeStamp) && !coordinateDataStream.IsEOF())
                 {
                     imuLine = sourceDataStream.ReadLine() as IMUDataLine;
                 }
             }
 
-            if (Math.Abs(imuLine.TimeStamp - coorLine.TimeStamp) > this._timeMatchingDifference)
+            if (Math.Abs(imuLine.TimeStamp - coorLine.TimeStamp) > this.TimeMatchingDifference)
             {
-                String msg = "Minimum time difference between starting IMU and coordinate stream is higher than the threshold: " + this._timeMatchingDifference;
+                String msg = "Minimum time difference between starting IMU and coordinate stream is higher than the threshold: " + this.TimeMatchingDifference;
                 WriteMessage(msg);
                 return AlgorithmResult.Failure;
             }
@@ -144,8 +129,8 @@ namespace Gaia.Core.Processing
             // Calculate initial accelerations and roll and pitch
             double mean_ax = 0, mean_ay = 0, mean_az = 0;
             long data_num = 0;
-            double initEnd = imuLine.TimeStamp + _initilaizationTime;
-            while ((imuLine.TimeStamp <= initEnd) && !_coordinateDataStream.IsEOF())
+            double initEnd = imuLine.TimeStamp + InitilaizationTime;
+            while ((imuLine.TimeStamp <= initEnd) && !coordinateDataStream.IsEOF())
             {
                 imuLine = sourceDataStream.ReadLine() as IMUDataLine;
                 mean_ax += imuLine.Ax;
@@ -154,9 +139,9 @@ namespace Gaia.Core.Processing
                 data_num++;
             }
 
-            if ((Math.Abs(imuLine.TimeStamp - initEnd) > this._timeMatchingDifference) || _coordinateDataStream.IsEOF())
+            if ((Math.Abs(imuLine.TimeStamp - initEnd) > this.TimeMatchingDifference) || coordinateDataStream.IsEOF())
             {
-                String msg = "Minimum time difference between the last IMU and the end of the initilization periods is higher than the threshold: " + this._timeMatchingDifference;
+                String msg = "Minimum time difference between the last IMU and the end of the initilization periods is higher than the threshold: " + this.TimeMatchingDifference;
                 WriteMessage(msg);
                 return AlgorithmResult.Failure;
             }
@@ -170,15 +155,15 @@ namespace Gaia.Core.Processing
             double pitch = Math.Asin(mean_ax / r);
 
             // Find first movement
-            GPoint lastPoint = _coordinateDataStream.ReadDataLineAsGPoint();
+            GPoint lastPoint = coordinateDataStream.ReadDataLineAsGPoint();
             GPoint currPoint = lastPoint;
             GPoint nextPoint = lastPoint;
             bool isFound = false;
-            while ((coorLine.TimeStamp <= initEnd) && !_coordinateDataStream.IsEOF())
+            while ((coorLine.TimeStamp <= initEnd) && !coordinateDataStream.IsEOF())
             {
-                currPoint = _coordinateDataStream.ReadDataLineAsGPoint();
+                currPoint = coordinateDataStream.ReadDataLineAsGPoint();
                 double dr = Utilities.L2Distance2d(lastPoint, currPoint);
-                if (dr > this._detectFirstMovemnetThreshold)
+                if (dr > this.DetectFirstMovemnetThreshold)
                 {
                     isFound = true;
                     nextPoint = currPoint;
@@ -190,20 +175,20 @@ namespace Gaia.Core.Processing
 
             if (!isFound)
             {
-                String msg = "First movement in " + _coordinateDataStream.Name + " stream is not found! Threshold: " + this._detectFirstMovemnetThreshold;
+                String msg = "First movement in " + coordinateDataStream.Name + " stream is not found! Threshold: " + this.DetectFirstMovemnetThreshold;
                 WriteMessage(msg);
                 return AlgorithmResult.Failure;
             }
 
             WriteMessage("First movement detected!");
-            WriteMessage("Index: " + _coordinateDataStream.GetPosition());
+            WriteMessage("Index: " + coordinateDataStream.GetPosition());
             WriteMessage("Timestamp: " + currPoint.Timestamp);
             WriteProgress(50);
 
             sourceDataStream.Close();
-            _coordinateDataStream.Close();
+            coordinateDataStream.Close();
 
-            GeographicCoordinateSystem crs = _coordinateDataStream.CRS.GetCoordinateSystem() as GeographicCoordinateSystem;
+            GeographicCoordinateSystem crs = coordinateDataStream.CRS.GetCoordinateSystem() as GeographicCoordinateSystem;
             double a = crs.HorizontalDatum.Ellipsoid.SemiMajorAxis;
             double b = crs.HorizontalDatum.Ellipsoid.SemiMinorAxis;
             double e2 = 1 - (b * b) / (a * a);

@@ -12,30 +12,25 @@ namespace Gaia.Core.Processing.InertialSystems
     {
         public IMUDataStream sourceDataStream;
 
-        private double _initilaizationTime;
         [System.ComponentModel.DisplayName("Time for calculating initialization [s]")]
-        public double InitilaizationTime { get { return _initilaizationTime; } }
+        public double InitilaizationTime { get; set; }
 
         public static IMULevellingFactory Factory { get { return new IMULevellingFactory(); } }
 
         public class IMULevellingFactory : AlgorithmFactory
         {
-            [System.ComponentModel.DisplayName("Time for calculating initialization [s]")]
-            public double InitilaizationTime { get; set; }
-
             public String Name { get { return "Evaulate an expression in data streams"; } }
             public String Description { get { return "Evaulate an expression on data lines in stream."; } }
 
             public IMULevellingFactory()
             {
-                InitilaizationTime = 60;
+                
             }
 
             public IMULevelling Create(Project project, IMUDataStream sourceDataStream)
             {
                 IMULevelling algorithm = new IMULevelling(project, this.Name, this.Description);
                 algorithm.sourceDataStream = sourceDataStream;
-                algorithm._initilaizationTime = InitilaizationTime;
 
                 return algorithm;
             }
@@ -43,6 +38,7 @@ namespace Gaia.Core.Processing.InertialSystems
 
         private IMULevelling(Project project, String name, String description) : base(project, name, description)
         {
+            InitilaizationTime = 60;
         }
 
 
@@ -71,7 +67,7 @@ namespace Gaia.Core.Processing.InertialSystems
             // Calculate initial accelerations and roll and pitch
             double mean_ax = 0, mean_ay = 0, mean_az = 0;
             long data_num = 0;
-            double initEnd = imuLine.TimeStamp + _initilaizationTime;
+            double initEnd = imuLine.TimeStamp + InitilaizationTime;
             while (imuLine.TimeStamp <= initEnd)
             {
                 imuLine = sourceDataStream.ReadLine() as IMUDataLine;

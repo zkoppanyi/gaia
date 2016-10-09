@@ -12,11 +12,10 @@ namespace Gaia.Core.Processing
     {
         private IMUDataStream SourceDataStream;
 
-        private CoordinateAttitudeDataStream _outputDataStream;
-        public CoordinateAttitudeDataStream OutputDataStream { get { return _outputDataStream; } }
+        private CoordinateAttitudeDataStream outputDataStream;
+        public CoordinateAttitudeDataStream OutputDataStream { get { return outputDataStream; } }
 
-        private double _timeMatchingDifference;
-        public double TimeMatchingDifference { get { return _timeMatchingDifference;  } }
+        public double TimeMatchingDifference { get; set; }
 
         public static IMUProcessingFactory Factory
         {
@@ -28,29 +27,26 @@ namespace Gaia.Core.Processing
 
         public class IMUProcessingFactory : AlgorithmFactory
         {
-            public String Name { get { return "Evaulate an expression in data streams"; } }
-            public String Description { get { return "Evaulate an expression on data lines in stream."; } }
-
-            [System.ComponentModel.DisplayName("Minimum time matching difference [s]")]
-            public double TimeMatchingDifference { get; set; }
+            public String Name { get { return "Levelling IMU data"; } }
+            public String Description { get { return "Lvelling IMU data."; } }
 
             public IMUProcessingFactory()
             {
-                TimeMatchingDifference = 1;
+                
             }
 
             public IMUProcessing Create(Project project, IMUDataStream sourceDataStream, CoordinateAttitudeDataStream outputDataStream)
             {
                 IMUProcessing algorithm = new IMUProcessing(project, Name, Description);
                 algorithm.SourceDataStream = sourceDataStream;
-                algorithm._outputDataStream = outputDataStream;
-                algorithm._timeMatchingDifference = TimeMatchingDifference;
+                algorithm.outputDataStream = outputDataStream;
                 return algorithm;
             }
         }
 
         private IMUProcessing(Project project, String name, String description) : base(project,name, description)
         {
+            TimeMatchingDifference = 1;
         }
 
         /// <summary>
@@ -64,7 +60,7 @@ namespace Gaia.Core.Processing
                 new GaiaAssertException("IMU data stream is null!");
             }
 
-            if (_outputDataStream == null)
+            if (outputDataStream == null)
             {
                 new GaiaAssertException("Output data stream is null!");
             }
@@ -110,9 +106,9 @@ namespace Gaia.Core.Processing
                     }
                 }
 
-                if (data == null || SourceDataStream.IsEOF() || (Math.Abs(data.TimeStamp - SourceDataStream.StartTime) > this._timeMatchingDifference))
+                if (data == null || SourceDataStream.IsEOF() || (Math.Abs(data.TimeStamp - SourceDataStream.StartTime) > this.TimeMatchingDifference))
                 {
-                    String msg = "Starting data is not found. The start time may not be correct. Threshold: " + this._timeMatchingDifference;
+                    String msg = "Starting data is not found. The start time may not be correct. Threshold: " + this.TimeMatchingDifference;
                     WriteMessage(msg);
                     return AlgorithmResult.Failure;
                 }
@@ -134,13 +130,13 @@ namespace Gaia.Core.Processing
             double[,] Cbn = prh2dcm(prh);
             double[] qbn = dcm2quat(Cbn);
 
-            _outputDataStream.Open();
+            outputDataStream.Open();
             while (!SourceDataStream.IsEOF())
             {
                 if (IsCanceled())
                 {
                     SourceDataStream.Close();
-                    _outputDataStream.Close();
+                    outputDataStream.Close();
                     WriteMessage("Processing canceled!");
                     return AlgorithmResult.Failure;
                 }
@@ -148,7 +144,7 @@ namespace Gaia.Core.Processing
                 if (Double.IsNaN(prh[0]) || Double.IsNaN(prh[1]) || Double.IsNaN(prh[2]))
                 {
                     SourceDataStream.Close();
-                    _outputDataStream.Close();
+                    outputDataStream.Close();
                     WriteMessage("PRH value(s) is NaN! Stop.");
                     return AlgorithmResult.Sucess;
                 }
@@ -186,12 +182,12 @@ namespace Gaia.Core.Processing
                 resultData.Heading = Utilities.ConvertRadToDeg(prh[2]);
                 resultData.AttitudeSigma = Utilities.Unknown;
 
-                _outputDataStream.AddDataLine(resultData);
-                _outputDataStream.CRS = SourceDataStream.CRS;
-                _outputDataStream.TRS = SourceDataStream.TRS; 
+                outputDataStream.AddDataLine(resultData);
+                outputDataStream.CRS = SourceDataStream.CRS;
+                outputDataStream.TRS = SourceDataStream.TRS; 
             }
 
-            _outputDataStream.Close();
+            outputDataStream.Close();
             SourceDataStream.Close();
 
             this.Project.Save();
