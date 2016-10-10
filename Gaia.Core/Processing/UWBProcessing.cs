@@ -21,16 +21,33 @@ namespace Gaia.Core.Processing
         public UWBDataStream SourceDataStream { get; set; }
         public CoordinateDataStream OutputDataStream { get; set; }
 
-        public int BufferSize { get; set; }
-        public int MaxIterNum { get; set; }
-        public double DeepOptimizationDistance { get; set; }
-        public double TimeIntervalToClearBuffer { get; set; }
-        public double FiltringByResidual { get; set; }
+        [System.ComponentModel.DisplayName("Min ranges [-]")]
+        [System.ComponentModel.Description("The minimum number of ranges to calculate a position.")]
+        public int MinimumStationNumber { get; set; }
 
-        //private Vector<double> localTransformation = Vector<double>.Build.Dense(new double[] { 316210.749, 4254160.421, -25 });
-        //public Vector<double> x0 = null;
-        double[] x0 = new double[] { 59.0, 88.0, -1.7 };
-        private const int bigNum = 100000;
+        [System.ComponentModel.DisplayName("Maximum iteration number [-]")]
+        public int MaxIterNum { get; set; }
+
+        [System.ComponentModel.DisplayName("Max inital and solution diff [-]")]
+        [System.ComponentModel.Description("If maximum inital value and solution difference is higher than the specified value, the optimization routine is rerun with the \"Maximum iteration number 2.\"")]
+        public double InitialValueAndSolutionDifference { get; set; }
+
+        [System.ComponentModel.DisplayName("Max iteration number 2 [-]")]
+        [System.ComponentModel.Description("If maximum inital value and solution difference is higher than the specified value, the optimization routine is rerun with the \"Maximum iteration number 2.\"")]
+        public int MaxIterNumWhenInitialValueFarFromTheSolution { get; set; }
+
+        [System.ComponentModel.DisplayName("Max time interval to clear buffer [-]")]
+        [System.ComponentModel.Description("The algorithm maintains a buffer, where it collects the ranges from the stations. If the differnce between the minimum and maximum timestamps of the ranges in the buffer is higher than this value, than the buffer will be cleared.")]
+        public double TimeIntervalToClearBuffer { get; set; }
+
+        [System.ComponentModel.DisplayName("Initial X [m]")]
+        public double InitialX { get; set; }
+
+        [System.ComponentModel.DisplayName("Initial Y [m]")]
+        public double InitialY { get; set; }
+
+        [System.ComponentModel.DisplayName("Initial Z [m]")]
+        public double InitialZ { get; set; }
 
         public static UWBProcessingFactory Factory
         {
@@ -56,16 +73,21 @@ namespace Gaia.Core.Processing
 
         private UWBProcessing(Project project, String name, String description) : base(project, name, description)
         {
-            BufferSize = 6;
+            MinimumStationNumber = 6;
             MaxIterNum = 200;
-            DeepOptimizationDistance = 2;
+            MaxIterNumWhenInitialValueFarFromTheSolution = 1000;
+            InitialValueAndSolutionDifference = 2;
             TimeIntervalToClearBuffer = 5;
-            FiltringByResidual = 1;
-       }
+            InitialX = 0;
+            InitialY = 0;
+            InitialZ = 0;
+        }
 
 
         protected override AlgorithmResult run()
         {
+            double[] x0 = new double[] { InitialX, InitialY, InitialZ };
+
             if (SourceDataStream == null)
             {
                 new GaiaAssertException("UWB data stream is null!");
@@ -120,7 +142,7 @@ namespace Gaia.Core.Processing
                 }
 
 
-                if ((buffer.Count >= BufferSize) && (x0 != null))
+                if ((buffer.Count >= MinimumStationNumber) && (x0 != null))
                 {
                     double[,] stations = Matrix.Create(buffer.Count, 3, 0.0);
                     double[] distances = Vector.Create(buffer.Count, 0.0);
@@ -138,50 +160,52 @@ namespace Gaia.Core.Processing
                             buffer_item_index++;
                         }
                     }
-                    
+
                     // Optimization function
-                    Func<double[], double[]> fn = new Func<double[], double[]>(delegate (double[] pos) {
+                    Func<double[], double[]> fn = new Func<double[], double[]>(delegate (double[] pos)
+                    {
                         return (((stations.GetColumn(0).Subtract(pos[0])).Pow(2).Add((stations.GetColumn(1).Subtract(pos[1])).Pow(2)).Add((stations.GetColumn(2).Subtract(pos[2])).Pow(2)))).Sqrt().Subtract(distances);
 
                     });
 
-                    LevenberMarquardtOptimzer optimizer = new LevenberMarquardtOptimzer();
+                    //LevenberMarquardtOptimzer optimizer = new LevenberMarquardtOptimzer();
+                    NelderMeadOptimizer optimizer = new NelderMeadOptimizer();
                     optimizer.MaximumIterationNumber = MaxIterNum;
                     double[] x0cand = optimizer.Run(fn, x0);
 
-                    double dsol = (x0cand.Subtract(x0)).Euclidean();
-                    if (dsol > DeepOptimizationDistance)
+                    if(x0cand == null)
                     {
-                        WriteMessage("The L2 norm of the initial guess and the solution is " + dsol + " greater than " + DeepOptimizationDistance);
-                        WriteMessage("Optimizer is rerun with " + optimizer.MaximumIterationNumber + " iterations! ");
+                        WriteMessage("No solution");
+                        buffer.Clear();
+                        continue;
+                    }
+
+                    double dsol = (x0cand.Subtract(x0)).Euclidean();
+                    if (dsol > InitialValueAndSolutionDifference)
+                    {
+                        WriteMessage("The L2 norm of the initial guess and the solution is " + dsol + " greater than " + InitialValueAndSolutionDifference);
+                        WriteMessage("Optimizer is rerun with " + MaxIterNumWhenInitialValueFarFromTheSolution + " iterations! ");
                         WriteMessage(" ");
 
-                       optimizer.MaximumIterationNumber = 5000;
+                        optimizer.MaximumIterationNumber = MaxIterNumWhenInitialValueFarFromTheSolution;
                         x0cand = optimizer.Run(fn, x0);
                     }
 
                     double residual = fn(x0cand).Average();
 
-                    if (Math.Abs(residual) < FiltringByResidual)
-                    {
-                        x0 = x0cand;
-                        //WriteMessage(x0.ToString());
 
-                        // Save the data
-                        CoordinateDataLine outputDataLine = new CoordinateDataLine();
-                        outputDataLine.X = x0[0];
-                        outputDataLine.Y = x0[1];
-                        outputDataLine.Z = x0[2];
-                        outputDataLine.Sigma = residual;
-                        outputDataLine.TimeStamp = timestamps.Average();
-                        OutputDataStream.AddDataLine(outputDataLine);
-                    }
-                    else
-                    {
-                        WriteMessage("Solution's residual is " + residual + " greater than " + FiltringByResidual);
-                        WriteMessage("Solution is skipped!");
-                        WriteMessage(" ");
-                    }
+                    x0 = x0cand;
+                    //WriteMessage(x0.ToString());
+
+                    // Save the data
+                    CoordinateDataLine outputDataLine = new CoordinateDataLine();
+                    outputDataLine.X = x0[0];
+                    outputDataLine.Y = x0[1];
+                    outputDataLine.Z = x0[2];
+                    outputDataLine.Sigma = residual;
+                    outputDataLine.TimeStamp = timestamps.Average();
+                    OutputDataStream.AddDataLine(outputDataLine);
+
 
                     buffer.Clear();
                 }                 

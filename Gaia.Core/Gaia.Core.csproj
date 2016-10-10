@@ -52,6 +52,10 @@
       <HintPath>..\packages\Accord.Extensions.Statistics.3.0.1\lib\net45\Accord.Extensions.Statistics.dll</HintPath>
       <Private>True</Private>
     </Reference>
+    <Reference Include="Accord.IO, Version=3.3.0.0, Culture=neutral, PublicKeyToken=fa1a88e29555ccf7, processorArchitecture=MSIL">
+      <HintPath>..\packages\Accord.IO.3.3.0\lib\net45\Accord.IO.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
     <Reference Include="Accord.MachineLearning, Version=3.3.0.0, Culture=neutral, PublicKeyToken=fa1a88e29555ccf7, processorArchitecture=MSIL">
       <HintPath>..\packages\Accord.MachineLearning.3.3.0\lib\net45\Accord.MachineLearning.dll</HintPath>
       <Private>True</Private>
@@ -135,6 +139,7 @@
     <Compile Include="Processing\InertialSystems\IMUInitialization.cs" />
     <Compile Include="Processing\InertialSystems\IMULevelling.cs" />
     <Compile Include="Processing\InertialSystems\IMUProcessing.cs" />
+    <Compile Include="Processing\Optimzers\NelderMeadOptimzer.cs" />
     <Compile Include="Processing\Optimzers\LevenberMarquardtOptimzer.cs" />
     <Compile Include="Processing\Statistics.cs" />
     <Compile Include="Processing\TimeStampOrderCheckProcessing.cs" />

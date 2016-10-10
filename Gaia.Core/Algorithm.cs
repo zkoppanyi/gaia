@@ -127,7 +127,7 @@ namespace Gaia.Core
 
         protected void WriteMessage(String message, String status = null, String messageGroupStr = null, AlgorithmMessageType messageType = AlgorithmMessageType.Message, bool forceShow = false)
         {
-            stringMessage.Append(message);
+            stringMessage.Append(message + Environment.NewLine);
             double dt = (DateTime.Now.Ticks - lastMessage.Ticks) / TimeSpan.TicksPerSecond;
             if ((dt > writerUpdateTime) || (forceShow == true))
             {

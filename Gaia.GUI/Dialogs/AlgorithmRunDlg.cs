@@ -24,7 +24,7 @@ namespace Gaia.GUI.Dialogs
         public List<DataStream> CleanUpDataStream { get; set; }
 
         public AlgorithmRunDlg(Algorithm algorithmFactory)
-        {
+        {   
             InitializeComponent();
             this.algorithm = algorithmFactory;
             propertyGrid.SelectedObject = this.algorithm;
