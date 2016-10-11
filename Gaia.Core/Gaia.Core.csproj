@@ -136,6 +136,7 @@
     <Compile Include="Processing\EarthParameters.cs" />
     <Compile Include="Processing\EvaluateProcessing.cs" />
     <Compile Include="Processing\IClockErrorModel.cs" />
+    <Compile Include="Processing\InertialSystems\IMUHelperFunctions.cs" />
     <Compile Include="Processing\InertialSystems\IMUInitialization.cs" />
     <Compile Include="Processing\InertialSystems\IMULevelling.cs" />
     <Compile Include="Processing\InertialSystems\IMUProcessing.cs" />
