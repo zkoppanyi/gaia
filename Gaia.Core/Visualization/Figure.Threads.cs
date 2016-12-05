@@ -39,19 +39,22 @@ namespace Gaia.Core.Visualization
         }
 
     }
+
     public partial class Figure
     {
 
-        private List<FigureDataSeries> dataSeriesList;
+        private List<FigureDataSeriesController> dataSeriesControllerList;
         private BackgroundWorker backgroundWorker;
         private bool isPreviewMode;
-        private ManualResetEvent syncFigureEvent = new ManualResetEvent(false);
 
         public FigureUpdatedEventHandler FigureUpdated;
         public FigureUpdatedEventHandler FigureDone;
         public FigureUpdatedEventHandler FigureCancelled;
         public FigureUpdatedEventHandler PreviewLoaded;
         public FigureUpdatedEventHandler FigureError;
+
+        private ManualResetEvent syncFigureEvent = new ManualResetEvent(false);
+        public ManualResetEvent SyncFigureEvent { get { return syncFigureEvent; } }
 
 
         private void backgroundWorker_ProgressChanged(object sender, ProgressChangedEventArgs e)
@@ -65,74 +68,21 @@ namespace Gaia.Core.Visualization
 
         private void backgroundWorker_DoWork(object sender, DoWorkEventArgs e)
         {
-            foreach (FigureDataSeries dataSeries in dataSeriesList)
+            foreach (FigureDataSeriesController dataSeriesController in dataSeriesControllerList)
             {
-                if (dataSeries is FigureDataSeriesForDataStream)
+                if (backgroundWorker.CancellationPending)
                 {
-                    FigureDataSeriesForDataStream dataSeriesForDataStream = dataSeries as FigureDataSeriesForDataStream;
-                    DataStream dataStream = dataSeriesForDataStream.DataStream;
-                    int under_sampling = Convert.ToInt32((double)dataStream.DataNumber / 20000.0) + 1;
-
-                    dataStream.Open();
-                    dataStream.Begin();
-                    int i = 0;
-                    int lastProgressReport = 0;
-                    long pos = 0;
-                    while (!dataStream.IsEOF())
-                    {
-                        if (backgroundWorker.CancellationPending)
-                        {
-                            dataStream.Close();
-                            e.Cancel = true;
-                            return;
-                        }
-
-                        DataLine line = dataStream.ReadLine();
-                        int progress = Convert.ToInt32((double)dataStream.GetPosition() / (double)dataStream.DataNumber * 100);
-
-                        object valueXobj = Utilities.GetValueByDisplayNameAttribute(line, dataSeries.CaptionX);
-                        object valueYobj = Utilities.GetValueByDisplayNameAttribute(line, dataSeries.CaptionY);
-
-
-                        double valueX = Convert.ToDouble(valueXobj);
-                        double valueY = Convert.ToDouble(valueYobj);
-
-                        addPoint(valueX, valueY);
-
-                        // Preview mode                    
-                        if (this.isPreviewMode == true)
-                        {
-                            pos = dataStream.GetPosition() + under_sampling;
-                            if (pos > dataStream.DataNumber) break;
-                            dataStream.Seek(pos);
-                            i++;
-                        }
-
-                        if ((progress % 10 == 0) && (lastProgressReport != progress) && (isFigureUpdated == true)) // real report bitmap update
-                        {
-                            syncFigureEvent.Reset();
-                            Redraw();
-                            backgroundWorker.ReportProgress(progress);
-                            syncFigureEvent.WaitOne();
-                            isFigureUpdated = false;
-                        }
-                        else if ((progress % 5 == 0) && (lastProgressReport != progress)) // just report for the progress bar
-                        {
-                            syncFigureEvent.Reset();
-                            backgroundWorker.ReportProgress(progress, null);
-                            syncFigureEvent.WaitOne();
-                        }
-
-                        lastProgressReport = progress;
-
-
-                    }
-
-                    syncFigureEvent.Reset();
-                    backgroundWorker.ReportProgress(100);
-                    syncFigureEvent.WaitOne();
-                    dataStream.Close();
+                    e.Cancel = true;
+                    return;
                 }
+
+                if (dataSeriesController is FigureDataSeriesForDataStreamController)
+                {
+                    FigureDataSeriesForDataStreamController dataSeriesForDataStreamCtr = dataSeriesController as FigureDataSeriesForDataStreamController;
+                    dataSeriesForDataStreamCtr.IsPreviewMode = isPreviewMode;
+                }
+
+                dataSeriesController.Draw(backgroundWorker);
             }
 
             e.Cancel = false;
@@ -148,28 +98,33 @@ namespace Gaia.Core.Visualization
             }
         }
 
+        public bool IsBusy()
+        {
+            return backgroundWorker.IsBusy;
+        }
+
         private bool isUpdateSeriesRequired = false;
         public void Update()
         {
             if (this.backgroundWorker.IsBusy)
             {
-                Cancel();
+                //Cancel();
                 isUpdateSeriesRequired = true;
+                if (this.backgroundWorker.CancellationPending == false)
+                {
+                    backgroundWorker.CancelAsync();
+                }
             }
             else
             {
+                isUpdateSeriesRequired = false;
                 isPreviewMode = true;
-                Clear();
                 calculateLimits();
+                createNewBitmap();
                 backgroundWorker.RunWorkerAsync();
                 syncFigureEvent.Reset();
             }
 
-        }
-
-        public bool IsBusy()
-        {
-            return backgroundWorker.IsBusy;
         }
 
         public void Update(int width, int height)
@@ -179,21 +134,20 @@ namespace Gaia.Core.Visualization
             if (width <= 0) width = 1;
             if (height <= 0) height = 1;
 
-            figureBitmap = new Bitmap(width, height);
-            createNewBitmap();
+            createNewBitmap(width, height);
             this.Update();
         }
 
-        public void ZoomByImageCoordinate(int x1, int y1, int x2, int y2)
+        public void ZoomByImageCoordinate(int ix1, int iy1, int ix2, int iy2)
         {
-            //this.Cancel();
             calculateLimits();
-            FPoint p1 = ImageToWord(x1, y1);
-            FPoint p2 = ImageToWord(x2, y2);
-            xLimMin = p1.X < p2.X ? p1.X : p2.X;
-            xLimMax = p1.X > p2.X ? p1.X : p2.X;
-            yLimMin = p1.Y < p2.Y ? p1.Y : p2.Y;
-            yLimMax = p1.Y > p2.Y ? p1.Y : p2.Y;            
+            double wx1 = 0, wy1 = 0, wx2 = 0, wy2 = 0;
+            ImageToWord(ix1, iy1, ref wx1, ref wy1);
+            ImageToWord(ix2, iy2, ref wx2, ref wy2);
+            XLimMin = wx1 < wx2 ? wx1 : wx2;
+            XLimMax = wx1 > wx2 ? wx1 : wx2;
+            YLimMin = wy1 < wy2 ? wy1 : wy2;
+            YLimMax = wy1 > wy2 ? wy1 : wy2;            
             isFixedLimits = true;
             calculateLimits();
             this.Update();
@@ -233,13 +187,13 @@ namespace Gaia.Core.Visualization
             else
             {
                 FigureCancelled?.Invoke(this, new FigureUpdatedEventArgs(this, 100));
-                if (isUpdateSeriesRequired)
-                {
-                    Update();
-                }
-
             }
 
+            if (isUpdateSeriesRequired)
+            {
+                isUpdateSeriesRequired = false;
+                Update();
+            }
         }
 
     }

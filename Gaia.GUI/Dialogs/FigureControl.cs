@@ -55,10 +55,17 @@ namespace Gaia.Dialogs
             ZoomModeOn = false;
         }
 
+
+
         public void AddDataSeries(FigureDataSeries dataSeries)
         {
-            figureObject.AddDataSeries(dataSeries);
-            figureObject.Update();
+            if (dataSeries is FigureDataSeriesForDataStream)
+            {
+                FigureDataSeriesForDataStream dataSeriesForDataStream = dataSeries as FigureDataSeriesForDataStream;
+                FigureDataSeriesController controller = new FigureDataSeriesForDataStreamController(figureObject, dataSeriesForDataStream);
+                figureObject.AddDataSeriesController(controller);
+                figureObject.Update();
+            }
         }
 
         public void UpdateFigure()
@@ -107,13 +114,6 @@ namespace Gaia.Dialogs
         protected override void OnResize(EventArgs e)
         {
             base.OnResize(e);
-
-            if (figureObject != null)
-            {
-                progressBar.Visible = true;
-                toolStripButtonCancelProgress.Visible = true;
-                figureObject.Update(figureArea.Width, figureArea.Height);
-            }
         }
 
         protected void OnFigureDone(object source, FigureUpdatedEventArgs e)
@@ -136,7 +136,7 @@ namespace Gaia.Dialogs
 
         protected void OnFigureUpdated(object source, FigureUpdatedEventArgs e)
         {
-            figureArea.Image = figureObject.FigureBitmap;
+            figureArea.Image = (Image)figureObject.FigureBitmap.Clone();
             this.Refresh();
             progressBar.Visible = true;
             toolStripButtonCancelProgress.Visible = true;
@@ -235,10 +235,6 @@ namespace Gaia.Dialogs
             }
         }
 
-        private void figureArea_Click(object sender, EventArgs e)
-        {
-
-        }
 
         private void toolStripButtonZoomIn_Click(object sender, EventArgs e)
         {
@@ -255,10 +251,13 @@ namespace Gaia.Dialogs
             {
                 if (e.Button == MouseButtons.Left)
                 {
-                    FPoint pt = figureObject.ImageToWord(e.X, e.Y);
-                    pt = figureObject.WorldToImage(pt.X, pt.Y);
-                    mouseLastPoint.X = (int)pt.X;
-                    mouseLastPoint.Y = (int)pt.Y;
+                    double wx = 0, wy = 0;
+                    int ix = 0, iy = 0;
+                    figureObject.ImageToWord(e.X, e.Y, ref wx, ref wy);
+                    figureObject.WorldToImage(wx, wy, ref ix, ref iy);
+
+                    mouseLastPoint.X = ix;
+                    mouseLastPoint.Y = iy;
                     this.Refresh();
 
                 }
@@ -271,12 +270,14 @@ namespace Gaia.Dialogs
             {
                 if (e.Button == MouseButtons.Left)
                 {
-                    FPoint pt = figureObject.ImageToWord(e.X, e.Y);
-                    pt = figureObject.WorldToImage(pt.X, pt.Y);
-                    mouseFirstPoint.X = (int)pt.X;
-                    mouseFirstPoint.Y = (int)pt.Y;
-                    mouseLastPoint.X = (int)pt.X;
-                    mouseLastPoint.Y = (int)pt.Y;
+                    double wx = 0, wy = 0;
+                    int ix = 0, iy = 0;
+                    figureObject.ImageToWord(e.X, e.Y, ref wx, ref wy);
+                    figureObject.WorldToImage(wx, wy, ref ix, ref iy);
+                    mouseFirstPoint.X = ix;
+                    mouseFirstPoint.Y = iy;
+                    mouseLastPoint.X = ix;
+                    mouseLastPoint.Y = iy;
                     this.Update();
                 }
             }
@@ -310,12 +311,39 @@ namespace Gaia.Dialogs
 
         private void figureArea_Resize(object sender, EventArgs e)
         {
-
+           
         }
 
         private void figureArea_SizeChanged(object sender, EventArgs e)
         {
+            resizeTimer.Stop();
+            resizeTimer.Start();
+        }
+
+        private void figureArea_Click(object sender, EventArgs e)
+        {
            
+        }
+
+        private void FigureControl_SizeChanged(object sender, EventArgs e)
+        {           
+            
+        }
+
+        private void FigureControl_Click(object sender, EventArgs e)
+        {
+           
+        }
+
+        private void resizeTimer_Tick(object sender, EventArgs e)
+        {
+            resizeTimer.Stop();
+            if (figureObject != null)
+            {
+                progressBar.Visible = true;
+                toolStripButtonCancelProgress.Visible = true;
+                figureObject.Update(figureArea.Width, figureArea.Height);
+            }
         }
     }
 }

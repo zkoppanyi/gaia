@@ -152,8 +152,11 @@
     <Compile Include="ReferenceFrames\TRS.cs" />
     <Compile Include="Visualization\Figure.cs" />
     <Compile Include="Visualization\Figure.Threads.cs" />
+    <Compile Include="Visualization\FigureDataSearesForPoints.cs" />
     <Compile Include="Visualization\FigureDataSeries.cs" />
+    <Compile Include="Visualization\FigureDataSeriesController.cs" />
     <Compile Include="Visualization\FigureDataSeriesForDataStream.cs" />
+    <Compile Include="Visualization\FigureDataSeriesForDataStreamController.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="app.config" />

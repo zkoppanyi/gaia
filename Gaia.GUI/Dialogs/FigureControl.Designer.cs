@@ -28,6 +28,7 @@
         /// </summary>
         private void InitializeComponent()
         {
+            this.components = new System.ComponentModel.Container();
             this.toolStrip = new System.Windows.Forms.ToolStrip();
             this.progressBar = new System.Windows.Forms.ToolStripProgressBar();
             this.toolStripSplitButton1 = new System.Windows.Forms.ToolStripSplitButton();
@@ -39,6 +40,7 @@
             this.toolStripButtonZoomIn = new System.Windows.Forms.ToolStripButton();
             this.toolStripButtonZoomExtent = new System.Windows.Forms.ToolStripButton();
             this.figureArea = new System.Windows.Forms.PictureBox();
+            this.resizeTimer = new System.Windows.Forms.Timer(this.components);
             this.toolStrip.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.figureArea)).BeginInit();
             this.SuspendLayout();
@@ -156,6 +158,10 @@
             this.figureArea.MouseUp += new System.Windows.Forms.MouseEventHandler(this.figureArea_MouseUp);
             this.figureArea.Resize += new System.EventHandler(this.figureArea_Resize);
             // 
+            // resizeTimer
+            // 
+            this.resizeTimer.Tick += new System.EventHandler(this.resizeTimer_Tick);
+            // 
             // FigureControl
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -165,6 +171,8 @@
             this.Controls.Add(this.toolStrip);
             this.Name = "FigureControl";
             this.Size = new System.Drawing.Size(641, 457);
+            this.SizeChanged += new System.EventHandler(this.FigureControl_SizeChanged);
+            this.Click += new System.EventHandler(this.FigureControl_Click);
             this.toolStrip.ResumeLayout(false);
             this.toolStrip.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)(this.figureArea)).EndInit();
@@ -185,5 +193,6 @@
         private System.Windows.Forms.ToolStripComboBox toolStripAspectRatio;
         private System.Windows.Forms.ToolStripButton toolStripButtonZoomIn;
         private System.Windows.Forms.ToolStripButton toolStripButtonZoomExtent;
+        private System.Windows.Forms.Timer resizeTimer;
     }
 }

@@ -9,9 +9,6 @@ namespace Gaia.Core.Visualization
     public partial class Figure
     {
 
-        private SolidBrush brush = new SolidBrush(Color.LimeGreen);
-        private Pen axisPen = new Pen(Color.Black);
-        private int markerSize = 4;
         private Color backGroundColor = Color.White;
         private int axisEdgeOuterX = 100;
         private int axisEdgeOuterY = 40;
@@ -20,12 +17,13 @@ namespace Gaia.Core.Visualization
         private int tickSize = 6;
 
 
+        private Pen axisPen = new Pen(Color.Black);
         SolidBrush tickLabelBrush = new System.Drawing.SolidBrush(System.Drawing.Color.Black);
         StringFormat tickLabelFormat = new System.Drawing.StringFormat();
         Font tickLabelFont = new System.Drawing.Font("Courier New", 8);
         String tickLabelXFormat = "F1";
         String tickLabelYFormat = "F1";
-
+        
         SolidBrush labelBrush = new System.Drawing.SolidBrush(System.Drawing.Color.Black);
         StringFormat labelFormat = new System.Drawing.StringFormat();
         Font labelFont = new System.Drawing.Font("Courier New", 12, FontStyle.Bold);
@@ -33,46 +31,50 @@ namespace Gaia.Core.Visualization
         public String XLabel;
         public String YLabel;
 
-        private double xLimMin;
-        public double XLimMin { get { return xLimMin; } }
-        private double xLimMax;
-        public double XLimMax { get { return xLimMax; } }
+        public double XLimMin { get; set; }
 
-        private double yLimMin;
-        public double YLimMin { get { return yLimMin; } }
-        private double yLimMax;
-        public double YLimMax { get { return yLimMax; } }
+        public double XLimMax { get; set; }
+
+        public double YLimMin { get; set; }
+
+        public double YLimMax { get; set; }
 
         private bool isFixedLimits = false;
-        private bool isFigureUpdated = false;
+        public bool IsFixedLimits { get { return isFixedLimits;  } }
 
-        private readonly object locker = new object();
+        public readonly object BitmapLocker = new object();
 
         private static Bitmap figureBitmap;
+
+        private int figureWidth;
+        public int FigureWidth { get { return figureWidth;  } }
+
+        private int figureHeight;
+        public int FigureHeight { get { return figureHeight; } }
+
         public Bitmap FigureBitmap
         {
             get
             {
-                lock (locker)
+                lock (BitmapLocker)
                 {
-                    return new Bitmap(figureBitmap);
+                    return figureBitmap;
                 }
             }
         }
 
         public double AspectRatio { get; set; }
-        public bool IsRelative { get; set; }
-
-        List<FPoint> points = new List<FPoint>();
+        public bool IsRelative { get; set; }        
 
         public Figure(int width, int height)
         {
-            lock (locker)
+            lock (BitmapLocker)
             {
                 XLabel = "X [-]";
                 YLabel = "Y [-]";
-                figureBitmap = new Bitmap(width, height);
-                createNewBitmap();
+                createNewBitmap(width, height);
+
+                this.dataSeriesControllerList = new List<FigureDataSeriesController>();
                 this.Clear();
 
                 backgroundWorker = new BackgroundWorker();
@@ -83,73 +85,29 @@ namespace Gaia.Core.Visualization
                 backgroundWorker.RunWorkerCompleted += new RunWorkerCompletedEventHandler(backgroundWorker_Completed);
 
                 this.isPreviewMode = true;
-                this.dataSeriesList = new List<FigureDataSeries>();
             } 
         }
 
-        public void AddDataSeries(FigureDataSeries dataSeries)
+
+        public void AddDataSeriesController(FigureDataSeriesController dataSeriesController)
         {
-            this.dataSeriesList.Add(dataSeries);
+            this.dataSeriesControllerList.Add(dataSeriesController);
         }
 
         public void Clear()
         {
             if (!isFixedLimits)
             {
-                xLimMin = Double.PositiveInfinity;
-                xLimMax = Double.NegativeInfinity;
-                yLimMin = Double.PositiveInfinity;
-                yLimMax = Double.NegativeInfinity;
+                XLimMin = Double.PositiveInfinity;
+                XLimMax = Double.NegativeInfinity;
+                YLimMin = Double.PositiveInfinity;
+                YLimMax = Double.NegativeInfinity;
             }
             createNewBitmap();
-            points.Clear();
-        }
 
-        /// <summary>
-        /// Draw a data point on the figure. The points are in world coordinates
-        /// </summary>
-        /// <param name="x">X in world corrdinate system</param>
-        /// <param name="y">Y in world voordinate system</param>
-        bool isLimitsChanged = false;
-        private void addPoint(double x, double y)
-        {
-            if (x > XLimMax)
+            foreach(FigureDataSeriesController seriesController in this.dataSeriesControllerList)
             {
-                if (isFixedLimits == false) xLimMax = x;
-                isLimitsChanged = true;
-            }
-
-            if (x < XLimMin)
-            {
-                if (isFixedLimits == false) xLimMin = x;
-                isLimitsChanged = true;
-            }
-
-            if (y > YLimMax)
-            {
-                if (isFixedLimits == false) yLimMax = y;
-                isLimitsChanged = true;
-            }
-
-            if (y < YLimMin)
-            {
-                if (isFixedLimits == false) yLimMin = y;
-                isLimitsChanged = true;
-            }
-
-            if (isFixedLimits == true)
-            {
-                if (!isLimitsChanged)
-                {
-                    drawPoint(x, y);
-                }
-                isLimitsChanged = false;
-            }
-
-            if (isFixedLimits == false)
-            {
-                points.Add(new FPoint(x, y));
-                drawPoint(x, y);
+                seriesController.Clear();
             }
         }
 
@@ -192,75 +150,52 @@ namespace Gaia.Core.Visualization
             }
         }
 
-        public void Redraw()
-        {
-            lock (locker)
-            {
-                if ((isLimitsChanged) && (isFixedLimits == false))
-                {
-                    calculateLimits();
-                    createNewBitmap();
-                    foreach (FPoint pt in points)
-                    {
-                        drawPoint(pt.X, pt.Y);
-                    }
-
-                    isLimitsChanged = false;
-                }
-
-                
-            }
-        }
-
         private void createNewBitmap()
         {
-            lock (locker)
+            createNewBitmap(figureWidth, figureHeight);
+        }
+
+        private void createNewBitmap(int width, int height)
+        {
+            lock (BitmapLocker)
             {
-                figureBitmap = new Bitmap(figureBitmap.Width, FigureBitmap.Height);
+                figureWidth  = width;
+                figureHeight = height;
+                figureBitmap = new Bitmap(width, height);
                 Graphics g = Graphics.FromImage(figureBitmap);
                 g.Clear(this.backGroundColor);
                 drawAxis(g);
                 g.Flush();
                 g.Dispose();
-                isFigureUpdated = true;
             }
         }
 
-
-        public FPoint WorldToImage(double x, double y)
+        public void WorldToImage(double x, double y, ref int ix, ref int iy)
         {
-            lock (locker)
-            {
                 double dx = (XLimMax - XLimMin) != 0 ? XLimMax - XLimMin : 1;
                 double dy = (YLimMax - YLimMin) != 0 ? YLimMax - YLimMin : 1;
-                double ratX = (double)(figureBitmap.Width - axisEdgeOuterX * 2 - axisEdgeInnerX * 2) / dx;
-                double ratY = (double)(figureBitmap.Height - axisEdgeOuterY * 2 - axisEdgeInnerY * 2) / dy;
+                double ratX = (double)(figureWidth - axisEdgeOuterX * 2 - axisEdgeInnerX * 2) / dx;
+                double ratY = (double)(figureHeight - axisEdgeOuterY * 2 - axisEdgeInnerY * 2) / dy;
 
-                int picX = (int)((x - XLimMin) * ratX) + axisEdgeOuterX + axisEdgeInnerX;
-                int picY = figureBitmap.Height - (int)((y - YLimMin) * ratY) - axisEdgeOuterY - axisEdgeInnerY;
-                return new FPoint(picX, picY);
-            }
+                ix = (int)((x - XLimMin) * ratX) + axisEdgeOuterX + axisEdgeInnerX;
+                iy = figureHeight - (int)((y - YLimMin) * ratY) - axisEdgeOuterY - axisEdgeInnerY;
         }
 
 
-        public FPoint ImageToWord(int x, int y)
+        public void ImageToWord(int x, int y, ref double wx, ref double wy)
         {
-            lock (locker)
-            {
-                double dx = (XLimMax - XLimMin) != 0 ? XLimMax - XLimMin : 1;
-                double dy = (YLimMax - YLimMin) != 0 ? YLimMax - YLimMin : 1;
-                double ratX = (double)(figureBitmap.Width - axisEdgeOuterX * 2 - axisEdgeInnerX * 2) / dx;
-                double ratY = (double)(figureBitmap.Height - axisEdgeOuterY * 2 - axisEdgeInnerY * 2) / dy;
+            double dx = (XLimMax - XLimMin) != 0 ? XLimMax - XLimMin : 1;
+            double dy = (YLimMax - YLimMin) != 0 ? YLimMax - YLimMin : 1;
+            double ratX = (double)(figureWidth - axisEdgeOuterX * 2 - axisEdgeInnerX * 2) / dx;
+            double ratY = (double)(figureHeight - axisEdgeOuterY * 2 - axisEdgeInnerY * 2) / dy;
 
-                double wrdX = ((double)(x - axisEdgeOuterX - axisEdgeInnerX) / ratX) + XLimMin;
-                double wrdY = ((double)-(y - figureBitmap.Height + axisEdgeOuterY + axisEdgeInnerY) / ratY) + YLimMin;
-                return new FPoint(wrdX, wrdY);
-            }
+            wx = ((double)(x - axisEdgeOuterX - axisEdgeInnerX) / ratX) + XLimMin;
+            wy = ((double)-(y - figureHeight + axisEdgeOuterY + axisEdgeInnerY) / ratY) + YLimMin;
         }
 
         private void drawAxis(Graphics g)
         {
-            lock (locker)
+            lock (BitmapLocker)
             {
                 int textLengthX = Math.Max(XLimMax.ToString(tickLabelXFormat).Length * (int)tickLabelFont.Size,
                                XLimMin.ToString(tickLabelXFormat).Length * (int)tickLabelFont.Size);
@@ -299,15 +234,19 @@ namespace Gaia.Core.Visualization
 
                 for (double i = XLimMin; i <= XLimMax; i += dX)
                 {
-                    FPoint ptTickX = new FPoint(i, YLimMin);
-                    FPoint tickX = this.WorldToImage(ptTickX.X, ptTickX.Y);
-                    g.DrawLine(axisPen, new Point((int)tickX.X, (int)tickX.Y - tickSize / 2), new Point((int)tickX.X, (int)tickX.Y + tickSize / 2));
-                    if (IsRelative) ptTickX.X = ptTickX.X - XLimMin;
+                    double wxTickX = i;
+                    double wyTickX = YLimMin;
+                    int ixTickX = 0;
+                    int iyTickX = 0;
 
-                    String label = ptTickX.X.ToString(tickLabelXFormat);
+                    this.WorldToImage(wxTickX, wyTickX, ref ixTickX, ref iyTickX);
+                    g.DrawLine(axisPen, new Point((int)ixTickX, (int)iyTickX - tickSize / 2), new Point((int)ixTickX, (int)iyTickX + tickSize / 2));
+                    if (IsRelative) wxTickX = wxTickX - XLimMin;
+
+                    String label = wxTickX.ToString(tickLabelXFormat);
                     int labelWidth = label.Length * (int)tickLabelFont.Size;
                     int labelHeight = (int)tickLabelFont.Size;
-                    g.DrawString(label, tickLabelFont, tickLabelBrush, (int)tickX.X - labelWidth / 2, (int)tickX.Y + tickSize, tickLabelFormat);
+                    g.DrawString(label, tickLabelFont, tickLabelBrush, (int)ixTickX - labelWidth / 2, (int)iyTickX + tickSize, tickLabelFormat);
                 }
 
                 g.DrawString(XLabel, labelFont, tickLabelBrush, (int)(origin.X + rX / 2) - XLabel.Length * labelFont.Size / 2, origin.Y + tickSize + tickLabelFont.Size * 2, labelFormat);
@@ -315,20 +254,22 @@ namespace Gaia.Core.Visualization
                 int tickLabelWidth = 0;
                 for (double i = YLimMin; i <= YLimMax; i += dY)
                 {
-                    FPoint ptTickY = new FPoint(XLimMin, i);
-                    FPoint tickY = this.WorldToImage(ptTickY.X, ptTickY.Y);
-                    g.DrawLine(axisPen, new Point((int)tickY.X - tickSize / 2, (int)tickY.Y), new Point((int)tickY.X + tickSize / 2, (int)tickY.Y));
-                    if (IsRelative) ptTickY.Y = ptTickY.Y - YLimMin;
+                    double wxTickY = XLimMin;
+                    double wyTickY = i;
+                    int ixTickY = 0;
+                    int iyTickY = 0;
 
-                    String label = ptTickY.Y.ToString(tickLabelYFormat);
+                    this.WorldToImage(wxTickY, wyTickY, ref ixTickY, ref iyTickY);
+                    g.DrawLine(axisPen, new Point((int)ixTickY - tickSize / 2, (int)iyTickY), new Point((int)ixTickY + tickSize / 2, (int)iyTickY));
+                    if (IsRelative) wyTickY = wyTickY - YLimMin;
+
+                    String label = wyTickY.ToString(tickLabelYFormat);
                     tickLabelWidth = label.Length * (int)tickLabelFont.Size;
                     int labelHeight = (int)tickLabelFont.Size;
-                    g.DrawString(label, tickLabelFont, tickLabelBrush, (int)tickY.X - tickLabelWidth, (int)tickY.Y - labelHeight, tickLabelFormat);
+                    g.DrawString(label, tickLabelFont, tickLabelBrush, (int)ixTickY - tickLabelWidth, (int)iyTickY - labelHeight, tickLabelFormat);
                 }
 
                 g.DrawString(YLabel, labelFont, tickLabelBrush, (int)pY.X - tickLabelWidth, (int)(pY.Y - tickSize - tickLabelFont.Size * 2));
-
-                isFigureUpdated = true;
             }
 
         }
@@ -349,40 +290,7 @@ namespace Gaia.Core.Visualization
             return digits;
 
         }
-
-        /// <summary>
-        /// Draw a data point on the figure. The points are in world coordinates
-        /// </summary>
-        /// <param name="x">X in world corrdinate system</param>
-        /// <param name="y">Y in world voordinate system</param>
-        private void drawPoint(double x, double y)
-        {
-            lock (locker)
-            {
-                // just for safety, otherwise: assert
-                /*if (figureBitmap == null)
-                {
-                    createNewBitmap();
-                }*/
-
-                FPoint picP = WorldToImage(x, y);
-
-                if ((picP.X >= 0) && (picP.X <= figureBitmap.Width) && (picP.Y >= 0) && (picP.Y < figureBitmap.Height))
-                {
-                    Point dPoint = new Point((int)picP.X, (int)picP.Y);
-
-                    dPoint.X = dPoint.X - markerSize / 2;
-                    dPoint.Y = dPoint.Y - markerSize / 2;
-                    Rectangle rect = new Rectangle(dPoint, new Size(markerSize, markerSize));
-
-                    Graphics g = Graphics.FromImage(figureBitmap);
-                    g.FillEllipse(brush, rect);
-                    g.Dispose();
-
-                    isFigureUpdated = true;
-                }
-            }
-        }
+        
 
         #region FPoint class
 
