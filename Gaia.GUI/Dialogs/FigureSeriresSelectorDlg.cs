@@ -76,6 +76,9 @@ namespace Gaia.GUI.Dialogs
             }
         }
 
+        private Color seriesColor = Color.Red; 
+        public Color SeriesColor { get { return seriesColor; } }
+
         public FigureSeriesSelectorDlg()
         {
             InitializeComponent();
@@ -98,6 +101,8 @@ namespace Gaia.GUI.Dialogs
                     this.comboBoxFigures.DisplayMember = "CaptionName";
                 }
             }
+
+            textColor.BackColor = this.seriesColor;
         }
 
         private void FigureSeriresSelectorDlg_Load(object sender, EventArgs e)
@@ -176,6 +181,16 @@ namespace Gaia.GUI.Dialogs
         private void comboBoxYSeriesField_SelectedIndexChanged(object sender, EventArgs e)
         {
             this.Refresh();
+        }
+
+        private void button1_Click(object sender, EventArgs e)
+        {
+            colorDialog.Color = this.seriesColor;
+            if (colorDialog.ShowDialog() == DialogResult.OK)
+            {
+                this.seriesColor = colorDialog.Color;
+                textColor.BackColor = this.seriesColor;
+            }
         }
     }
 }

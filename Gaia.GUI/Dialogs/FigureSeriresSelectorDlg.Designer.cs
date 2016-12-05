@@ -45,13 +45,21 @@
             this.label1 = new System.Windows.Forms.Label();
             this.comboBoxXSeriesDataStream = new System.Windows.Forms.ComboBox();
             this.tabPage2 = new System.Windows.Forms.TabPage();
+            this.tabVisualization = new System.Windows.Forms.TabPage();
+            this.groupBox4 = new System.Windows.Forms.GroupBox();
+            this.button1 = new System.Windows.Forms.Button();
+            this.label5 = new System.Windows.Forms.Label();
             this.btnCancel = new System.Windows.Forms.Button();
             this.btnAdd = new System.Windows.Forms.Button();
+            this.colorDialog = new System.Windows.Forms.ColorDialog();
+            this.textColor = new System.Windows.Forms.TextBox();
             this.tabControlFieldSelector.SuspendLayout();
             this.tabPageFieldSelector.SuspendLayout();
             this.groupBox3.SuspendLayout();
             this.groupBox2.SuspendLayout();
             this.groupBox1.SuspendLayout();
+            this.tabVisualization.SuspendLayout();
+            this.groupBox4.SuspendLayout();
             this.SuspendLayout();
             // 
             // tabControlFieldSelector
@@ -61,6 +69,7 @@
             | System.Windows.Forms.AnchorStyles.Right)));
             this.tabControlFieldSelector.Controls.Add(this.tabPageFieldSelector);
             this.tabControlFieldSelector.Controls.Add(this.tabPage2);
+            this.tabControlFieldSelector.Controls.Add(this.tabVisualization);
             this.tabControlFieldSelector.Location = new System.Drawing.Point(0, 0);
             this.tabControlFieldSelector.Name = "tabControlFieldSelector";
             this.tabControlFieldSelector.SelectedIndex = 0;
@@ -239,6 +248,51 @@
             this.tabPage2.Text = "Query";
             this.tabPage2.UseVisualStyleBackColor = true;
             // 
+            // tabVisualization
+            // 
+            this.tabVisualization.Controls.Add(this.groupBox4);
+            this.tabVisualization.Location = new System.Drawing.Point(4, 22);
+            this.tabVisualization.Name = "tabVisualization";
+            this.tabVisualization.Padding = new System.Windows.Forms.Padding(3);
+            this.tabVisualization.Size = new System.Drawing.Size(396, 262);
+            this.tabVisualization.TabIndex = 2;
+            this.tabVisualization.Text = "Visualization";
+            this.tabVisualization.UseVisualStyleBackColor = true;
+            // 
+            // groupBox4
+            // 
+            this.groupBox4.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.groupBox4.Controls.Add(this.textColor);
+            this.groupBox4.Controls.Add(this.button1);
+            this.groupBox4.Controls.Add(this.label5);
+            this.groupBox4.Location = new System.Drawing.Point(3, 6);
+            this.groupBox4.Name = "groupBox4";
+            this.groupBox4.Size = new System.Drawing.Size(387, 54);
+            this.groupBox4.TabIndex = 3;
+            this.groupBox4.TabStop = false;
+            this.groupBox4.Text = "Figure";
+            // 
+            // button1
+            // 
+            this.button1.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.button1.Location = new System.Drawing.Point(330, 19);
+            this.button1.Name = "button1";
+            this.button1.Size = new System.Drawing.Size(51, 26);
+            this.button1.TabIndex = 2;
+            this.button1.Text = "...";
+            this.button1.UseVisualStyleBackColor = true;
+            this.button1.Click += new System.EventHandler(this.button1_Click);
+            // 
+            // label5
+            // 
+            this.label5.AutoSize = true;
+            this.label5.Location = new System.Drawing.Point(6, 22);
+            this.label5.Name = "label5";
+            this.label5.Size = new System.Drawing.Size(31, 13);
+            this.label5.TabIndex = 1;
+            this.label5.Text = "Color";
+            // 
             // btnCancel
             // 
             this.btnCancel.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
@@ -268,6 +322,14 @@
             this.btnAdd.UseVisualStyleBackColor = true;
             this.btnAdd.Click += new System.EventHandler(this.btnAdd_Click);
             // 
+            // textColor
+            // 
+            this.textColor.Location = new System.Drawing.Point(48, 19);
+            this.textColor.Name = "textColor";
+            this.textColor.ReadOnly = true;
+            this.textColor.Size = new System.Drawing.Size(25, 20);
+            this.textColor.TabIndex = 4;
+            // 
             // FigureSeriesSelectorDlg
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -290,6 +352,9 @@
             this.groupBox2.PerformLayout();
             this.groupBox1.ResumeLayout(false);
             this.groupBox1.PerformLayout();
+            this.tabVisualization.ResumeLayout(false);
+            this.groupBox4.ResumeLayout(false);
+            this.groupBox4.PerformLayout();
             this.ResumeLayout(false);
 
         }
@@ -314,5 +379,11 @@
         private System.Windows.Forms.GroupBox groupBox3;
         private System.Windows.Forms.Label label6;
         private System.Windows.Forms.ComboBox comboBoxFigures;
+        private System.Windows.Forms.TabPage tabVisualization;
+        private System.Windows.Forms.GroupBox groupBox4;
+        private System.Windows.Forms.Button button1;
+        private System.Windows.Forms.Label label5;
+        private System.Windows.Forms.ColorDialog colorDialog;
+        private System.Windows.Forms.TextBox textColor;
     }
 }

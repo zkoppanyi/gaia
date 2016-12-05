@@ -12,7 +12,7 @@ namespace Gaia.Core.Visualization
     public class FigureDataSeriesForDataStream : FigureDataSeries
     {
         public DataStream DataStream { get; }
-        public SolidBrush MarkerBrush = new SolidBrush(Color.Red);
+        public SolidBrush SeriesColor = new SolidBrush(Color.Red);
         public int MarkerSize = 4;
 
         public FigureDataSeriesForDataStream(String name, DataStream dataStream, String captionX, String captionY)

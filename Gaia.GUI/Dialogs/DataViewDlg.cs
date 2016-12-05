@@ -324,6 +324,7 @@ namespace Gaia.GUI.Dialogs
                 }
 
                 FigureDataSeriesForDataStream dataSeries = new FigureDataSeriesForDataStream(selector.SelectedStreamX.Name, selector.SelectedStreamX, selector.SelectedFieldX, selector.SelectedFieldY);
+                dataSeries.SeriesColor = new SolidBrush(selector.SeriesColor);
                 selectedFigure.AddDataSeries(dataSeries);
                 selectedFigure.MdiParent = this.MdiParent;
                 selectedFigure.Show();

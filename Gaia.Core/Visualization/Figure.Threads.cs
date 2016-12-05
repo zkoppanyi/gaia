@@ -1,9 +1,6 @@
-﻿using Gaia.Core.DataStreams;
-using Gaia.Core.Processing;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel;
-using System.Drawing;
 using System.Threading;
 
 namespace Gaia.Core.Visualization
@@ -37,7 +34,6 @@ namespace Gaia.Core.Visualization
         {
             get { return this.msg; }
         }
-
     }
 
     public partial class Figure

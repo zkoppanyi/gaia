@@ -3,6 +3,7 @@ using Gaia.Core.Processing;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Diagnostics;
 using System.Drawing;
 using System.Linq;
 using System.Text;
@@ -15,6 +16,10 @@ namespace Gaia.Core.Visualization
     {
         public bool IsPreviewMode { get; set; }
         private List<Tuple<double, double>> points = new List<Tuple<double, double>>();
+        private Stopwatch refreshProgressWatch;
+        private Stopwatch refreshLimitsWatch;
+        bool isLimitsChanged = false;
+
 
         public FigureDataSeriesForDataStreamController(Figure figure, FigureDataSeriesForDataStream series) : base(figure, series)
         {
@@ -25,6 +30,8 @@ namespace Gaia.Core.Visualization
         {
             isLimitsChanged = false;
             points.Clear();
+            refreshProgressWatch = Stopwatch.StartNew();
+            refreshLimitsWatch = Stopwatch.StartNew();
             FigureDataSeriesForDataStream dataStreamSeries = series as FigureDataSeriesForDataStream;
             DataStream dataStream = dataStreamSeries.DataStream;
             int under_sampling = Convert.ToInt32((double)dataStream.DataNumber / 20000.0) + 1;
@@ -63,9 +70,11 @@ namespace Gaia.Core.Visualization
                     i++;
                 }
 
-                if ((progress % 10 == 0) && (lastProgressReport != progress)) // just report for the progress bar
+                TimeSpan dtProgress = refreshProgressWatch.Elapsed;
+                if (dtProgress.TotalSeconds > 0.2) // just report for the progress bar
                 {
-                    if ((isLimitsChanged == true) && (progress % 50 == 0))
+                    TimeSpan dt = refreshLimitsWatch.Elapsed;
+                    if ((isLimitsChanged == true) && (dt.TotalSeconds > 1))
                     {
                         isLimitsChanged = false;
                         dataStream.Close();
@@ -77,10 +86,10 @@ namespace Gaia.Core.Visualization
                     flushPoints();
                     backgroundWorker.ReportProgress(progress, null);
                     figure.SyncFigureEvent.WaitOne();
+                    refreshProgressWatch = Stopwatch.StartNew();
                 }
 
                 lastProgressReport = progress;
-
 
             }
 
@@ -104,16 +113,16 @@ namespace Gaia.Core.Visualization
         /// </summary>
         /// <param name="x">X in world corrdinate system</param>
         /// <param name="y">Y in world voordinate system</param>
-        bool isLimitsChanged = false;
         private void addPoint(double wx, double wy)
         {
+            bool isOutOfTheCurrentArea = false;
             if (wx > figure.XLimMax)
             {
                 if (figure.IsFixedLimits == false)
                 {
                     figure.XLimMax = wx;
-                    isLimitsChanged = true;
                 }
+                isOutOfTheCurrentArea = true;
             }
 
             if (wx < figure.XLimMin)
@@ -121,8 +130,8 @@ namespace Gaia.Core.Visualization
                 if (figure.IsFixedLimits == false)
                 {
                     figure.XLimMin = wx;
-                    isLimitsChanged = true;
                 }
+                isOutOfTheCurrentArea = true;
             }
 
             if (wy > figure.YLimMax)
@@ -130,8 +139,8 @@ namespace Gaia.Core.Visualization
                 if (figure.IsFixedLimits == false)
                 {
                     figure.YLimMax = wy;
-                    isLimitsChanged = true;
                 }
+                isOutOfTheCurrentArea = true;
             }
 
             if (wy < figure.YLimMin)
@@ -139,15 +148,15 @@ namespace Gaia.Core.Visualization
                 if (figure.IsFixedLimits == false)
                 {
                     figure.YLimMin = wy;
-                    isLimitsChanged = true;
                 }
+                isOutOfTheCurrentArea = true;
             }
 
             if (figure.IsFixedLimits == true)
             {
-                if (!isLimitsChanged)
+                if (!isOutOfTheCurrentArea)
                 {
-                    drawPoint(wx, wy);
+                    points.Add(new Tuple<double, double>(wx, wy));
                 }
                 isLimitsChanged = false;
             }
@@ -155,7 +164,11 @@ namespace Gaia.Core.Visualization
             if (figure.IsFixedLimits == false)
             {
                 points.Add(new Tuple<double, double>(wx, wy));
-                //drawPoint(wx, wy);
+
+                if (isLimitsChanged == false)
+                {
+                    isLimitsChanged = isOutOfTheCurrentArea;
+                }
             }
         }
 
@@ -191,7 +204,7 @@ namespace Gaia.Core.Visualization
                     Rectangle rect = new Rectangle(dPoint, new Size(dataStreamSeries.MarkerSize, dataStreamSeries.MarkerSize));
 
                     Graphics g = Graphics.FromImage(figure.FigureBitmap);
-                    g.FillEllipse(dataStreamSeries.MarkerBrush, rect);
+                    g.FillEllipse(dataStreamSeries.SeriesColor, rect);
                     g.Dispose();
                    
                 }
