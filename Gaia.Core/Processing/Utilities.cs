@@ -55,7 +55,9 @@ namespace Gaia.Core.Processing
 
         public static void ConvertDegToDMS(double value, out int deg, out int min, out double sec)
         {
+#pragma warning disable CS1718 // Comparison made to same variable
             if (value != value) // is nan
+#pragma warning restore CS1718 // Comparison made to same variable
             {
                 deg = 0;
                 min = 0;
@@ -195,7 +197,7 @@ namespace Gaia.Core.Processing
             {
                 throw new NotImplementedException();
                 // the inputs are good?
-                fromPoint = new double[] { pt.X, pt.Y, pt.Z };
+                //fromPoint = new double[] { pt.X, pt.Y, pt.Z };
             }
 
             if (fromCRS is ProjectedCoordinateSystem)

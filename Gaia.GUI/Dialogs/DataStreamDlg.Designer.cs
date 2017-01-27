@@ -35,6 +35,7 @@
             this.menuStripDataStream = new System.Windows.Forms.MenuStrip();
             this.fileToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.addNewDataStreamToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.addNewImageDataStreamToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.removeDataStreamToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.importDataStreamToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.toolStripSeparator2 = new System.Windows.Forms.ToolStripSeparator();
@@ -51,13 +52,14 @@
             this.toolStripButton2 = new System.Windows.Forms.ToolStripButton();
             this.toolStripDeleteStream = new System.Windows.Forms.ToolStripButton();
             this.dataStreamGridView = new System.Windows.Forms.DataGridView();
+            this.dataGridViewImageColumn1 = new System.Windows.Forms.DataGridViewImageColumn();
+            this.dataGridViewImageColumn2 = new System.Windows.Forms.DataGridViewImageColumn();
             this.nameDataGridViewTextBoxColumn = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.descriptionDataGridViewTextBoxColumn = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.cRSDataGridViewTextBoxColumn = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.tRSDataGridViewTextBoxColumn = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.iDataStreamBindingSource = new System.Windows.Forms.BindingSource(this.components);
-            this.dataGridViewImageColumn1 = new System.Windows.Forms.DataGridViewImageColumn();
-            this.dataGridViewImageColumn2 = new System.Windows.Forms.DataGridViewImageColumn();
+            this.toolStripButton4 = new System.Windows.Forms.ToolStripButton();
             this.menuStripDataStream.SuspendLayout();
             this.toolStrip.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.dataStreamGridView)).BeginInit();
@@ -91,34 +93,43 @@
             // 
             // addNewDataStreamToolStripMenuItem
             // 
+            this.addNewDataStreamToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.addNewImageDataStreamToolStripMenuItem});
             this.addNewDataStreamToolStripMenuItem.Name = "addNewDataStreamToolStripMenuItem";
-            this.addNewDataStreamToolStripMenuItem.Size = new System.Drawing.Size(199, 22);
-            this.addNewDataStreamToolStripMenuItem.Text = "Add New Data Stream...";
+            this.addNewDataStreamToolStripMenuItem.Size = new System.Drawing.Size(193, 22);
+            this.addNewDataStreamToolStripMenuItem.Text = "Add New Data Stream";
             this.addNewDataStreamToolStripMenuItem.Click += new System.EventHandler(this.addNewDataStreamToolStripMenuItem_Click);
+            // 
+            // addNewImageDataStreamToolStripMenuItem
+            // 
+            this.addNewImageDataStreamToolStripMenuItem.Name = "addNewImageDataStreamToolStripMenuItem";
+            this.addNewImageDataStreamToolStripMenuItem.Size = new System.Drawing.Size(226, 22);
+            this.addNewImageDataStreamToolStripMenuItem.Text = "Add New Image Data Stream";
+            this.addNewImageDataStreamToolStripMenuItem.Click += new System.EventHandler(this.addNewImageDataStreamToolStripMenuItem_Click);
             // 
             // removeDataStreamToolStripMenuItem
             // 
             this.removeDataStreamToolStripMenuItem.Name = "removeDataStreamToolStripMenuItem";
-            this.removeDataStreamToolStripMenuItem.Size = new System.Drawing.Size(199, 22);
+            this.removeDataStreamToolStripMenuItem.Size = new System.Drawing.Size(193, 22);
             this.removeDataStreamToolStripMenuItem.Text = "Remove Data Stream...";
             this.removeDataStreamToolStripMenuItem.Click += new System.EventHandler(this.toolStripDeleteStream_Click);
             // 
             // importDataStreamToolStripMenuItem
             // 
             this.importDataStreamToolStripMenuItem.Name = "importDataStreamToolStripMenuItem";
-            this.importDataStreamToolStripMenuItem.Size = new System.Drawing.Size(199, 22);
+            this.importDataStreamToolStripMenuItem.Size = new System.Drawing.Size(193, 22);
             this.importDataStreamToolStripMenuItem.Text = "Import Data Stream...";
             this.importDataStreamToolStripMenuItem.Click += new System.EventHandler(this.toolStripButton2_Click);
             // 
             // toolStripSeparator2
             // 
             this.toolStripSeparator2.Name = "toolStripSeparator2";
-            this.toolStripSeparator2.Size = new System.Drawing.Size(196, 6);
+            this.toolStripSeparator2.Size = new System.Drawing.Size(190, 6);
             // 
             // transformToolStripMenuItem
             // 
             this.transformToolStripMenuItem.Name = "transformToolStripMenuItem";
-            this.transformToolStripMenuItem.Size = new System.Drawing.Size(199, 22);
+            this.transformToolStripMenuItem.Size = new System.Drawing.Size(193, 22);
             this.transformToolStripMenuItem.Text = "Transform...";
             this.transformToolStripMenuItem.Click += new System.EventHandler(this.transformToolStripMenuItem_Click);
             // 
@@ -159,6 +170,7 @@
             this.toolStripButton3,
             this.toolStripButton1,
             this.toolStripShowData,
+            this.toolStripButton4,
             this.toolStripSeparator1,
             this.toolStripButton2,
             this.toolStripDeleteStream});
@@ -268,6 +280,24 @@
             this.dataStreamGridView.ColumnHeaderMouseDoubleClick += new System.Windows.Forms.DataGridViewCellMouseEventHandler(this.dataStreamGridView_ColumnHeaderMouseDoubleClick);
             this.dataStreamGridView.RowHeaderMouseDoubleClick += new System.Windows.Forms.DataGridViewCellMouseEventHandler(this.dataStreamGridView_RowHeaderMouseDoubleClick);
             // 
+            // dataGridViewImageColumn1
+            // 
+            this.dataGridViewImageColumn1.DataPropertyName = "Name";
+            this.dataGridViewImageColumn1.HeaderText = "";
+            this.dataGridViewImageColumn1.Image = global::Gaia.Properties.Resources.delete_database_button;
+            this.dataGridViewImageColumn1.ImageLayout = System.Windows.Forms.DataGridViewImageCellLayout.Stretch;
+            this.dataGridViewImageColumn1.Name = "dataGridViewImageColumn1";
+            this.dataGridViewImageColumn1.ReadOnly = true;
+            this.dataGridViewImageColumn1.Width = 25;
+            // 
+            // dataGridViewImageColumn2
+            // 
+            this.dataGridViewImageColumn2.HeaderText = "";
+            this.dataGridViewImageColumn2.Image = global::Gaia.Properties.Resources.info_button;
+            this.dataGridViewImageColumn2.Name = "dataGridViewImageColumn2";
+            this.dataGridViewImageColumn2.ReadOnly = true;
+            this.dataGridViewImageColumn2.Width = 25;
+            // 
             // nameDataGridViewTextBoxColumn
             // 
             this.nameDataGridViewTextBoxColumn.DataPropertyName = "Name";
@@ -300,23 +330,15 @@
             // 
             this.iDataStreamBindingSource.DataSource = typeof(Gaia.Core.DataStreams.DataStream);
             // 
-            // dataGridViewImageColumn1
+            // toolStripButton4
             // 
-            this.dataGridViewImageColumn1.DataPropertyName = "Name";
-            this.dataGridViewImageColumn1.HeaderText = "";
-            this.dataGridViewImageColumn1.Image = global::Gaia.Properties.Resources.delete_database_button;
-            this.dataGridViewImageColumn1.ImageLayout = System.Windows.Forms.DataGridViewImageCellLayout.Stretch;
-            this.dataGridViewImageColumn1.Name = "dataGridViewImageColumn1";
-            this.dataGridViewImageColumn1.ReadOnly = true;
-            this.dataGridViewImageColumn1.Width = 25;
-            // 
-            // dataGridViewImageColumn2
-            // 
-            this.dataGridViewImageColumn2.HeaderText = "";
-            this.dataGridViewImageColumn2.Image = global::Gaia.Properties.Resources.info_button;
-            this.dataGridViewImageColumn2.Name = "dataGridViewImageColumn2";
-            this.dataGridViewImageColumn2.ReadOnly = true;
-            this.dataGridViewImageColumn2.Width = 25;
+            this.toolStripButton4.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
+            this.toolStripButton4.Image = ((System.Drawing.Image)(resources.GetObject("toolStripButton4.Image")));
+            this.toolStripButton4.ImageTransparentColor = System.Drawing.Color.Magenta;
+            this.toolStripButton4.Name = "toolStripButton4";
+            this.toolStripButton4.Size = new System.Drawing.Size(23, 22);
+            this.toolStripButton4.Text = "toolStripButton4";
+            this.toolStripButton4.Click += new System.EventHandler(this.toolStripButton4_Click_1);
             // 
             // DataStreamDlg
             // 
@@ -370,5 +392,7 @@
         private System.Windows.Forms.ToolStripSeparator toolStripSeparator2;
         private System.Windows.Forms.ToolStripMenuItem iMUInitializationToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem updateOrderFlagToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem addNewImageDataStreamToolStripMenuItem;
+        private System.Windows.Forms.ToolStripButton toolStripButton4;
     }
 }

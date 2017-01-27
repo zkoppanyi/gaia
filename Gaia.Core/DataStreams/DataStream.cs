@@ -23,7 +23,8 @@ namespace Gaia.Core.DataStreams
         IMUDataStream,
         UWBDataStream,
         GPSLogDataStream,
-        WifiFingerprinting
+        WifiFingerprinting,
+        ImageDataStream
     }
 
     [Serializable]
@@ -199,7 +200,8 @@ namespace Gaia.Core.DataStreams
                 }
             }
 
-            if (position != fileStream.Length)
+            int n = dataLine.LineSize();
+            if (position < this.DataNumber)
             {
                 this.Seek(position + 1);
                 DataLine line = this.ReadLine();
@@ -256,7 +258,7 @@ namespace Gaia.Core.DataStreams
         /// Drop external resources connected to the data stream. 
         /// The object cannot be used afterwards. The caller has to clean all references.
         /// </summary>
-        internal void Drop()
+        internal protected virtual void Drop()
         {
             checkIsDropped();
             this.Close();

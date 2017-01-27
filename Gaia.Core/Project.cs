@@ -32,6 +32,10 @@ namespace Gaia.Core
         private PointManagerClass pointManager = null;
         public PointManagerClass PointManager { get { return pointManager; } }
 
+        public List<TRS> TimeFrames;
+        private static String DATASTREAM_FOLDER = "DataStreams";
+
+
         public IEnumerable<GPoint> PointsList
         {
             get
@@ -49,8 +53,6 @@ namespace Gaia.Core
             }
         }
 
-        public List<TRS> TimeFrames;
-        private static String DATASTREAM_FOLDER = "DataStreams";
 
         private Project(String location)
         {
@@ -102,6 +104,19 @@ namespace Gaia.Core
                 project.Location = location;
                 return project;
             }
+        }        
+
+        internal void CreateImageFolderForDataStream(ImageDataStream dataStream)
+        {
+            if (!Directory.Exists(dataStream.ImageFolder))
+            {
+                Directory.CreateDirectory(dataStream.ImageFolder);
+            }
+        }
+
+        private void CreateFolderStructure()
+        {
+            Directory.CreateDirectory(this.Location + "\\" + Project.DATASTREAM_FOLDER);
         }
 
         private void Save(String path)
@@ -112,11 +127,6 @@ namespace Gaia.Core
             IFormatter formatter = new BinaryFormatter();
             formatter.Serialize(stream, this);
             stream.Close();
-        }
-
-        private void CreateFolderStructure()
-        {
-            Directory.CreateDirectory(this.Location + "\\" + Project.DATASTREAM_FOLDER);
         }
 
         public String GetProjectFile()

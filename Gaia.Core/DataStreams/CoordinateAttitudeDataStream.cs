@@ -14,7 +14,7 @@ namespace Gaia.Core.DataStreams
 
         }
 
-        internal static DataStream Create(Project project, string fileId)
+        internal new static DataStream Create(Project project, string fileId)
         {
             DataStream stream = new CoordinateAttitudeDataStream(project, fileId);
             return stream;

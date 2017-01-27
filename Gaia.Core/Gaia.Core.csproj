@@ -110,6 +110,8 @@
     <Compile Include="DataStreams\GPoint.cs" />
     <Compile Include="DataStreams\GPSLogDataLine.cs" />
     <Compile Include="DataStreams\GPSLogDataStream.cs" />
+    <Compile Include="DataStreams\ImageDataLine.cs" />
+    <Compile Include="DataStreams\ImageDataStream.cs" />
     <Compile Include="DataStreams\IMUDataLine.cs" />
     <Compile Include="DataStreams\IMUDataStream.cs" />
     <Compile Include="DataStreams\UWBDataLine.cs" />

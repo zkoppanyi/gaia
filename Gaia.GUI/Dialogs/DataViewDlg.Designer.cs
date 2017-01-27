@@ -35,8 +35,8 @@
             this.toolStrip = new System.Windows.Forms.ToolStrip();
             this.toolStripButton1 = new System.Windows.Forms.ToolStripButton();
             this.toolStripButtonStatistics = new System.Windows.Forms.ToolStripButton();
-            this.dataGridView = new System.Windows.Forms.DataGridView();
             this.toolStripButtonCalculate = new System.Windows.Forms.ToolStripButton();
+            this.dataGridView = new System.Windows.Forms.DataGridView();
             this.statusStrip1.SuspendLayout();
             this.toolStrip.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.dataGridView)).BeginInit();
@@ -49,6 +49,7 @@
             this.vScroll.Name = "vScroll";
             this.vScroll.Size = new System.Drawing.Size(17, 464);
             this.vScroll.TabIndex = 1;
+            this.vScroll.Scroll += new System.Windows.Forms.ScrollEventHandler(this.vScroll_Scroll);
             this.vScroll.ValueChanged += new System.EventHandler(this.vScroll_ValueChanged);
             this.vScroll.KeyUp += new System.Windows.Forms.KeyEventHandler(this.vScroll_KeyUp);
             // 
@@ -100,6 +101,16 @@
             this.toolStripButtonStatistics.Text = "toolStripButton2";
             this.toolStripButtonStatistics.Click += new System.EventHandler(this.toolStripButtonStatistics_Click);
             // 
+            // toolStripButtonCalculate
+            // 
+            this.toolStripButtonCalculate.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
+            this.toolStripButtonCalculate.Image = global::Gaia.Properties.Resources.save_pencil_button;
+            this.toolStripButtonCalculate.ImageTransparentColor = System.Drawing.Color.Magenta;
+            this.toolStripButtonCalculate.Name = "toolStripButtonCalculate";
+            this.toolStripButtonCalculate.Size = new System.Drawing.Size(23, 22);
+            this.toolStripButtonCalculate.Text = "toolStripButton2";
+            this.toolStripButtonCalculate.Click += new System.EventHandler(this.toolStripButton2_Click);
+            // 
             // dataGridView
             // 
             this.dataGridView.AllowUserToAddRows = false;
@@ -115,16 +126,6 @@
             this.dataGridView.Size = new System.Drawing.Size(543, 417);
             this.dataGridView.TabIndex = 5;
             this.dataGridView.CellContentClick += new System.Windows.Forms.DataGridViewCellEventHandler(this.dataGridView_CellContentClick);
-            // 
-            // toolStripButtonCalculate
-            // 
-            this.toolStripButtonCalculate.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
-            this.toolStripButtonCalculate.Image = global::Gaia.Properties.Resources.save_pencil_button;
-            this.toolStripButtonCalculate.ImageTransparentColor = System.Drawing.Color.Magenta;
-            this.toolStripButtonCalculate.Name = "toolStripButtonCalculate";
-            this.toolStripButtonCalculate.Size = new System.Drawing.Size(23, 22);
-            this.toolStripButtonCalculate.Text = "toolStripButton2";
-            this.toolStripButtonCalculate.Click += new System.EventHandler(this.toolStripButton2_Click);
             // 
             // DataViewDlg
             // 

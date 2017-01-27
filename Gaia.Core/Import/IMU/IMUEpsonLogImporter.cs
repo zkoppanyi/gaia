@@ -14,7 +14,7 @@ namespace Gaia.Core.Import
 {
     public sealed class IMUEpsonLogImporter : IMUTextImporter
     {
-        public static IMUEpsonLogImporterFactory Factory
+        public new static IMUEpsonLogImporterFactory Factory
         {
             get
             {

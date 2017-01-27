@@ -127,6 +127,11 @@ namespace Gaia.Core
                 {
                     stream = WifiFingerptiningDataStream.Create(project, DateTime.Now.ToString("yyyyMMddhhmmss"));
                 }
+                else if (dataStreamType == DataStreamType.ImageDataStream)
+                {
+                    stream = ImageDataStream.Create(project, DateTime.Now.ToString("yyyyMMddhhmmss"));
+                    project.CreateImageFolderForDataStream(stream as ImageDataStream);
+                }
 
                 if (stream != null)
                 {

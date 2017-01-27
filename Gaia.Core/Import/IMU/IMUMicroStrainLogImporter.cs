@@ -15,7 +15,7 @@ namespace Gaia.Core.Import
     [Serializable]
     public class IMUMicroStrainLogImporter : IMUTextImporter
     {
-        public static IMUMicroStrainLogImporterFactory Factory
+        public new static IMUMicroStrainLogImporterFactory Factory
         {
             get
             {

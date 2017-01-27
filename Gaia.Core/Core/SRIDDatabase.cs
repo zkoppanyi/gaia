@@ -90,7 +90,7 @@ namespace Gaia.Core
             }
             catch (FileNotFoundException ex)
             {
-                throw new GaiaAssertException("Can't load the SRID file!");
+                throw new GaiaAssertException("Can't load the SRID file! Error: " + ex.ToString());
             }
             catch (Exception ex)
             {

@@ -24,10 +24,17 @@ namespace Gaia.GUI.Dialogs
         public DataViewDlg(DataStream dataStream)
         {
             InitializeComponent();
-            this.dataStream = dataStream;
+            this.dataStream = dataStream;           
+            populateGrid();
+
+            if (dataStream is ImageDataStream)
+            {
+                (dataStream as ImageDataStream).RefreshImageList();
+            }
+
             vScroll.Minimum = 0;
             vScroll.Maximum = (int)dataStream.DataNumber;
-            populateGrid();
+
         }
 
         private void populateGrid()
@@ -37,6 +44,7 @@ namespace Gaia.GUI.Dialogs
 
         private void populateGrid(int startNum)
         {
+
             // FIX: Make it seamless
             if (dataStream is UWBDataStream)
             {
@@ -158,6 +166,28 @@ namespace Gaia.GUI.Dialogs
                 for (int i = 0; i < numPopulateRecords; i++)
                 {
                     WifiFingerprintingDataLine dataLine = (WifiFingerprintingDataLine)dataStream.ReadLine();
+                    dataLines.Add(dataLine);
+                }
+                dataStream.Close();
+
+                // set up data source
+                dataGridView.SelectionMode = DataGridViewSelectionMode.RowHeaderSelect;
+                dataGridView.DataSource = dataLines;
+                foreach (DataGridViewColumn col in dataGridView.Columns)
+                {
+                    col.SortMode = DataGridViewColumnSortMode.NotSortable;
+                }
+                dataGridView.SelectionMode = DataGridViewSelectionMode.ColumnHeaderSelect;
+            }
+            else if (dataStream is ImageDataStream)
+            {
+                dataStream.Open();
+                dataStream.Seek(startNum);
+
+                BindingList<ImageDataLine> dataLines = new BindingList<ImageDataLine>();
+                for (int i = 0; i < numPopulateRecords; i++)
+                {
+                    ImageDataLine dataLine = (ImageDataLine)dataStream.ReadLine();
                     dataLines.Add(dataLine);
                 }
                 dataStream.Close();
@@ -313,14 +343,11 @@ namespace Gaia.GUI.Dialogs
             // If everything's fine, create a new figure
             if (selector.DialogResult == DialogResult.OK)
             {
-                bool update = true;
-
                 FigureDlg selectedFigure = selector.SelectedFigure;
                 if (selectedFigure == null)
                 {
                     MainForm form = this.MdiParent as MainForm;
                     selectedFigure = form.CreateFigureDialog();
-                    update = false;
                 }
 
                 FigureDataSeriesForDataStream dataSeries = new FigureDataSeriesForDataStream(selector.SelectedStreamX.Name, selector.SelectedStreamX, selector.SelectedFieldX, selector.SelectedFieldY);
@@ -336,6 +363,11 @@ namespace Gaia.GUI.Dialogs
         {
             CalculateValueDlg dlg = new CalculateValueDlg(this.dataStream);
             dlg.ShowDialog();
+        }
+
+        private void vScroll_Scroll(object sender, ScrollEventArgs e)
+        {
+
         }
     }
 }

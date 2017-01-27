@@ -99,8 +99,6 @@ namespace Gaia.GUI.Dialogs
             {
                 worker.CancelAsync();
             }
-
-            this.Close();
         }
     }
 }

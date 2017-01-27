@@ -76,11 +76,18 @@ namespace Gaia.GUI.Dialogs
 
         private void toolStripDeleteStream_Click(object sender, EventArgs e)
         {
-            if (dataStreamGridView.SelectedRows.Count > 0)
+            try
             {
-                DataStream stream = (DataStream)dataStreamGridView.SelectedRows[0].DataBoundItem;
-                GlobalAccess.Project.DataStreamManager.RemoveDataStream(stream);
-                UpdateGridView();
+                if (dataStreamGridView.SelectedRows.Count > 0)
+                {
+                    DataStream stream = (DataStream)dataStreamGridView.SelectedRows[0].DataBoundItem;
+                    GlobalAccess.Project.DataStreamManager.RemoveDataStream(stream);
+                    UpdateGridView();
+                }
+            }
+            catch(Exception ex)
+            {
+                MessageBox.Show("Error occured", "Error: " + ex.ToString());
             }
         }
 
@@ -229,6 +236,28 @@ namespace Gaia.GUI.Dialogs
         private void updateOrderFlagToolStripMenuItem_Click(object sender, EventArgs e)
         {
 
+        }
+
+        private void addNewImageDataStreamToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            DataStream newImagaDataStrem = GlobalAccess.Project.DataStreamManager.CreateDataStream(DataStreamType.ImageDataStream);
+            newImagaDataStrem.Name = "New Image Data Stream";
+            GlobalAccess.Project.Save();
+            this.Refresh();
+        }
+
+        private void toolStripButton4_Click_1(object sender, EventArgs e)
+        {
+            if (dataStreamGridView.SelectedRows.Count > 0)
+            {
+                DataStream stream = (DataStream)dataStreamGridView.SelectedRows[0].DataBoundItem;
+                if (stream is ImageDataStream)
+                {
+                    ImageSetDialog dlg = new ImageSetDialog(stream as ImageDataStream);
+                    dlg.MdiParent = this.MdiParent;
+                    dlg.Visible = true;
+                }
+            }
         }
     }
 }
