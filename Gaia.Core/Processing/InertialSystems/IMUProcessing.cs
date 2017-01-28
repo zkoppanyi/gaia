@@ -1,9 +1,9 @@
-﻿using Accord.Math;
-using ProjNet.CoordinateSystems;
+﻿using ProjNet.CoordinateSystems;
 using System;
 
 using Gaia.Exceptions;
 using Gaia.Core.DataStreams;
+using Accord.Math;
 
 namespace Gaia.Core.Processing
 {

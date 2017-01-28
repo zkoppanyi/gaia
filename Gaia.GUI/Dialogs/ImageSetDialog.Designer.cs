@@ -65,6 +65,7 @@
             this.listView.SmallImageList = this.imageList;
             this.listView.TabIndex = 2;
             this.listView.UseCompatibleStateImageBehavior = false;
+            this.listView.SelectedIndexChanged += new System.EventHandler(this.listView_SelectedIndexChanged);
             // 
             // imageList
             // 

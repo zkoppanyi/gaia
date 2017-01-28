@@ -1,9 +1,12 @@
-﻿using Gaia.Core.DataStreams;
+﻿using Accord.Imaging;
+using Accord.Imaging.Filters;
+using Gaia.Core.DataStreams;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
 using System.Drawing;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -35,7 +38,34 @@ namespace Gaia.GUI.Dialogs
             while (!ImageDataStream.IsEOF())
             {
                 ImageDataLine dataLine = ImageDataStream.ReadLine() as ImageDataLine;
-                this.imageList.Images.Add(Image.FromFile(ImageDataStream.ImageFolder + "\\" + dataLine.ImageFileName));
+                if (File.Exists(ImageDataStream.ImageFolder + "\\" + dataLine.ImageFileName))
+                {
+
+                    Bitmap img = new Bitmap(System.Drawing.Image.FromFile(ImageDataStream.ImageFolder + "\\" + dataLine.ImageFileName));
+
+                    float threshold = 0.2f;
+                    int octaves = 16;
+                    int initial = 1;
+
+                    // Create a new SURF Features Detector using the given parameters
+                    SpeededUpRobustFeaturesDetector surf =
+                        new SpeededUpRobustFeaturesDetector(threshold, octaves, initial);
+
+                    List<SpeededUpRobustFeaturePoint> points = surf.ProcessImage(img);
+
+                    // Create a new AForge's Corner Marker Filter
+                    FeaturesMarker features = new FeaturesMarker(points);
+
+                    // Apply the filter and display it on a picturebox
+                    img = features.Apply(img);
+
+                    this.imageList.Images.Add(img);
+                }
+                else
+                {
+                    Bitmap notFound = new Bitmap(Gaia.Properties.Resources.imagenotfound);
+                    this.imageList.Images.Add(notFound);
+                }
                 dataLines.Add(dataLine);
             }
             ImageDataStream.Close();
@@ -54,6 +84,11 @@ namespace Gaia.GUI.Dialogs
                 item.ImageIndex = j;
                 this.listView.Items.Add(item);
             }
+        }
+
+        private void listView_SelectedIndexChanged(object sender, EventArgs e)
+        {
+
         }
     }
 }
