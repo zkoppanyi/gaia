@@ -34,7 +34,7 @@ namespace Gaia.GUI.Dialogs
             List<ImageDataLine> dataLines = new List<ImageDataLine>();
             ImageDataStream.Open();
             this.imageList.Images.Clear();
-            this.imageList.ImageSize = new Size(150, 150);
+            this.imageList.ImageSize = new Size(200, 200);
             while (!ImageDataStream.IsEOF())
             {
                 ImageDataLine dataLine = ImageDataStream.ReadLine() as ImageDataLine;
@@ -43,23 +43,32 @@ namespace Gaia.GUI.Dialogs
 
                     Bitmap img = new Bitmap(System.Drawing.Image.FromFile(ImageDataStream.ImageFolder + "\\" + dataLine.ImageFileName));
 
-                    float threshold = 0.2f;
-                    int octaves = 16;
-                    int initial = 1;
+                    float threshold = 0.0002f;
+                    int octaves = 5;
+                    int initial = 2;
 
                     // Create a new SURF Features Detector using the given parameters
-                    SpeededUpRobustFeaturesDetector surf =
-                        new SpeededUpRobustFeaturesDetector(threshold, octaves, initial);
+                    FastRetinaKeypointDetector surf =
+                        new FastRetinaKeypointDetector();
 
-                    List<SpeededUpRobustFeaturePoint> points = surf.ProcessImage(img);
+                    try
+                    {
+                        List<FastRetinaKeypoint> points = surf.ProcessImage(img);
 
-                    // Create a new AForge's Corner Marker Filter
-                    FeaturesMarker features = new FeaturesMarker(points);
+                        // Create a new AForge's Corner Marker Filter
+                        FeaturesMarker features = new FeaturesMarker(points);
 
-                    // Apply the filter and display it on a picturebox
-                    img = features.Apply(img);
+                        // Apply the filter and display it on a picturebox
+                        img = features.Apply(img);
 
-                    this.imageList.Images.Add(img);
+                        this.imageList.Images.Add(img);
+
+                    } catch(Exception ex)
+                    {
+                        // TODO
+                    }
+
+                    
                 }
                 else
                 {
