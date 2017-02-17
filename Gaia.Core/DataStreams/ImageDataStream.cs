@@ -1,7 +1,10 @@
-﻿using System;
+﻿using Accord.Imaging;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Runtime.Serialization;
+using System.Runtime.Serialization.Formatters.Binary;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -54,6 +57,39 @@ namespace Gaia.Core.DataStreams
             }
 
             return dataLine;
+        }
+
+        public void SaveKeypoints(ImageDataLine dataLine, List<FastRetinaKeypoint> keypoints)
+        {
+            String fileLocation = this.ImageFolder + "//" + dataLine.ImageFileName + ".fast";
+            Stream stream = new FileStream(fileLocation, FileMode.Create, FileAccess.Write, FileShare.None);
+            IFormatter formatter = new BinaryFormatter();
+            formatter.Serialize(stream, keypoints);
+            stream.Close();
+        }
+
+        public List<FastRetinaKeypoint> LoadFastKeypoints(ImageDataLine dataLine)
+        {
+            String fileLocation = this.ImageFolder + "//" + dataLine.ImageFileName + ".fast";
+            if (File.Exists(fileLocation))
+            {
+                try
+                {
+                    Stream stream = new FileStream(fileLocation, FileMode.Open, FileAccess.Read, FileShare.None);
+                    IFormatter formatter = new BinaryFormatter();
+                    List<FastRetinaKeypoint> obj = formatter.Deserialize(stream) as List<FastRetinaKeypoint>;
+                    stream.Close();
+                    return obj;
+                }
+                catch
+                {
+                    return null;
+                }
+            }
+            else
+            {
+                return null;
+            }
         }
 
         protected internal override void Drop()
